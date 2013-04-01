@@ -280,7 +280,7 @@ class XMLDataParser{
 		var currentDuration:UInt = 0;
 		if(parentMovementBoneXML != null) {
 			var parentFrameXMLList:Iterator<Xml> = parentMovementBoneXML.elementsNamed(ConstValues.FRAME);
-			var parentFrameCount:UInt = Lambda.count(parentFrameXMLList,);
+			var parentFrameCount:UInt = Lambda.count(parentFrameXMLList);
 			var parentFrameXML:Xml;
 		}
 		

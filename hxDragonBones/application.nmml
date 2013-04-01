@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+	<meta title="LittleInjun" package="com.bitgames.haxe.littleinjun" version="1.0.0" company="BIT.GAMES" />
+	<window width="800" height="480" orientation="portrait" fps="60" background="0x1A0B00" resizable="false" borderless="false" vsync="false" fullscreen="false" antialiasing="4" />
+	
+	<app main="Main" path="export" />
+	
+	<source path="Source" />
+	
+	
+	<haxelib name="nme" />
+	<haxelib name="actuate" />
+	<haxelib name="starling" />
+	
+	<assets path="Assets" rename="assets" include="*" exclude="nme.svg" />
+	
+	<icon path="assets/nme.svg" />
+	
+</project>

@@ -14,7 +14,7 @@ import nme.geom.Point;
  */
 class Bone extends EventDispatcher{
 
-	private static var _helpPoint:Point = new Point();
+	static var _helpPoint:Point = new Point();
 	
 	public function new(displayBridge:IDisplayBridge) {
 		super();
@@ -23,11 +23,11 @@ class Bone extends EventDispatcher{
 		global = new Node();
 		node = new Node();
 		
-		_displayBridge = displayBridge;
+		this.displayBridge = displayBridge;
 		
-		_children = [];
+		children = [];
 		
-		_globalTransformMatrix = new Matrix();
+		globalTransformMatrix = new Matrix();
 		_displayList = [];
 		_displayIndex = -1;
 		visible = true;
@@ -35,7 +35,7 @@ class Bone extends EventDispatcher{
 		tweenNode = new Node();
 		tweenColorTransform = new ColorTransform();
 		
-		_tween = new Tween(this);
+		tween = new Tween(this);
 	}
 	
 	public var name:String;
@@ -50,12 +50,12 @@ class Bone extends EventDispatcher{
 	public var visible:Bool;
 	public var tweenNode:Node;
 	public var tweenColorTransform:ColorTransform;
+	public var displayBridge:IDisplayBridge;
+	public var children:Array<Bone>;
+	public var tween:Tween;
+	public var globalTransformMatrix:Matrix;
 	
-	var _tween:Tween;
-	var _children:Array<Bone>;
-	var _displayBridge:IDisplayBridge;
 	var _isOnStage:Bool;
-	var _globalTransformMatrix:Matrix;
 	var _displayList:Array<Dynamic>;
 	var _displayIndex:Int;
 	
@@ -64,18 +64,18 @@ class Bone extends EventDispatcher{
 	}
 	
 	function get_display():Dynamic {
-		return _displayBridge.display;
+		return displayBridge.display;
 	}
 	
 	function set_display(value:Dynamic):Dynamic {
-		if(_displayBridge.display == value) {
+		if(displayBridge.display == value) {
 			return;
 		}
 		_displayList[_displayIndex] = value;
 		if(Std.is(value, Armature)) {
 			value = cast(value, Armature).display;
 		}
-		_displayBridge.display = value;
+		displayBridge.display = value;
 		return value;
 	}
 	
@@ -83,14 +83,14 @@ class Bone extends EventDispatcher{
 		if(displayIndex < 0) {
 			if(_isOnStage) {
 				_isOnStage = false;
-				_displayBridge.removeDisplay();
+				displayBridge.removeDisplay();
 			}
 		} else {
 			if(!_isOnStage) {
 				_isOnStage = true;
 				if(armature != null) {
-					_displayBridge.addDisplay(armature.display, global.z);
-					armature._bonesIndexChanged = true;
+					displayBridge.addDisplay(armature.display, global.z);
+					armature.bonesIndexChanged = true;
 				}
 			}
 			if(_displayIndex != displayIndex) {
@@ -105,24 +105,21 @@ class Bone extends EventDispatcher{
 	}
 	
 	public function changeDisplayList(displayList:Array<Dynamic>) {
-		var indexBackup:Int = _displayIndex;
-		
-		var length:UInt = Math.min(_displayList.length, displayList.length);
+		var length:Int = Math.min(_displayList.length, displayList.length);
 		for (i in 0 ... length) {
 			changeDisplay(i);
 			display = displayList[i];
 		}
-		
-		changeDisplay(indexBackup);
+		changeDisplay(_displayIndex);
 	}
 	
 	public function dispose() {
-		for (child in _children) {
+		for (child in children) {
 			cast(child, Bone).dispose();
 		}
 		
 		_displayList = [];
-		_children = [];
+		children = [];
 		armature = null;
 		parent = null;
 		userData = null;
@@ -143,10 +140,10 @@ class Bone extends EventDispatcher{
 	}
 	
 	public function addChild(child:Bone) {
-		if (!Lambda.has(_children, child)) {
+		if (!Lambda.has(children, child)) {
 			child.removeFromParent();
 			
-			_children.push(child);
+			children.push(child);
 			child.setParent(this);
 			
 			if (armature) {
@@ -156,13 +153,13 @@ class Bone extends EventDispatcher{
 	}
 	
 	public function removeChild(child:Bone) {
-		var index:Int = Lambda.indexOf(_children, child);
+		var index:Int = Lambda.indexOf(children, child);
 		if (index != -1) {
 			if (armature != null) {
 				armature.removeFromBones(child);
 			}
 			child.setParent(null);
-			_children.splice(index, 1);
+			children.splice(index, 1);
 		}
 	}
 	
@@ -173,8 +170,7 @@ class Bone extends EventDispatcher{
 	}
 	
 	function update() {
-		if ((_children.length > 0) || _isOnStage)
-		{
+		if ((children.length > 0) || _isOnStage) {
 			global.x = origin.x + node.x + tweenNode.x;
 			global.y = origin.y + node.y + tweenNode.y;
 			global.skewX = origin.skewX + node.skewX + tweenNode.skewX;
@@ -185,25 +181,25 @@ class Bone extends EventDispatcher{
 			global.pivotY = origin.pivotY + node.pivotY + tweenNode.pivotY;
 			global.z = origin.z + node.z + tweenNode.z;
 			
-			if(_parent != null) {
+			if(parent != null) {
 				_helpPoint.x = global.x;
 				_helpPoint.y = global.y;
-				_helpPoint = _parent._globalTransformMatrix.transformPoint(_helpPoint);
+				_helpPoint = parent.globalTransformMatrix.transformPoint(_helpPoint);
 				global.x = _helpPoint.x;
 				global.y = _helpPoint.y;
-				global.skewX += _parent.global.skewX;
-				global.skewY += _parent.global.skewY;
+				global.skewX += parent.global.skewX;
+				global.skewY += parent.global.skewY;
 			}
 			
-			_globalTransformMatrix.a = global.scaleX * Math.cos(global.skewY);
-			_globalTransformMatrix.b = global.scaleX * Math.sin(global.skewY);
-			_globalTransformMatrix.c = -global.scaleY * Math.sin(global.skewX);
-			_globalTransformMatrix.d = global.scaleY * Math.cos(global.skewX);
-			_globalTransformMatrix.tx = global.x;
-			_globalTransformMatrix.ty = global.y;
+			globalTransformMatrix.a = global.scaleX * Math.cos(global.skewY);
+			globalTransformMatrix.b = global.scaleX * Math.sin(global.skewY);
+			globalTransformMatrix.c = -global.scaleY * Math.sin(global.skewX);
+			globalTransformMatrix.d = global.scaleY * Math.cos(global.skewX);
+			globalTransformMatrix.tx = global.x;
+			globalTransformMatrix.ty = global.y;
 			
-			if (_children.length > 0) {
-				for (child in _children) {
+			if (children.length > 0) {
+				for (child in children) {
 					cast(child, Bone).update();
 				}
 			}
@@ -213,21 +209,21 @@ class Bone extends EventDispatcher{
 				childArmature.update();
 			}
 			
-			var currentDisplay:Dynamic = _displayBridge.display;
+			var currentDisplay:Dynamic = displayBridge.display;
 			
 			if(_isOnStage && (currentDisplay != null)) {
 				var colorTransform:ColorTransform;
-				if(_tween._differentColorTransform != null) {
+				if(tween.differentColorTransform != null) {
 					if(armature.colorTransform != null){
 						tweenColorTransform.concat(armature.colorTransform);
 					}
 					colorTransform = tweenColorTransform;
-				} else if(armature._colorTransformChange != null) {
+				} else if(armature.colorTransformChange != null) {
 					colorTransform = armature.colorTransform;
-					armature._colorTransformChange = false;
+					armature.colorTransformChange = false;
 				}
 				
-				_displayBridge.update(_globalTransformMatrix, global, colorTransform, visible);
+				displayBridge.update(globalTransformMatrix, global, colorTransform, visible);
 			}
 		}
 	}

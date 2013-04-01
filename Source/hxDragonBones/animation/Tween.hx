@@ -47,6 +47,8 @@ class Tween{
 		_offSetColorTransform = new ColorTransform();
 	}
 	
+	public var differentColorTransform:Bool;
+	
 	var _bone:Bone;
 	var _movementBoneData:MovementBoneData;
 	var _node:Node;
@@ -64,7 +66,6 @@ class Tween{
 	var _frameDuration:Float;
 	var _nextFrameDataID:Int;
 	var _loop:Int;
-	var _differentColorTransform:Bool;
 	
 	public function gotoAndPlay(movementBoneData:MovementBoneData, rawDuration:Float, loop:Bool, tweenEasing:Float) {
 		if(movementBoneData == null) {

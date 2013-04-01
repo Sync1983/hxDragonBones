@@ -1,7 +1,8 @@
 package hxDragonBones.animation;
-import hxDragonBones.events.SoundEventManager;
+import hxDragonBones.Armature;
 import hxDragonBones.events.SoundEventManager;
 import hxDragonBones.objects.AnimationData;
+import hxDragonBones.objects.MovementBoneData;
 import hxDragonBones.objects.MovementData;
 import hxDragonBones.objects.MovementFrameData;
 
@@ -52,6 +53,7 @@ class Animation{
 		return animationData;
 	}
 	
+	//BUG
 	function get_isPlaying():Bool {
 		if(isPlaying) {
 			return (_loop >= 0) || (currentTime < totalTime) && !isPlaying;
@@ -73,8 +75,7 @@ class Animation{
 		}
 		timeScale = value;
 		
-		//TODO:
-		for (bone in _armature._boneDepthList) {
+		for (bone in _armature.boneDepthList) {
 			if(bone.childArmature != null) {
 				bone.childArmature.animation.timeScale = timeScale;
 			}
@@ -97,7 +98,7 @@ class Animation{
 			return;
 		}
 		
-		var movementData:MovementData = animationData.getMovementData(cast(movementID, String));
+		var movementData:MovementData = animationData.getMovementData(movementID);
 		if (movementData != null) {
 			return;
 		}
@@ -112,7 +113,7 @@ class Animation{
 		
 		if(tweenTime >= 0) {
 			totalTime = tweenTime;
-		} else if(tweenEnabled && exMovementID) {
+		} else if(tweenEnabled && (exMovementID != null)) {
 			totalTime = _movementData.durationTo;
 		} else {
 			totalTime = 0;
@@ -142,7 +143,7 @@ class Animation{
 		var tweenEasing:Float = this.movementData.tweenEasing;
 		
 		//TODO:
-		for (bone in _armature._boneDepthList) {
+		for (bone in _armature.boneDepthList) {
 			var movementBoneData:MovementBoneData = this.movementData.getMovementBoneData(bone.name);
 			if (movementBoneData != null) {
 				bone._tween.gotoAndPlay(movementBoneData, _rawDuration, loop, tweenEasing);
@@ -242,7 +243,7 @@ class Animation{
 					}
 				}
 				
-				for (bone in _armature._boneDepthList) {
+				for (bone in _armature.boneDepthList) {
 					bone._tween.advanceTime(progress, _playType);
 					
 					var childArmature:Armature = bone.childArmature;
@@ -262,7 +263,7 @@ class Animation{
 					_armature.dispatchEvent(event);
 				}
 			} else {
-				for (bone in _armature._boneDepthList) {
+				for (bone in _armature.boneDepthList) {
 					childArmature = bone.childArmature;
 					if(childArmature != null) {
 						childArmature.animation.advanceTime(passedTime);

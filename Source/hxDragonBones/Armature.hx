@@ -15,7 +15,7 @@ class Armature extends EventDispatcher, implements IAnimatable{
 	public function new(display:Dynamic) {
 		super();
 		this.display = display;
-		_boneDepthList = [];
+		boneDepthList = [];
 		_rootBoneList = [];
 		animation = new Animation(this);
 		bonesIndexChanged = false;
@@ -27,23 +27,23 @@ class Armature extends EventDispatcher, implements IAnimatable{
 	public var display(default, null):Dynamic;
 	public var animation(default, null):Animation;
 	public var bonesIndexChanged:Bool;
+	public var boneDepthList:Array<Bone>;
+	public var colorTransformChange:Bool;
 	
 	function set_colorTransfrom(value:ColorTransform):ColorTransform {
 		colorTransform = value;
-		_colorTransformChange = true;
+		colorTransformChange = true;
 		return value;
 	}
 	
-	var _boneDepthList:Array<Bone>;
 	var _rootBoneList:Array<Bone>;
-	var _colorTransformChange:Bool;
 	
 	public function dispose() {
 		for (bone in _rootBoneList) {
 			bone.dispose();
 		}
 		
-		_boneDepthList = [];
+		boneDepthList = [];
 		_rootBoneList = [];
 		
 		animation.dispose();
@@ -52,7 +52,7 @@ class Armature extends EventDispatcher, implements IAnimatable{
 	
 	public function getBone(name:String):Bone {
 		if(name != null) {
-			for(bone in _boneDepthList) {
+			for(bone in boneDepthList) {
 				if(bone.name == name) {
 					return bone;
 				}
@@ -63,7 +63,7 @@ class Armature extends EventDispatcher, implements IAnimatable{
 	
 	public function getBoneByDisplay(display:Dynamic):Bone {
 		if(display != null) {
-			for (bone in _boneDepthList) {
+			for (bone in boneDepthList) {
 				if(bone.display == display) {
 					return bone;
 				}
@@ -73,7 +73,7 @@ class Armature extends EventDispatcher, implements IAnimatable{
 	}
 	
 	public function getBones():Array<Bone> 	{
-		return _boneDepthList.concat();
+		return boneDepthList.concat();
 	}
 	
 	public function addBone(bone:Bone, parentName:String = null) {
@@ -108,8 +108,8 @@ class Armature extends EventDispatcher, implements IAnimatable{
 	}
 	
 	public function updateBonesZ() {
-		_boneDepthList.sort(sortBoneZIndex);
-		for (bone in _boneDepthList){
+		boneDepthList.sort(sortBoneZIndex);
+		for (bone in boneDepthList){
 			if(bone._isOnStage) {
 				bone._displayBridge.addDisplay(_display);
 			}
@@ -132,9 +132,9 @@ class Armature extends EventDispatcher, implements IAnimatable{
 	}
 	
 	function addToBones(bone:Bone, root:Bool = false) {
-		var boneIndex:Int = Lambda.indexOf(_boneDepthList, bone);
+		var boneIndex:Int = Lambda.indexOf(boneDepthList, bone);
 		if(boneIndex == -1) {
-			_boneDepthList.push(bone);
+			boneDepthList.push(bone);
 		}
 		
 		boneIndex = Lambda.indexOf(_rootBoneList, bone);
@@ -146,18 +146,18 @@ class Armature extends EventDispatcher, implements IAnimatable{
 			_rootBoneList.splice(boneIndex, 1);
 		}
 		
-		bone._armature = this;
-		bone._displayBridge.addDisplay(display, bone.global.z);
-		for(child in bone._children) {
+		bone.armature = this;
+		bone.displayBridge.addDisplay(display, bone.global.z);
+		for(child in bone.children) {
 			addToBones(child);
 		}
 		bonesIndexChanged = true;
 	}
 	
 	function removeFromBones(bone:Bone)	{
-		var boneIndex:Int = Lambda.indexOf(_boneDepthList, bone);
+		var boneIndex:Int = Lambda.indexOf(boneDepthList, bone);
 		if(boneIndex >= 0) {
-			_boneDepthList.splice(boneIndex, 1);
+			boneDepthList.splice(boneIndex, 1);
 		}
 		
 		boneIndex = Lambda.indexOf(_rootBoneList, bone);
@@ -165,9 +165,9 @@ class Armature extends EventDispatcher, implements IAnimatable{
 			_rootBoneList.splice(boneIndex, 1);
 		}
 		
-		bone._armature = null;
-		bone._displayBridge.removeDisplay();
-		for(child in bone._children) {
+		bone.armature = null;
+		bone.displayBridge.removeDisplay();
+		for(child in bone.children) {
 			removeFromBones(child);
 		}
 		bonesIndexChanged = true;

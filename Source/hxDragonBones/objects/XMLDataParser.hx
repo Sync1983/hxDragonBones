@@ -238,7 +238,7 @@ class XMLDataParser{
 				} else {
 					movementBoneData = new MovementBoneData();
 					parseMovementBoneData(movementBoneXML, parentMovementBoneXML, boneData, movementBoneData);
-					movementData._movementBoneDataList.addData(movementBoneData, boneName);
+					movementData.movementBoneDataList.addData(movementBoneData, boneName);
 				}
 			}
 			
@@ -249,11 +249,11 @@ class XMLDataParser{
 		}
 		
 		for (boneName in boneNames) {
-			movementData._movementBoneDataList.addData(MovementBoneData.HIDE_DATA, boneName);
+			movementData.movementBoneDataList.addData(MovementBoneData.HIDE_DATA, boneName);
 		}
 		
 		var movementFrameXMLList:Iterator<Xml> = movementXML.elementsNamed(ConstValues.FRAME);
-		var movementFrameList:Array<MovementFrameData> = movementData._movementFrameList;
+		var movementFrameList:Array<MovementFrameData> = movementData.movementFrameList;
 		var i:Int = 0;
 		for (movementFrameXML in movementFrameXMLList) {
 			var movementFrameData:MovementFrameData = (movementFrameList.length > i) ? movementFrameList[i] : null;

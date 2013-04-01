@@ -1,7 +1,6 @@
 package;
 
 import hxDragonBones.factorys.StarlingFactory;
-import nme.Assets;
 import nme.display.Sprite;
 import nme.display.StageAlign;
 import nme.display.StageScaleMode;
@@ -51,8 +50,8 @@ class Main extends Sprite {
 		_isInitialized = true;
 		
 		var factory:StarlingFactory = new StarlingFactory();
-		factory.addEventListener(Event.COMPLETE, onFactoryComplete);
-		factory.parseData(Assets.getBytes("Assets/img/character_output.png"));
+		//factory.addEventListener(Event.COMPLETE, onFactoryComplete);
+		//factory.parseData(Assets.getBytes("Assets/img/character_output.png"));
 	}
 	
 	// EVENT HANDLERS ----------------------------------------------------------------------/

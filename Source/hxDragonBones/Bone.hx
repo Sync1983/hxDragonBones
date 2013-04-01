@@ -16,14 +16,14 @@ class Bone extends EventDispatcher{
 
 	private static var _helpPoint:Point = new Point();
 	
-	public function new(?target:IEventDispatcher) {
-		super(target);
+	public function new(displayBridge:IDisplayBridge) {
+		super();
 		
 		origin = new Node();
 		global = new Node();
 		node = new Node();
 		
-		_displayBridge = displayBrideg;
+		_displayBridge = displayBridge;
 		
 		_children = [];
 		
@@ -32,8 +32,8 @@ class Bone extends EventDispatcher{
 		_displayIndex = -1;
 		visible = true;
 		
-		_tweenNode = new Node();
-		_tweenColorTransform = new ColorTransform();
+		tweenNode = new Node();
+		tweenColorTransform = new ColorTransform();
 		
 		_tween = new Tween(this);
 	}
@@ -48,10 +48,10 @@ class Bone extends EventDispatcher{
 	public var parent(default, null):Bone;
 	public var display(get_display, set_display):Dynamic;
 	public var visible:Bool;
+	public var tweenNode:Node;
+	public var tweenColorTransform:ColorTransform;
 	
 	var _tween:Tween;
-	var _tweenNode:Node;
-	var _tweenColorTransform:ColorTransform;
 	var _children:Array<Bone>;
 	var _displayBridge:IDisplayBridge;
 	var _isOnStage:Bool;
@@ -175,15 +175,15 @@ class Bone extends EventDispatcher{
 	function update() {
 		if ((_children.length > 0) || _isOnStage)
 		{
-			global.x = origin.x + node.x + _tweenNode.x;
-			global.y = origin.y + node.y + _tweenNode.y;
-			global.skewX = origin.skewX + node.skewX + _tweenNode.skewX;
-			global.skewY = origin.skewY + node.skewY + _tweenNode.skewY;
-			global.scaleX = origin.scaleX + node.scaleX + _tweenNode.scaleX;
-			global.scaleY = origin.scaleY + node.scaleY + _tweenNode.scaleY;
-			global.pivotX = origin.pivotX + node.pivotX + _tweenNode.pivotX;
-			global.pivotY = origin.pivotY + node.pivotY + _tweenNode.pivotY;
-			global.z = origin.z + node.z + _tweenNode.z;
+			global.x = origin.x + node.x + tweenNode.x;
+			global.y = origin.y + node.y + tweenNode.y;
+			global.skewX = origin.skewX + node.skewX + tweenNode.skewX;
+			global.skewY = origin.skewY + node.skewY + tweenNode.skewY;
+			global.scaleX = origin.scaleX + node.scaleX + tweenNode.scaleX;
+			global.scaleY = origin.scaleY + node.scaleY + tweenNode.scaleY;
+			global.pivotX = origin.pivotX + node.pivotX + tweenNode.pivotX;
+			global.pivotY = origin.pivotY + node.pivotY + tweenNode.pivotY;
+			global.z = origin.z + node.z + tweenNode.z;
 			
 			if(_parent != null) {
 				_helpPoint.x = global.x;
@@ -219,9 +219,9 @@ class Bone extends EventDispatcher{
 				var colorTransform:ColorTransform;
 				if(_tween._differentColorTransform != null) {
 					if(armature.colorTransform != null){
-						_tweenColorTransform.concat(armature.colorTransform);
+						tweenColorTransform.concat(armature.colorTransform);
 					}
-					colorTransform = _tweenColorTransform;
+					colorTransform = tweenColorTransform;
 				} else if(armature._colorTransformChange != null) {
 					colorTransform = armature.colorTransform;
 					armature._colorTransformChange = false;

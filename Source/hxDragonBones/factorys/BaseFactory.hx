@@ -1,6 +1,7 @@
 package hxDragonBones.factorys;
 import hxDragonBones.Armature;
 import hxDragonBones.Bone;
+import hxDragonBones.display.NativeDisplayBridge;
 import hxDragonBones.objects.AnimationData;
 import hxDragonBones.objects.ArmatureData;
 import hxDragonBones.objects.BoneData;
@@ -30,23 +31,22 @@ import nme.ObjectHash;
  */
 class BaseFactory extends EventDispatcher{
 
-	static var _helpMatirx:Matrix = new Matrix();
-	
-	var _skeletonDataDic:ObjectHash<String, SkeletonData>;
-	var _textureAtlasDic:ObjectHash<String, Dynamic>;
-	var _textureAtlasLoadingDic:ObjectHash<String, Xml>;
-	
-	var _currentSkeletonData:SkeletonData;
-	var _currentTextureAtlas:Dynamic;
-	var _currentSkeletonName:String;
-	var _currentTextureAtlasName:String;
-	
 	public function new(?target:IEventDispatcher) {
 		super(target);
+		_helpMatrix = new Matrix();
 		_skeletonDataDic = new ObjectHash<String, SkeletonData>();
 		_textureAtlasDic = new ObjectHash<String, Dynamic>();
 		_textureAtlasLoadingDic = new ObjectHash<String, Xml>();
 	}
+	
+	var _helpMatrix:Matrix;
+	var _skeletonDataDic:ObjectHash<String, SkeletonData>;
+	var _textureAtlasDic:ObjectHash<String, Dynamic>;
+	var _textureAtlasLoadingDic:ObjectHash<String, Xml>;
+	var _currentSkeletonData:SkeletonData;
+	var _currentTextureAtlas:Dynamic;
+	var _currentSkeletonName:String;
+	var _currentTextureAtlasName:String;
 	
 	public function parseData(bytes:ByteArray, skeletonName:String = null):SkeletonData {
 		var decompressedData:DecompressedData = XMLDataParser.decompressData(bytes);
@@ -283,8 +283,8 @@ class BaseFactory extends EventDispatcher{
 		}
 	}
 	
-	function generateTextureAtlas(content:Dynamic, textureAtlasXML:Xml):Dynamic {
-		return new NativeTextureAtlas(content, textureAtlasXML);
+	function generateTextureAtlas(content:Dynamic, textureAtlasXML:Dynamic):Dynamic {
+		return new NativeTextureAtlas(content, cast(textureAtlasXML, Xml));
 	}
 	
 	function generateArmature():Armature {
@@ -319,15 +319,15 @@ class BaseFactory extends EventDispatcher{
 					//1.4
 					pivotX = (pivotX != 0) ? pivotX : subTextureData.pivotX;
 					pivotY = (pivotY != 0) ? pivotY : subTextureData.pivotY;
-					_helpMatirx.a = 1;
-					_helpMatirx.b = 0;
-					_helpMatirx.c = 0;
-					_helpMatirx.d = 1;
-					_helpMatirx.scale(nativeTextureAtlas.scale, nativeTextureAtlas.scale);
-					_helpMatirx.tx = -subTextureData.x - pivotX;
-					_helpMatirx.ty = -subTextureData.y - pivotY;
+					_helpMatrix.a = 1;
+					_helpMatrix.b = 0;
+					_helpMatrix.c = 0;
+					_helpMatrix.d = 1;
+					_helpMatrix.scale(nativeTextureAtlas.scale, nativeTextureAtlas.scale);
+					_helpMatrix.tx = -subTextureData.x - pivotX;
+					_helpMatrix.ty = -subTextureData.y - pivotY;
 					
-					displayShape.graphics.beginBitmapFill(nativeTextureAtlas.bitmapData, _helpMatirx, false, true);
+					displayShape.graphics.beginBitmapFill(nativeTextureAtlas.bitmapData, _helpMatrix, false, true);
 					displayShape.graphics.drawRect(-pivotX, -pivotY, subTextureData.width, subTextureData.height);
 					return displayShape;
 				}

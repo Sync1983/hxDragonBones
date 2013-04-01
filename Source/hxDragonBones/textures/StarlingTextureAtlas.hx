@@ -1,5 +1,6 @@
 package hxDragonBones.textures;
 
+import flash.xml.XML;
 import hxDragonBones.utils.ConstValues;
 import nme.display.BitmapData;
 import nme.geom.Rectangle;
@@ -13,19 +14,19 @@ import starling.textures.TextureAtlas;
  */
 class StarlingTextureAtlas extends TextureAtlas, implements ITextureAtlas{
 
-	public function new(texture:Texture, textureAtlasXML:Xml = null, isDifferentXML:Bool = false) {
+	public function new(texture:Texture, textureAtlasXML:XML = null, isDifferentXML:Bool = false) {
 		if(texture != null) {
 			_scale = texture.scale;
 			_isDifferentXML = isDifferentXML;
 		}
 		super(texture, textureAtlasXML);
 		if(textureAtlasXML != null) {
-			name = textureAtlasXML.get(ConstValues.A_NAME);
+			name = textureAtlasXML.attribute(ConstValues.A_NAME).toString();
 		}
 		_subTextureDic = new ObjectHash<String, Texture>();
 	}
 	
-	var _bitmapData:BitmapData;
+	public var bitmapData:BitmapData;
 	var _subTextureDic:ObjectHash<String, Texture>;
 	var _isDifferentXML:Bool;
 	var _scale:Float;
@@ -50,7 +51,7 @@ class StarlingTextureAtlas extends TextureAtlas, implements ITextureAtlas{
 	}
 	
 	public function getRegion(name:String):Rectangle {
-		
+		return null;
 	}
 	
 	//}
@@ -66,24 +67,24 @@ class StarlingTextureAtlas extends TextureAtlas, implements ITextureAtlas{
 		return texture;
 	}
 	
-	function parseAtlasXml(atlasXml:Xml) {
+	function parseAtlasXml(atlasXml:XML) {
 		var scale:Float = _isDifferentXML ? _scale : 1;
 		
 		for (subTexture in atlasXml.SubTexture) {
 			var name:String = subTexture.get("name");
-			var x:Float = cast(subTexture.get("x"), Float) / scale;
-			var y:Float = cast(subTexture.get("y"), Float) / scale;
-			var width:Float = cast(subTexture.get("width"), Float) / scale;
-			var height:Float = cast(subTexture.get("height"), Float) / scale;
-			var frameX:Float = cast(subTexture.get("frameX"), Float) / scale;
-			var frameY:Float = cast(subTexture.get("frameY"), Float) / scale;
-			var frameWidth:Float = cast(subTexture.get("frameWidth"), Float) / scale;
-			var frameHeight:Float = cast(subTexture.get("frameHeight"), Float) / scale;
+			var x:Float = Std.parseFloat(subTexture.get("x")) / scale;
+			var y:Float = Std.parseFloat(subTexture.get("y")) / scale;
+			var width:Float = Std.parseFloat(subTexture.get("width")) / scale;
+			var height:Float = Std.parseFloat(subTexture.get("height")) / scale;
+			var frameX:Float = Std.parseFloat(subTexture.get("frameX")) / scale;
+			var frameY:Float = Std.parseFloat(subTexture.get("frameY")) / scale;
+			var frameWidth:Float = Std.parseFloat(subTexture.get("frameWidth")) / scale;
+			var frameHeight:Float = Std.parseFloat(subTexture.get("frameHeight")) / scale;
 			
 			//1.4
 			var region:SubTextureData = new SubTextureData(x, y, width, height);
-			region.pivotX = cast(subTexture.get(ConstValues.A_PIVOT_X), Int);
-			region.pivotY = cast(subTexture.get(ConstValues.A_PIVOT_Y), Int);
+			region.pivotX = Std.parseInt(subTexture.get(ConstValues.A_PIVOT_X));
+			region.pivotY = Std.parseInt(subTexture.get(ConstValues.A_PIVOT_Y));
 			
 			var frame:Rectangle = null;
 			if((frameWidth > 0) && (frameHeight > 0)) {

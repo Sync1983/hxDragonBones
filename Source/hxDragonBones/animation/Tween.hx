@@ -37,8 +37,8 @@ class Tween{
 	
 	public function new(bone:Bone) {
 		_bone = bone;
-		_node = _bone._tweenNode;
-		_colorTransform = _bone._tweenColorTransform;
+		_node = _bone.tweenNode;
+		_colorTransform = _bone.tweenColorTransform;
 		
 		_currentNode = new Node();
 		_currentColorTransform = new ColorTransform();

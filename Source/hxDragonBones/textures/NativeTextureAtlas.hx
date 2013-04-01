@@ -61,7 +61,7 @@ class NativeTextureAtlas implements ITextureAtlas{
 		_width = cast(textureAtlasXML.get(ConstValues.A_WIDTH), Int);
 		_height = cast(textureAtlasXML.get(ConstValues.A_HEIGHT), Int);
 		
-		var scale:Float = _isDifferentXML ? _scale : 1;
+		var scale:Float = _isDifferentXML ? scale : 1;
 		
 		for (subTextureXML in textureAtlasXML.elementsNamed(ConstValues.SUB_TEXTURE)) {
 			var subTextureName:String = subTextureXML.get(ConstValues.A_NAME);

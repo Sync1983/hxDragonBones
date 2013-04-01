@@ -47,7 +47,7 @@ class StarlingDisplayBridge implements IDisplayBridge{
 		if ((colorTransform != null) && Std.is(display, Quad)) {
 			var quad:Quad = cast(display, Quad);
 			quad.alpha = colorTransform.alphaMultiplier;
-			quad.color = (cast(colorTransform.redMultiplier * 0xff)<<16, UInt) + (cast(colorTransform.greenMultiplier * 0xff)<<8, UInt) + cast(colorTransform.blueMultiplier * 0xff, UInt);
+			quad.color = cast(((colorTransform.redMultiplier * 0xff)<<16), UInt) + cast(((colorTransform.greenMultiplier * 0xff)<<8), UInt) + cast((colorTransform.blueMultiplier * 0xff), UInt);
 		}
 		
 		display.visible = visible;

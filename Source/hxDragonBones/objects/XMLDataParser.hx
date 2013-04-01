@@ -1,4 +1,5 @@
 package hxDragonBones.objects;
+import hxDragonBones.animation.Tween;
 import hxDragonBones.errors.UnknownDataError;
 import hxDragonBones.utils.BytesType;
 import hxDragonBones.utils.ConstValues;
@@ -13,8 +14,6 @@ import nme.utils.ByteArray;
  */
 class XMLDataParser{
 
-	//TODO: refactor
-	
 	static inline var ANGLE_TO_RADIAN:Float = Math.PI / 180;
 	static inline var HALF_PI:Float = Math.PI * 0.5;
 	
@@ -331,35 +330,35 @@ class XMLDataParser{
 				TransformUtils.setOffSetNode(_helpFrameData.node, _helpNode, _helpNode, _helpFrameData.tweenRotate);
 				
 				_helpNode.setValues(
-					_helpFrameData.node.x + progress * _helpNode.x,
-					_helpFrameData.node.y + progress * _helpNode.y,
-					_helpFrameData.node.skewX + progress * _helpNode.skewX,
-					_helpFrameData.node.skewY + progress * _helpNode.skewY,
-					_helpFrameData.node.scaleX + progress * _helpNode.scaleX,
-					_helpFrameData.node.scaleY + progress * _helpNode.scaleY,
-					_helpFrameData.node.pivotX + progress * _helpNode.pivotX,
-					_helpFrameData.node.pivotY + progress * _helpNode.pivotY
+					_helpFrameData.node.x 		+ progress * _helpNode.x,
+					_helpFrameData.node.y 		+ progress * _helpNode.y,
+					_helpFrameData.node.skewX 	+ progress * _helpNode.skewX,
+					_helpFrameData.node.skewY 	+ progress * _helpNode.skewY,
+					_helpFrameData.node.scaleX 	+ progress * _helpNode.scaleX,
+					_helpFrameData.node.scaleY 	+ progress * _helpNode.scaleY,
+					_helpFrameData.node.pivotX 	+ progress * _helpNode.pivotX,
+					_helpFrameData.node.pivotY 	+ progress * _helpNode.pivotY
 				);
 				
 				TransformUtils.transformPointWithParent(frameData.node, _helpNode);
 			}
 			totalDuration += cast(frameXML.get(ConstValues.A_DURATION), Int);
 			
-			frameData.node.x -= boneData.node.x;
-			frameData.node.y -= boneData.node.y;
-			frameData.node.skewX -= boneData.node.skewX;
-			frameData.node.skewY -= boneData.node.skewY;
-			frameData.node.scaleX -= boneData.node.scaleX;
-			frameData.node.scaleY -= boneData.node.scaleY;
-			frameData.node.pivotX -= boneData.node.pivotX;
-			frameData.node.pivotY -= boneData.node.pivotY;
-			frameData.node.z -= boneData.node.z;
+			frameData.node.x 		-= boneData.node.x;
+			frameData.node.y 		-= boneData.node.y;
+			frameData.node.skewX 	-= boneData.node.skewX;
+			frameData.node.skewY 	-= boneData.node.skewY;
+			frameData.node.scaleX 	-= boneData.node.scaleX;
+			frameData.node.scaleY 	-= boneData.node.scaleY;
+			frameData.node.pivotX 	-= boneData.node.pivotX;
+			frameData.node.pivotY 	-= boneData.node.pivotY;
+			frameData.node.z 		-= boneData.node.z;
 		}
 	}
 	
 	static function parseMovementFrameData(movementFrameXML:Xml, movementFrameData:MovementFrameData) {
 		movementFrameData.setValues(
-			cast(movementFrameXML.get(ConstValues.A_DURATION), Float) / _currentSkeletonData.frameRate,
+			Std.parseFloat(movementFrameXML.get(ConstValues.A_DURATION)) / _currentSkeletonData.frameRate,
 			movementFrameXML.get(ConstValues.A_MOVEMENT),
 			movementFrameXML.get(ConstValues.A_EVENT),
 			movementFrameXML.get(ConstValues.A_SOUND)
@@ -373,15 +372,14 @@ class XMLDataParser{
 			if(colorTransformXML != null) {
 				parseColorTransform(colorTransformXML, frameData.colorTransform);
 			}
-			frameData.duration = Std.parseInt(frameXML.get(ConstValues.A_DURATION)) / _currentSkeletonData._frameRate;
-			frameData.tweenEasing = Std.parseFloat(frameXML.get(ConstValues.A_TWEEN_EASING));
-			frameData.tweenRotate = Std.parseInt(frameXML.get(ConstValues.A_TWEEN_ROTATE));
-			frameData.displayIndex = Std.parseInt(frameXML.get(ConstValues.A_DISPLAY_INDEX));
-			frameData.movement = frameXML.get(ConstValues.A_MOVEMENT);
-			
-			frameData.event = frameXML.get(ConstValues.A_EVENT);
-			frameData.sound = frameXML.get(ConstValues.A_SOUND);
-			frameData.soundEffect = frameXML.get(ConstValues.A_SOUND_EFFECT);
+			frameData.duration 		= Std.parseInt(frameXML.get(ConstValues.A_DURATION)) / _currentSkeletonData.frameRate;
+			frameData.tweenEasing 	= Std.parseFloat(frameXML.get(ConstValues.A_TWEEN_EASING));
+			frameData.tweenRotate 	= Std.parseInt(frameXML.get(ConstValues.A_TWEEN_ROTATE));
+			frameData.displayIndex 	= Std.parseInt(frameXML.get(ConstValues.A_DISPLAY_INDEX));
+			frameData.movement 		= frameXML.get(ConstValues.A_MOVEMENT);
+			frameData.event 		= frameXML.get(ConstValues.A_EVENT);
+			frameData.sound 		= frameXML.get(ConstValues.A_SOUND);
+			frameData.soundEffect 	= frameXML.get(ConstValues.A_SOUND_EFFECT);
 			
 			var visibleStr:String = frameXML.get(ConstValues.A_VISIBLE);
 			frameData.visible = (visibleStr == "1" || visibleStr =="");
@@ -389,26 +387,26 @@ class XMLDataParser{
 	}
 	
 	static function parseNode(xml:Xml, node:Node) {
-		node.x = Std.parseFloat(xml.get(ConstValues.A_X));
-		node.y = Std.parseFloat(xml.get(ConstValues.A_Y));
-		node.skewX = Std.parseFloat(xml.get(ConstValues.A_SKEW_X)) * ANGLE_TO_RADIAN;
-		node.skewY = Std.parseFloat(xml.get(ConstValues.A_SKEW_Y)) * ANGLE_TO_RADIAN;
+		node.x 		= Std.parseFloat(xml.get(ConstValues.A_X));
+		node.y 		= Std.parseFloat(xml.get(ConstValues.A_Y));
+		node.skewX 	= Std.parseFloat(xml.get(ConstValues.A_SKEW_X)) * ANGLE_TO_RADIAN;
+		node.skewY 	= Std.parseFloat(xml.get(ConstValues.A_SKEW_Y)) * ANGLE_TO_RADIAN;
 		node.scaleX = Std.parseFloat(xml.get(ConstValues.A_SCALE_X));
 		node.scaleY = Std.parseFloat(xml.get(ConstValues.A_SCALE_Y));
-		node.pivotX =  Std.parseFloat(xml.get(ConstValues.A_PIVOT_X));
-		node.pivotY =  Std.parseFloat(xml.get(ConstValues.A_PIVOT_Y));
-		node.z = Std.parseFloat(xml.get(ConstValues.A_Z));
+		node.pivotX = Std.parseFloat(xml.get(ConstValues.A_PIVOT_X));
+		node.pivotY = Std.parseFloat(xml.get(ConstValues.A_PIVOT_Y));
+		node.z 		= Std.parseFloat(xml.get(ConstValues.A_Z));
 	}
 	
 	static function parseColorTransform(xml:Xml, colorTransform:ColorTransform) {
-		colorTransform.alphaOffset = Std.parseInt(xml.get(ConstValues.A_ALPHA));
-		colorTransform.redOffset = Std.parseInt(xml.get(ConstValues.A_RED));
-		colorTransform.greenOffset = Std.parseInt(xml.get(ConstValues.A_GREEN));
-		colorTransform.blueOffset = Std.parseInt(xml.get(ConstValues.A_BLUE));
-		colorTransform.alphaMultiplier = Std.parseInt(xml.get(ConstValues.A_ALPHA_MULTIPLIER)) * 0.01;
-		colorTransform.redMultiplier = Std.parseInt(xml.get(ConstValues.A_RED_MULTIPLIER)) * 0.01;
-		colorTransform.greenMultiplier = Std.parseInt(xml.get(ConstValues.A_GREEN_MULTIPLIER)) * 0.01;
-		colorTransform.blueMultiplier = Std.parseInt(xml.get(ConstValues.A_BLUE_MULTIPLIER)) * 0.01;
+		colorTransform.alphaOffset 		= Std.parseInt(xml.get(ConstValues.A_ALPHA));
+		colorTransform.redOffset 		= Std.parseInt(xml.get(ConstValues.A_RED));
+		colorTransform.greenOffset 		= Std.parseInt(xml.get(ConstValues.A_GREEN));
+		colorTransform.blueOffset 		= Std.parseInt(xml.get(ConstValues.A_BLUE));
+		colorTransform.alphaMultiplier 	= Std.parseInt(xml.get(ConstValues.A_ALPHA_MULTIPLIER)) * 0.01;
+		colorTransform.redMultiplier 	= Std.parseInt(xml.get(ConstValues.A_RED_MULTIPLIER)) 	* 0.01;
+		colorTransform.greenMultiplier 	= Std.parseInt(xml.get(ConstValues.A_GREEN_MULTIPLIER)) * 0.01;
+		colorTransform.blueMultiplier 	= Std.parseInt(xml.get(ConstValues.A_BLUE_MULTIPLIER)) 	* 0.01;
 	}
 	
 }

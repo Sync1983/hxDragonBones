@@ -277,7 +277,7 @@ class Tween{
 			var currentFrameData:FrameData = _movementBoneData.frameList[currentFrameDataID];
 			var nextFrameData:FrameData = _movementBoneData.frameList[_nextFrameDataID];
 			
-			if(nextFrameData.displayIndex >= 0 && _bone.armature.animation.tweenEnabled) {
+			if((nextFrameData.displayIndex >= 0) && _bone.armature.animation.tweenEnabled) {
 				_frameTweenEasing = currentFrameData.tweenEasing;
 			} else {
 				_frameTweenEasing = null;
@@ -297,8 +297,7 @@ class Tween{
 		
 		progress = 1 - (_nextFrameDataTimeEdge - playedTime) / _frameDuration;
 		
-		if (_frameTweenEasing != null)
-		{
+		if (_frameTweenEasing != null) {
 			var tweenEasing:Null<Float> = (_tweenEasing == null) ? _frameTweenEasing : _tweenEasing;
 			if (tweenEasing != null) {
 				progress = getEaseValue(progress, tweenEasing);

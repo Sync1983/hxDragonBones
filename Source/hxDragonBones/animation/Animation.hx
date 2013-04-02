@@ -24,8 +24,8 @@ class Animation{
 	static var _soundManager:SoundEventManager = SoundEventManager.instance;
 	
 	public function new(armature:Armature) {
-		timeScale = 1;
 		_armature = armature;
+		timeScale = 1;
 	}
 	
 	public var tweenEnabled:Bool = true;
@@ -104,7 +104,7 @@ class Animation{
 		}
 		
 		var movementData:MovementData = animationData.getMovementData(movementID);
-		if (movementData != null) {
+		if (movementData == null) {
 			return;
 		}
 		

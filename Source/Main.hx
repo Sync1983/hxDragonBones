@@ -64,7 +64,8 @@ class Main extends Sprite {
 	function onFactoryComplete(event:Event) {
 		var factory:BaseFactory = cast(event.currentTarget, BaseFactory);
 		var armature:Armature = factory.buildArmature("CharacterAnimations");
-		Lib.trace("armature: " + armature);
+		armature.animation.gotoAndPlay("Idle");
+		addChild(armature.display);
 	}
 	
 	function onStageAddedToStage(event:Event) {

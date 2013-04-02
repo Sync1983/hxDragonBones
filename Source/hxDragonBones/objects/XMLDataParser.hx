@@ -50,7 +50,10 @@ class XMLDataParser{
 		byteArrayCopy.writeBytes(xmlBytes);
 		byteArrayCopy.writeInt(xmlBytes.length);
 		
+		#if flash 
 		xmlBytes.clear();
+		#end
+		
 		xmlBytes.writeUTFBytes(skeletonXML.toString());
 		xmlBytes.compress();
 		
@@ -147,10 +150,10 @@ class XMLDataParser{
 	static function parseArmatureData(armatureXML:Xml, armatureData:ArmatureData) {
 		var boneXMLList:Iterator<Xml> = armatureXML.elementsNamed(ConstValues.BONE);
 		for (boneXML in boneXMLList) {
-			var boneName:String = boneXML.get(ConstValues.A_NAME);
-			var parentName:String = boneXML.get(ConstValues.A_PARENT);
-			var parentXML:Xml = getElementsByAttribute(boneXMLList, ConstValues.A_NAME, parentName)[0];
-			var boneData:BoneData = armatureData.getBoneData(boneName);
+			var boneName:String 	= boneXML.get(ConstValues.A_NAME);
+			var parentName:String 	= boneXML.get(ConstValues.A_PARENT);
+			var parentXML:Xml 		= getElementsByAttribute(boneXMLList, ConstValues.A_NAME, parentName)[0];
+			var boneData:BoneData 	= armatureData.getBoneData(boneName);
 			if(boneData != null) {
 				parseBoneData(boneXML, parentXML, boneData);
 			} else {
@@ -194,9 +197,9 @@ class XMLDataParser{
 	}
 	
 	static function parseDisplayData(displayXML:Xml, displayData:DisplayData) {
-		displayData.isArmature = cast(displayXML.get(ConstValues.A_IS_ARMATURE), Int) != 0;
-		displayData.pivotX = cast(displayXML.get(ConstValues.A_PIVOT_X), Int);
-		displayData.pivotY = cast(displayXML.get(ConstValues.A_PIVOT_Y), Int);
+		displayData.isArmature 	= Std.parseInt(displayXML.get(ConstValues.A_IS_ARMATURE)) != 0;
+		displayData.pivotX 		= Std.parseInt(displayXML.get(ConstValues.A_PIVOT_X));
+		displayData.pivotY 		= Std.parseInt(displayXML.get(ConstValues.A_PIVOT_Y));
 	}
 	
 	static function parseAnimationData(animationXML:Xml, animationData:AnimationData, armatureData:ArmatureData) {
@@ -216,13 +219,13 @@ class XMLDataParser{
 	static function parseMovementData(movementXML:Xml, armatureData:ArmatureData, movementData:MovementData) {
 		if(_currentSkeletonData != null) {
 			var frameRate:Int = _currentSkeletonData.frameRate;
-			var duration:Int = cast(movementXML.get(ConstValues.A_DURATION), Int);
+			var duration:Int = Std.parseInt(movementXML.get(ConstValues.A_DURATION));
 			
-			movementData.duration = (duration > 1) ? (duration / frameRate) : 0;
-			movementData.durationTo = Std.parseInt(movementXML.get(ConstValues.A_DURATION_TO)) / frameRate;
-			movementData.durationTween = Std.parseInt(movementXML.get(ConstValues.A_DURATION_TWEEN)) / frameRate;
-			movementData.loop = Std.parseInt(movementXML.get(ConstValues.A_LOOP)) == 1;
-			movementData.tweenEasing = Std.parseFloat(movementXML.get(ConstValues.A_TWEEN_EASING));
+			movementData.duration 		= (duration > 1) ? (duration / frameRate) : 0;
+			movementData.durationTo 	= Std.parseInt(movementXML.get(ConstValues.A_DURATION_TO)) / frameRate;
+			movementData.durationTween 	= Std.parseInt(movementXML.get(ConstValues.A_DURATION_TWEEN)) / frameRate;
+			movementData.loop 			= Std.parseInt(movementXML.get(ConstValues.A_LOOP)) == 1;
+			movementData.tweenEasing 	= Std.parseFloat(movementXML.get(ConstValues.A_TWEEN_EASING));
 		}
 		
 		var boneNames:Array<String> = armatureData.boneNames;
@@ -279,38 +282,33 @@ class XMLDataParser{
 		var parentFrameXMLList:Iterator<Xml> = null;
 		var parentFrameCount:Int = 0;
 		var parentFrameXML:Xml = null;
-		var i:Int = 0;
 		var parentTotalDuration:Int = 0;
 		var totalDuration:Int = 0;
 		var currentDuration:Int = 0;
 		if (parentMovementBoneXML != null) {
-			//var parentFrameXMLList:Iterator<Xml> = E4X.x(parentMovementBoneXML.child(ConstValues.FRAME));
-			parentFrameXMLList = parentMovementBoneXML.elementsNamed(ConstValues.FRAME);
-			//parentFrameCount;//  = Lambda.count(parentFrameXMLList);
-			//parentFrameXML;
+			parentFrameXMLList 	= parentMovementBoneXML.elementsNamed(ConstValues.FRAME);
+			parentFrameCount	= Lambda.count(parentMovementBoneXML);
 		}
 		
 		var frameXMLList:Iterator<Xml> = movementBoneXML.elementsNamed(ConstValues.FRAME);
-		var frameCount:Int = 10;//Lambda.count(frameXMLList);
 		var frameList:Array<FrameData> = movementBoneData.frameList;
 		
-		for(j in 0 ... frameCount) {
-			var frameXML:Xml = null;// = frameXMLList[j];
+		var i:Int = 0;
+		var j:Int = 0;
+		for(frameXML in frameXMLList){
 			var frameData:FrameData = frameList.length > j ? frameList[j] : null;
 			
 			if(frameData != null) {
 				parseFrameData(frameXML, frameData);
 			} else {
 				frameData = new FrameData();
+				frameList.push(frameData);
 				parseFrameData(frameXML, frameData);
-				if(!Lambda.has(frameList, frameData)) {
-					frameList.push(frameData);
-				}
 			}
 			
 			if(parentMovementBoneXML != null) {
 				while((i < parentFrameCount) && ((parentFrameXML != null) ? (totalDuration < parentTotalDuration || totalDuration >= parentTotalDuration + currentDuration):true)) {
-					//parentFrameXML = parentFrameXMLList[i];
+					parentFrameXML = parentFrameXMLList.next();
 					parentTotalDuration += currentDuration;
 					currentDuration = Std.parseInt(parentFrameXML.get(ConstValues.A_DURATION));
 					i++;
@@ -318,8 +316,7 @@ class XMLDataParser{
 				
 				parseFrameData(parentFrameXML, _helpFrameData);
 				
-				//var tweenFrameXML:Xml = parentFrameXMLList[i];
-				var tweenFrameXML:Xml = parentFrameXMLList.next();
+				var tweenFrameXML:Xml = null;
 				var progress:Float;
 				if(tweenFrameXML != null) {
 					progress = (totalDuration - parentTotalDuration) / currentDuration;
@@ -361,6 +358,8 @@ class XMLDataParser{
 			frameData.node.pivotX 	-= boneData.node.pivotX;
 			frameData.node.pivotY 	-= boneData.node.pivotY;
 			frameData.node.z 		-= boneData.node.z;
+			
+			j++;
 		}
 	}
 	

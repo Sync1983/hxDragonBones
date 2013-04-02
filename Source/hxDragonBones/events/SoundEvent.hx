@@ -18,8 +18,8 @@ class SoundEvent extends Event{
 	public var movementID:String;
 	public var sound:String;
 	public var soundEffect:String;
-	public var armature(default, null):Armature;
-	public var bone(default, null):Bone;
+	public var armature:Armature;
+	public var bone:Bone;
 	
 	public override function clone():Event {
 		var event:SoundEvent = new SoundEvent(type, cancelable);

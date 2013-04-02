@@ -102,6 +102,11 @@ class ApplicationMain {
             return Assets.getBitmapData ("assets/img/character_output.png");
          
 		
+		if (inName=="assets/img/character_output_bin")
+			 
+            return Assets.getBytes ("assets/img/character_output_bin");
+         
+		
 		
 		return null;
 		
@@ -122,6 +127,7 @@ class ApplicationMain {
 }
 
 class NME_assets_img_character_output_png extends nme.display.BitmapData { public function new () { super (0, 0); } }
+class NME_assets_img_character_output_bin extends nme.utils.ByteArray { }
 
 
 #else

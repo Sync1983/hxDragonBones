@@ -11,15 +11,16 @@
     <movie version="3" />
     <movie minorVersion="0" />
     <movie platform="NME" />
-    <movie background="1A0B00" />
+    <movie background="#1A0B00" />
     <movie preferredSDK="Haxe 2.10;2.10;" />
   </output>
   <!-- Other classes to be compiled into your SWF -->
   <classpaths>
     <class path="Source" />
-    <class path="C:\Motion-Twin\haxe\lib\nme/3,5,5/" />
-    <class path="C:\Motion-Twin\haxe\lib\starling/1,2,2/" />
-    <class path="export/flash/haxe" />
+    <class path="Libs" />
+    <class path="C:\Motion-Twin\haxe\lib\nme\3,5,5\" />
+    <class path="C:\Motion-Twin\haxe\lib\starling\1,2,2\" />
+    <class path="export\flash\haxe" />
   </classpaths>
   <!-- Build options -->
   <build>
@@ -27,7 +28,7 @@
     <option flashStrict="False" />
     <option mainClass="ApplicationMain" />
     <option enabledebug="True" />
-    <option additional="-swf-lib starling.swf&#xA;--macro patchTypes('starling.patch')&#xA;-swf-version 11" />
+    <option additional="-swf-lib starling.swf&#xA;--macro patchTypes('starling.patch')&#xA;-swf-version 11.3" />
   </build>
   <!-- haxelib libraries -->
   <haxelib>

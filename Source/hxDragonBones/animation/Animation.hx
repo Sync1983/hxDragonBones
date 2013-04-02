@@ -1,5 +1,9 @@
 package hxDragonBones.animation;
+import haxe.remoting.FlashJsConnection;
 import hxDragonBones.Armature;
+import hxDragonBones.events.AnimationEvent;
+import hxDragonBones.events.FrameEvent;
+import hxDragonBones.events.SoundEvent;
 import hxDragonBones.events.SoundEventManager;
 import hxDragonBones.objects.AnimationData;
 import hxDragonBones.objects.MovementBoneData;
@@ -11,11 +15,11 @@ import hxDragonBones.objects.MovementFrameData;
  */
 class Animation{
 
-	static var SINGLE:Int = 0;
-	static var LIST_START:Int = 1;
-	static var LOOP_START:Int = 2;
-	static var LIST:Int = 3;
-	static var LOOP:Int = 4;
+	public static inline var SINGLE:Int = 0;
+	public static inline var LIST_START:Int = 1;
+	public static inline var LOOP_START:Int = 2;
+	public static inline var LIST:Int = 3;
+	public static inline var LOOP:Int = 4;
 	
 	static var _soundManager:SoundEventManager = SoundEventManager.instance;
 	
@@ -34,6 +38,7 @@ class Animation{
 	public var timeScale(default, set_timeScale):Float;
 	public var movementID(default, null):String;
 	public var movementList(get_movementList, null):Array<String>;
+	public var movementData:MovementData;
 	
 	var _playType:Int;
 	var _duration:Float;
@@ -43,7 +48,6 @@ class Animation{
 	var _loop:Int;
 	var _breakFrameWhile:Bool;
 	var _armature:Armature;
-	var _movementData:MovementData;
 	
 	function set_animationData(value:AnimationData):AnimationData {
 		if(value != null) {
@@ -80,6 +84,7 @@ class Animation{
 				bone.childArmature.animation.timeScale = timeScale;
 			}
 		}
+		return value;
 	}
 	
 	function get_movementList():Array<String> {
@@ -89,7 +94,7 @@ class Animation{
 	public function dispose() {
 		stop();
 		animationData = null;
-		_movementData = null;
+		movementData = null;
 		_armature = null;
 	}
 	
@@ -114,7 +119,7 @@ class Animation{
 		if(tweenTime >= 0) {
 			totalTime = tweenTime;
 		} else if(tweenEnabled && (exMovementID != null)) {
-			totalTime = _movementData.durationTo;
+			totalTime = movementData.durationTo;
 		} else {
 			totalTime = 0;
 		}
@@ -146,12 +151,12 @@ class Animation{
 		for (bone in _armature.boneDepthList) {
 			var movementBoneData:MovementBoneData = this.movementData.getMovementBoneData(bone.name);
 			if (movementBoneData != null) {
-				bone._tween.gotoAndPlay(movementBoneData, _rawDuration, loop, tweenEasing);
+				bone.tween.gotoAndPlay(movementBoneData, _rawDuration, loop, tweenEasing);
 				if(bone.childArmature != null) {
 					bone.childArmature.animation.gotoAndPlay(movementID);
 				}
 			} else {
-				bone._tween.stop();
+				bone.tween.stop();
 			}
 		}
 		
@@ -186,12 +191,14 @@ class Animation{
 		isPlaying = false;
 	}
 	
-	function advanceTime(passedTime:Float) {
+	public function advanceTime(passedTime:Float) {
+		var childArmature:Armature;
+		
 		if(isPlaying) {
 			if ((_loop > 0) || (currentTime < totalTime) || (totalTime == 0)) {
 				var progress:Float;
 				if(totalTime > 0) {
-					currentTime += passedTime * _timeScale;
+					currentTime += passedTime * timeScale;
 					progress = currentTime / totalTime;
 				} else {
 					currentTime = 1;
@@ -199,9 +206,9 @@ class Animation{
 					progress = 1;
 				}
 				
-				var event:AnimationEvent;
+				var event:AnimationEvent = null;
 				if (_playType == LOOP) {
-					var loop:Int = progress;
+					var loop:Int = cast(progress, Int);
 					if(loop != _loop) {
 						_loop = loop;
 						_nextFrameDataTimeEdge = 0;
@@ -212,14 +219,12 @@ class Animation{
 					}
 				} else if (progress >= 1) {
 					switch(_playType) {
-						case SINGLE:
-						case LIST:
+						case SINGLE, LIST:
 							progress = 1;
 							if(_armature.hasEventListener(AnimationEvent.COMPLETE)) {
 								event = new AnimationEvent(AnimationEvent.COMPLETE);
 								event.movementID = movementID;
 							}
-							break;
 						case LIST_START:
 							progress = 0;
 							_playType = LIST;
@@ -229,7 +234,6 @@ class Animation{
 								event = new AnimationEvent(AnimationEvent.START);
 								event.movementID = movementID;
 							}
-							break;
 						case LOOP_START:
 							progress = 0;
 							_playType = LOOP;
@@ -239,20 +243,19 @@ class Animation{
 								event = new AnimationEvent(AnimationEvent.START);
 								event.movementID = movementID;
 							}
-							break;
 					}
 				}
 				
 				for (bone in _armature.boneDepthList) {
-					bone._tween.advanceTime(progress, _playType);
+					bone.tween.advanceTime(progress, _playType);
 					
-					var childArmature:Armature = bone.childArmature;
+					childArmature = bone.childArmature;
 					if(childArmature != null) {
 						childArmature.animation.advanceTime(passedTime);
 					}
 				}
 				
-				if (((_playType == LIST )|| (_playType == LOOP)) && (movementData._movementFrameList.length > 0)) {
+				if (((_playType == LIST )|| (_playType == LOOP)) && (movementData.movementFrameList.length > 0)) {
 					if(_loop > 0) {
 						progress -= _loop;
 					}
@@ -277,11 +280,11 @@ class Animation{
 		var playedTime:Float = _rawDuration * progress;
 		if (playedTime >= _nextFrameDataTimeEdge) {
 			_breakFrameWhile = false;
-			var length:Int = movementData._movementFrameList.length;
+			var length:Int = movementData.movementFrameList.length;
 			do  {
 				var currentFrameDataID:Int = _nextFrameDataID;
-				var currentFrameData:MovementFrameData = movementData._movementFrameList[currentFrameDataID];
-				var frameDuration:Number = currentFrameData.duration;
+				var currentFrameData:MovementFrameData = movementData.movementFrameList[currentFrameDataID];
+				var frameDuration:Float = currentFrameData.duration;
 				_nextFrameDataTimeEdge += frameDuration;
 				if (++_nextFrameDataID >= length) {
 					_nextFrameDataID = 0;
@@ -296,22 +299,22 @@ class Animation{
 	}
 	
 	function arriveFrameData(movementFrameData:MovementFrameData) {
-		if(movementFrameData.event && _armature.hasEventListener(FrameEvent.MOVEMENT_FRAME_EVENT)) {
+		if((movementFrameData.event != null) && _armature.hasEventListener(FrameEvent.MOVEMENT_FRAME_EVENT)) {
 			var frameEvent:FrameEvent = new FrameEvent(FrameEvent.MOVEMENT_FRAME_EVENT);
-			frameEvent.movementID = _movementID;
+			frameEvent.movementID = movementID;
 			frameEvent.frameLabel = movementFrameData.event;
 			_armature.dispatchEvent(frameEvent);
 		}
 		
-		if(movementFrameData.sound && _soundManager.hasEventListener(SoundEvent.SOUND)) {
+		if((movementFrameData.sound != null) && _soundManager.hasEventListener(SoundEvent.SOUND)) {
 			var soundEvent:SoundEvent = new SoundEvent(SoundEvent.SOUND);
-			soundEvent.movementID = _movementID;
+			soundEvent.movementID = movementID;
 			soundEvent.sound = movementFrameData.sound;
-			soundEvent._armature = _armature;
+			soundEvent.armature = _armature;
 			_soundManager.dispatchEvent(soundEvent);
 		}
 		
-		if(movementFrameData.movement) {
+		if(movementFrameData.movement != null) {
 			gotoAndPlay(movementFrameData.movement);
 		}
 	}

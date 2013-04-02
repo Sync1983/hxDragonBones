@@ -90,7 +90,7 @@ class TransformUtils{
 			offSet.skewY += DOUBLE_PI;
 		}
 		
-		if (tweenRotate) {
+		if (tweenRotate != 0) {
 			offSet.skewX += tweenRotate * DOUBLE_PI;
 			offSet.skewY += tweenRotate * DOUBLE_PI;
 		}
@@ -106,7 +106,7 @@ class TransformUtils{
 			current.scaleY + progress * offSet.scaleY,
 			current.pivotX + progress * offSet.pivotX,
 			current.pivotY + progress * offSet.pivotY,
-			tween.z
+			cast(tween.z, Int)
 		);
 	}
 

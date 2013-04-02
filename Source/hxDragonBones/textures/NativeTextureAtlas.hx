@@ -57,22 +57,22 @@ class NativeTextureAtlas implements ITextureAtlas{
 	//} endregion
 	
 	function parseData(textureAtlasXML:Xml) {
-		name = textureAtlasXML.get(ConstValues.A_NAME);
-		_width = cast(textureAtlasXML.get(ConstValues.A_WIDTH), Int);
-		_height = cast(textureAtlasXML.get(ConstValues.A_HEIGHT), Int);
+		name 	= textureAtlasXML.firstElement().get(ConstValues.A_NAME);
+		_width 	= Std.parseInt(textureAtlasXML.firstElement().get(ConstValues.A_WIDTH));
+		_height = Std.parseInt(textureAtlasXML.firstElement().get(ConstValues.A_HEIGHT));
 		
 		var scale:Float = _isDifferentXML ? scale : 1;
 		
 		for (subTextureXML in textureAtlasXML.elementsNamed(ConstValues.SUB_TEXTURE)) {
 			var subTextureName:String = subTextureXML.get(ConstValues.A_NAME);
 			var subTextureData:SubTextureData = new SubTextureData();
-			subTextureData.x = cast(subTextureXML.get(ConstValues.A_X), Int) / scale;
-			subTextureData.y = cast(subTextureXML.get(ConstValues.A_Y), Int) / scale;
-			subTextureData.width = cast(subTextureXML.get(ConstValues.A_WIDTH), Int) / scale;
-			subTextureData.height = cast(subTextureXML.get(ConstValues.A_HEIGHT), Int) / scale;
+			subTextureData.x 		= Std.parseInt(subTextureXML.get(ConstValues.A_X)) 		/ scale;
+			subTextureData.y 		= Std.parseInt(subTextureXML.get(ConstValues.A_Y)) 		/ scale;
+			subTextureData.width 	= Std.parseInt(subTextureXML.get(ConstValues.A_WIDTH)) 	/ scale;
+			subTextureData.height 	= Std.parseInt(subTextureXML.get(ConstValues.A_HEIGHT)) / scale;
 			//1.4
-			subTextureData.pivotX = cast(subTextureXML.get(ConstValues.A_PIVOT_X), Int);
-			subTextureData.pivotY = cast(subTextureXML.get(ConstValues.A_PIVOT_Y), Int);
+			subTextureData.pivotX 	= Std.parseInt(subTextureXML.get(ConstValues.A_PIVOT_X));
+			subTextureData.pivotY 	= Std.parseInt(subTextureXML.get(ConstValues.A_PIVOT_Y));
 			_subTextureDataDic.set(subTextureName, subTextureData);
 		}
 	}
@@ -80,7 +80,7 @@ class NativeTextureAtlas implements ITextureAtlas{
 	function movieClipToBitmapData() {
 		if ((bitmapData != null) && (movieClip != null)) {
 			movieClip.gotoAndStop(1);
-			bitmapData = new BitmapData(_width, _height, true, 0xFF00FF);
+			bitmapData = new BitmapData(_width, _height);
 			bitmapData.draw(movieClip);
 			movieClip.gotoAndStop(movieClip.totalFrames);
 		}

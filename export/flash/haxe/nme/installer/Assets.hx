@@ -43,6 +43,8 @@ class Assets {
 			
 			resourceClasses.set ("assets/img/character_output.png", NME_assets_img_character_output_png);
 			resourceTypes.set ("assets/img/character_output.png", "image");
+			resourceClasses.set ("assets/img/character_output_bin", NME_assets_img_character_output_bin);
+			resourceTypes.set ("assets/img/character_output_bin", "binary");
 			
 			
 			initialized = true;

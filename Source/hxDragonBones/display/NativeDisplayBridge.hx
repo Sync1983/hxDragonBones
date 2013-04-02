@@ -22,10 +22,11 @@ class NativeDisplayBridge implements IDisplayBridge{
 		if (value == display) {
 			return value;
 		}
+		var index:Int = 0;
 		if (display) {
 			var parent:DisplayObjectContainer = display.parent;
 			if (parent != null) {
-				var index:Int = parent.getChildIndex(display);
+				index = parent.getChildIndex(display);
 			}
 			removeDisplay();
 		}
@@ -40,11 +41,11 @@ class NativeDisplayBridge implements IDisplayBridge{
 		matrix.tx -= matrix.a * pivotX + matrix.c * pivotY;
 		matrix.ty -= matrix.b * pivotX + matrix.d * pivotY;
 		
-		_display.transform.matrix = matrix;
+		display.transform.matrix = matrix;
 		if(colorTransform != null) {
-			_display.transform.colorTransform = colorTransform;
+			display.transform.colorTransform = colorTransform;
 		}
-		_display.visible = visible;
+		display.visible = visible;
 	}
 	
 	public function addDisplay(container:Dynamic, index:Int = -1) {

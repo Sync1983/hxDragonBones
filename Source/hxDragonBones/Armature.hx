@@ -3,6 +3,7 @@ package hxDragonBones;
 import hxDragonBones.animation.Animation;
 import hxDragonBones.animation.IAnimatable;
 import hxDragonBones.animation.IAnimatable;
+import hxDragonBones.events.ArmatureEvent;
 import nme.events.EventDispatcher;
 import nme.events.IEventDispatcher;
 import nme.geom.ColorTransform;
@@ -30,7 +31,7 @@ class Armature extends EventDispatcher, implements IAnimatable{
 	public var boneDepthList:Array<Bone>;
 	public var colorTransformChange:Bool;
 	
-	function set_colorTransfrom(value:ColorTransform):ColorTransform {
+	function set_colorTransform(value:ColorTransform):ColorTransform {
 		colorTransform = value;
 		colorTransformChange = true;
 		return value;
@@ -73,7 +74,7 @@ class Armature extends EventDispatcher, implements IAnimatable{
 	}
 	
 	public function getBones():Array<Bone> 	{
-		return boneDepthList.concat();
+		return boneDepthList.slice(0);
 	}
 	
 	public function addBone(bone:Bone, parentName:String = null) {
@@ -110,8 +111,8 @@ class Armature extends EventDispatcher, implements IAnimatable{
 	public function updateBonesZ() {
 		boneDepthList.sort(sortBoneZIndex);
 		for (bone in boneDepthList){
-			if(bone._isOnStage) {
-				bone._displayBridge.addDisplay(_display);
+			if(bone.isOnStage) {
+				bone.displayBridge.addDisplay(display);
 			}
 		}
 		bonesIndexChanged = false;
@@ -121,7 +122,7 @@ class Armature extends EventDispatcher, implements IAnimatable{
 		}
 	}
 	
-	function update() {
+	public function update() {
 		for (bone in _rootBoneList) {
 			bone.update();
 		}
@@ -131,7 +132,7 @@ class Armature extends EventDispatcher, implements IAnimatable{
 		}
 	}
 	
-	function addToBones(bone:Bone, root:Bool = false) {
+	public function addToBones(bone:Bone, root:Bool = false) {
 		var boneIndex:Int = Lambda.indexOf(boneDepthList, bone);
 		if(boneIndex == -1) {
 			boneDepthList.push(bone);
@@ -147,14 +148,14 @@ class Armature extends EventDispatcher, implements IAnimatable{
 		}
 		
 		bone.armature = this;
-		bone.displayBridge.addDisplay(display, bone.global.z);
+		bone.displayBridge.addDisplay(display, cast(bone.global.z, Int));
 		for(child in bone.children) {
 			addToBones(child);
 		}
 		bonesIndexChanged = true;
 	}
 	
-	function removeFromBones(bone:Bone)	{
+	public function removeFromBones(bone:Bone)	{
 		var boneIndex:Int = Lambda.indexOf(boneDepthList, bone);
 		if(boneIndex >= 0) {
 			boneDepthList.splice(boneIndex, 1);

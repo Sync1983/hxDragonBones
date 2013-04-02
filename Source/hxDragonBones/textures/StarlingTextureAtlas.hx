@@ -44,14 +44,10 @@ class StarlingTextureAtlas extends TextureAtlas, implements ITextureAtlas{
 		
 		_subTextureDic = new ObjectHash<String, Texture>();
 		
-		if(_bitmapData != null) {
-			_bitmapData.dispose();
-			_bitmapData = null;
+		if(bitmapData != null) {
+			bitmapData.dispose();
+			bitmapData = null;
 		}
-	}
-	
-	public function getRegion(name:String):Rectangle {
-		return null;
 	}
 	
 	//}
@@ -61,25 +57,25 @@ class StarlingTextureAtlas extends TextureAtlas, implements ITextureAtlas{
 		if(texture == null) {
 			texture = super.getTexture(name);
 			if(texture != null) {
-				_subTextureDicset(name, texture);
+				_subTextureDic.set(name, texture);
 			}
 		}
 		return texture;
 	}
 	
-	function parseAtlasXml(atlasXml:XML) {
+	function parseAtlasXml(atlasXml:Xml) {
 		var scale:Float = _isDifferentXML ? _scale : 1;
 		
-		for (subTexture in atlasXml.SubTexture) {
-			var name:String = subTexture.get("name");
-			var x:Float = Std.parseFloat(subTexture.get("x")) / scale;
-			var y:Float = Std.parseFloat(subTexture.get("y")) / scale;
-			var width:Float = Std.parseFloat(subTexture.get("width")) / scale;
-			var height:Float = Std.parseFloat(subTexture.get("height")) / scale;
-			var frameX:Float = Std.parseFloat(subTexture.get("frameX")) / scale;
-			var frameY:Float = Std.parseFloat(subTexture.get("frameY")) / scale;
-			var frameWidth:Float = Std.parseFloat(subTexture.get("frameWidth")) / scale;
-			var frameHeight:Float = Std.parseFloat(subTexture.get("frameHeight")) / scale;
+		for (subTexture in atlasXml.elementsNamed("SubTexture")) {
+			var name:String 		= subTexture.get("name");
+			var x:Float 			= Std.parseFloat(subTexture.get("x")) 			/ scale;
+			var y:Float 			= Std.parseFloat(subTexture.get("y")) 			/ scale;
+			var width:Float 		= Std.parseFloat(subTexture.get("width")) 		/ scale;
+			var height:Float 		= Std.parseFloat(subTexture.get("height")) 		/ scale;
+			var frameX:Float 		= Std.parseFloat(subTexture.get("frameX")) 		/ scale;
+			var frameY:Float 		= Std.parseFloat(subTexture.get("frameY")) 		/ scale;
+			var frameWidth:Float 	= Std.parseFloat(subTexture.get("frameWidth")) 	/ scale;
+			var frameHeight:Float 	= Std.parseFloat(subTexture.get("frameHeight")) / scale;
 			
 			//1.4
 			var region:SubTextureData = new SubTextureData(x, y, width, height);

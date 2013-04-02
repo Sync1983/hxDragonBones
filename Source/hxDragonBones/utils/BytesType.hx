@@ -1,4 +1,5 @@
 package hxDragonBones.utils;
+import nme.Lib;
 import nme.utils.ByteArray;
 
 /**
@@ -13,11 +14,11 @@ class BytesType{
 	public static inline var ZIP:String = "zip";
 	
 	public static inline function getType(bytes:ByteArray):String {
-		var type:String;
-		var b1:UInt = bytes[0];
-		var b2:UInt = bytes[1];
-		var b3:UInt = bytes[2];
-		var b4:UInt = bytes[3];
+		var type:String = null;
+		var b1:Int = bytes[0];
+		var b2:Int = bytes[1];
+		var b3:Int = bytes[2];
+		var b4:Int = bytes[3];
 		
 		if(((b1 == 0x46) || (b1 == 0x43) || (b1 == 0x5A)) && (b2 == 0x57) && (b3 == 0x53)){
 			//CWS FWS ZWS
@@ -32,7 +33,6 @@ class BytesType{
 		} else if((b1 == 0x50) && (b2 == 0x4B)){
 			type = ZIP;
 		}
-		
 		return type;
 	}
 }

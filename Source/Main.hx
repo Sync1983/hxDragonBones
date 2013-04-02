@@ -1,11 +1,16 @@
 package;
 
+import hxDragonBones.Armature;
+import hxDragonBones.factorys.BaseFactory;
 import hxDragonBones.factorys.StarlingFactory;
+import nme.Assets;
+import nme.display.BitmapData;
 import nme.display.Sprite;
 import nme.display.StageAlign;
 import nme.display.StageScaleMode;
 import nme.events.Event;
 import nme.Lib;
+import nme.utils.ByteArray;
 
 /**
  * @author SlavaRa
@@ -49,15 +54,17 @@ class Main extends Sprite {
 		}
 		_isInitialized = true;
 		
-		var factory:StarlingFactory = new StarlingFactory();
-		//factory.addEventListener(Event.COMPLETE, onFactoryComplete);
-		//factory.parseData(Assets.getBytes("Assets/img/character_output.png"));
+		var factory:BaseFactory = new BaseFactory();
+		factory.addEventListener(Event.COMPLETE, onFactoryComplete);
+		factory.parseData(Assets.getBytes("assets/img/character_output_bin"));
 	}
 	
 	// EVENT HANDLERS ----------------------------------------------------------------------/
 	
 	function onFactoryComplete(event:Event) {
-		
+		var factory:BaseFactory = cast(event.currentTarget, BaseFactory);
+		var armature:Armature = factory.buildArmature("CharacterAnimations");
+		Lib.trace("armature: " + armature);
 	}
 	
 	function onStageAddedToStage(event:Event) {

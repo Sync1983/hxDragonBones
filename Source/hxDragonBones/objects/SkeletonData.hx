@@ -7,25 +7,24 @@ class SkeletonData{
 
 	public function new() {
 		armatureDataList = new DataList();
-		_animationDataList = new DataList();
+		animationDataList = new DataList();
 		displayDataList = new DataList();
 	}
 	
 	public var name:String;
-	public var frameRate:UInt;
+	public var frameRate:Int;
 	public var armatureNames(get_armatureNames, null):Array<String>;
 	public var animationNames(get_animationNames, null):Array<String>;
 	public var armatureDataList:DataList;
 	public var displayDataList:DataList;
-	
-	var _animationDataList:DataList;
+	public var animationDataList:DataList;
 	
 	function get_armatureNames():Array<String> {
-		return armatureDataList.dataNames.concat();
+		return armatureDataList.dataNames.slice(0);
 	}
 	
 	function get_animationNames():Array<String> {
-		return _animationDataList.dataNames.concat();
+		return animationDataList.dataNames.slice(0);
 	}
 	
 	public function dispose() {
@@ -33,12 +32,12 @@ class SkeletonData{
 			cast(armatureDataList.getData(armatureName), ArmatureData).dispose();
 		}
 		
-		for (animationName in _animationDataList.dataNames) {
-			cast(_animationDataList.getData(animationName), AnimationData).dispose();
+		for (animationName in animationDataList.dataNames) {
+			cast(animationDataList.getData(animationName), AnimationData).dispose();
 		}
 		
 		armatureDataList.dispose();
-		_animationDataList.dispose();
+		animationDataList.dispose();
 		displayDataList.dispose();
 	}
 	
@@ -47,7 +46,7 @@ class SkeletonData{
 	}
 	
 	public function getAnimationData(name:String):AnimationData {
-		return cast(_animationDataList.getData(name), AnimationData);
+		return cast(animationDataList.getData(name), AnimationData);
 	}
 	
 	public function getDisplayData(name:String):DisplayData {

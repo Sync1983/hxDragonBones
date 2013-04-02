@@ -5,7 +5,7 @@ package hxDragonBones.objects;
  */
 class MovementBoneData{
 
-	static var HIDE_DATA:MovementBoneData = new MovementBoneData();
+	public static var HIDE_DATA:MovementBoneData = new MovementBoneData();
 	
 	public function new() {
 		scale = 1;
@@ -23,11 +23,7 @@ class MovementBoneData{
 	
 	public function setValues(scale:Float = 1, delay:Float = 0) {
 		this.scale = (scale > 0) ? scale : 1;
-		if (delay != 0) {
-			this.delay = delay % 1;
-		} else {
-			this.delay = 0;
-		}
+		this.delay = (delay != 0) ? (delay % 1) : 0;
 		if (this.delay > 0) {
 			this.delay -= 1;
 		}

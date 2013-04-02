@@ -1,5 +1,6 @@
 package hxDragonBones.events;
 import nme.events.EventDispatcher;
+import nme.events.IEventDispatcher;
 
 /**
  * @author SlavaRa
@@ -16,7 +17,8 @@ class SoundEventManager extends EventDispatcher {
 		return instance;
 	}
 	
-	function new() {
+	function new(?target:IEventDispatcher) {
+		super(target);
 	}
 	
 }

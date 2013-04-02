@@ -6,28 +6,28 @@ package hxDragonBones.objects;
 class AnimationData{
 
 	public function new() {
-		_movementDataList = new DataList();
+		movementDataList = new DataList();
 	}
 	
 	public var movementList(get_movementList, null):Array<String>;
+	public var movementDataList:DataList;
 	
 	function get_movementList():Array<String> {
-		return _movementDataList.dataNames.concat();
+		return movementDataList.dataNames.slice(0);
 	}
 	
-	var _movementDataList:DataList;
 	
 	public function dispose() {
 		for (movementName in movementDataList.dataNames) {
-			var movementData:MovementData = cast(_movementDataList.getData(movementName), MovementData);
+			var movementData:MovementData = cast(movementDataList.getData(movementName), MovementData);
 			movementData.dispose();
 		}
 		
-		_movementDataList.dispose();
+		movementDataList.dispose();
 	}
 	
 	public function getMovementData(name:String):MovementData {
-		return cast(_movementDataList.getData(name), MovementData);
+		return cast(movementDataList.getData(name), MovementData);
 	}
 	
 }

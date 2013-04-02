@@ -72,7 +72,7 @@ class Tween{
 			return;
 		}
 		_movementBoneData = movementBoneData;
-		var totalFrames:UInt = _movementBoneData._frameList.length;
+		var totalFrames:Int = _movementBoneData.frameList.length;
 		if(totalFrames == 0) {
 			_bone.changeDisplay(-1);
 			stop();
@@ -90,7 +90,7 @@ class Tween{
 		_rawDuration = rawDuration;
 		_tweenEasing = tweenEasing;
 		
-		var nextFrameData:FrameData;
+		var nextFrameData:FrameData = null;
 		if (totalFrames == 1) {
 			_frameTweenEasing = 1;
 			_rawDuration = 0;
@@ -128,7 +128,7 @@ class Tween{
 		if(playType == Animation.LOOP) {
 			progress /= _movementBoneData.scale;
 			progress += _movementBoneData.delay;
-			var loop:Int = progress;
+			var loop:Int = cast(progress, Int);
 			if(_loop != loop) {
 				_nextFrameDataTimeEdge = 0;
 				_nextFrameDataID = 0;
@@ -148,7 +148,7 @@ class Tween{
 		
 		if ((_frameTweenEasing != null) || (_currentFrameData != null)) {
 			TransformUtils.setTweenNode(_currentNode, _offSetNode, _node, progress);
-			if(_differentColorTransform) {
+			if(differentColorTransform) {
 				TransformUtils.setTweenColorTransform(_currentColorTransform, _offSetColorTransform, _colorTransform, progress);
 			}
 		}
@@ -164,9 +164,11 @@ class Tween{
 		var length:Int = _movementBoneData.frameList.length;
 		var nextFrameDataID:Int = 0;
 		var nextFrameDataTimeEdge:Float= 0;
+		var currentFrameDataID:Int;
+		var frameDuration:Float;
 		do {
-			var currentFrameDataID:Int = nextFrameDataID;
-			var frameDuration:Float = _movementBoneData.frameList[currentFrameDataID].duration;
+			currentFrameDataID = nextFrameDataID;
+			frameDuration = _movementBoneData.frameList[currentFrameDataID].duration;
 			nextFrameDataTimeEdge += frameDuration;
 			if (++nextFrameDataID >= length) {
 				nextFrameDataID = 0;
@@ -218,9 +220,9 @@ class Tween{
 			|| 	_offSetColorTransform.greenMultiplier 	!= 0
 			|| 	_offSetColorTransform.blueMultiplier 	!= 0
 		) {
-			_differentColorTransform = true;
+			differentColorTransform = true;
 		} else {
-			_differentColorTransform = false;
+			differentColorTransform = false;
 		}
 	}
 	
@@ -264,9 +266,10 @@ class Tween{
 	function updateFrameData(progress:Float, activeFrame:Bool = false, isList:Bool = false):Float {
 		var playedTime:Float = _rawDuration * progress;
 		if (playedTime >= _nextFrameDataTimeEdge) {
+			var currentFrameDataID:Int;
 			var length:Int = _movementBoneData.frameList.length;
 			do {
-				var currentFrameDataID:Int = _nextFrameDataID;
+				currentFrameDataID = _nextFrameDataID;
 				_frameDuration = _movementBoneData.frameList[currentFrameDataID].duration;
 				_nextFrameDataTimeEdge += _frameDuration;
 				if (++_nextFrameDataID >= length) {

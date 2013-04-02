@@ -54,8 +54,8 @@ class Bone extends EventDispatcher{
 	public var children:Array<Bone>;
 	public var tween:Tween;
 	public var globalTransformMatrix:Matrix;
+	public var isOnStage:Bool;
 	
-	var _isOnStage:Bool;
 	var _displayList:Array<Dynamic>;
 	var _displayIndex:Int;
 	
@@ -79,22 +79,22 @@ class Bone extends EventDispatcher{
 		return value;
 	}
 	
-	function changeDisplay(displayIndex:Int) {
+	public function changeDisplay(displayIndex:Int) {
 		if(displayIndex < 0) {
-			if(_isOnStage) {
-				_isOnStage = false;
+			if(isOnStage) {
+				isOnStage = false;
 				displayBridge.removeDisplay();
 			}
 		} else {
-			if(!_isOnStage) {
-				_isOnStage = true;
+			if(!isOnStage) {
+				isOnStage = true;
 				if(armature != null) {
-					displayBridge.addDisplay(armature.display, global.z);
+					displayBridge.addDisplay(armature.display, cast(global.z, Int));
 					armature.bonesIndexChanged = true;
 				}
 			}
 			if(_displayIndex != displayIndex) {
-				var length:UInt = _displayList.length;
+				var length:Int = _displayList.length;
 				if((displayIndex >= length) && (length > 0)) {
 					displayIndex = length - 1;
 				}
@@ -105,7 +105,7 @@ class Bone extends EventDispatcher{
 	}
 	
 	public function changeDisplayList(displayList:Array<Dynamic>) {
-		var length:Int = Math.min(_displayList.length, displayList.length);
+		var length:Int = cast(Math.min(_displayList.length, displayList.length), Int);
 		for (i in 0 ... length) {
 			changeDisplay(i);
 			display = displayList[i];
@@ -146,7 +146,7 @@ class Bone extends EventDispatcher{
 			children.push(child);
 			child.setParent(this);
 			
-			if (armature) {
+			if (armature != null) {
 				armature.addToBones(child);
 			}
 		}
@@ -169,8 +169,8 @@ class Bone extends EventDispatcher{
 		}
 	}
 	
-	function update() {
-		if ((children.length > 0) || _isOnStage) {
+	public function update() {
+		if ((children.length > 0) || isOnStage) {
 			global.x = origin.x + node.x + tweenNode.x;
 			global.y = origin.y + node.y + tweenNode.y;
 			global.skewX = origin.skewX + node.skewX + tweenNode.skewX;
@@ -205,25 +205,22 @@ class Bone extends EventDispatcher{
 			}
 			
 			var childArmature:Armature = this.childArmature;
-			if(childArmature) {
+			if(childArmature != null) {
 				childArmature.update();
 			}
 			
 			var currentDisplay:Dynamic = displayBridge.display;
 			
-			if(_isOnStage && (currentDisplay != null)) {
-				var colorTransform:ColorTransform;
-				if(tween.differentColorTransform != null) {
+			if(isOnStage && (currentDisplay != null)) {
+				if(tween.differentColorTransform) {
 					if(armature.colorTransform != null){
 						tweenColorTransform.concat(armature.colorTransform);
 					}
-					colorTransform = tweenColorTransform;
-				} else if(armature.colorTransformChange != null) {
-					colorTransform = armature.colorTransform;
+					displayBridge.update(globalTransformMatrix, global, tweenColorTransform, visible);
+				} else if(armature.colorTransformChange) {
 					armature.colorTransformChange = false;
+					displayBridge.update(globalTransformMatrix, global, armature.colorTransform, visible);
 				}
-				
-				displayBridge.update(globalTransformMatrix, global, colorTransform, visible);
 			}
 		}
 	}
@@ -232,6 +229,6 @@ class Bone extends EventDispatcher{
 		if ((parent != null) && parent.contains(this, true)) {
 			throw "An Bone cannot be added as a child to itself or one of its children (or children's children, etc.)";
 		}
-		_parent = parent;
+		this.parent = parent;
 	}
 }

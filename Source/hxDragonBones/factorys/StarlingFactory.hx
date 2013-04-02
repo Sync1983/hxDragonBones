@@ -65,8 +65,8 @@ class StarlingFactory extends BaseFactory{
 	
 	override function generateTextureAtlas(content:Dynamic, textureAtlasXML:Dynamic):Dynamic {
 		var texAtlasXML:XML = cast(textureAtlasXML, XML);
-		var texture:Texture;
-		var bitmapData:BitmapData;
+		var texture:Texture = null;
+		var bitmapData:BitmapData = null;
 		if(Std.is(content, BitmapData)) {
 			bitmapData = cast(content, BitmapData);
 			texture = Texture.fromBitmapData(bitmapData, generateMipMaps, optimizeForRenderToTexture, scaleForTexture);

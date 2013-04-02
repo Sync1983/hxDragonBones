@@ -11,7 +11,7 @@ class ArmatureData{
 	
 	public var boneNames(get_boneNames, null):Array<String>;
 	public function get_boneNames():Array<String> {
-		return boneDataList.dataNames.concat();
+		return boneDataList.dataNames.slice(0);
 	}
 	
 	public var boneDataList:DataList;

@@ -25,20 +25,24 @@ class StarlingDisplayBridge implements IDisplayBridge{
 			return value;
 		}
 		
+		var parent:DisplayObjectContainer = null;
+		var index:Int = 0;
+		
 		if(display){
-			var parent:DisplayObjectContainer = display.parent;
+			parent = display.parent;
 			if(parent != null) {
-				var index:Int = parent.getChildIndex(display);
+				index = parent.getChildIndex(display);
 			}
 			removeDisplay();
 		}
 		display = value;
 		addDisplay(parent, index);
+		return value;
 	}
 	
 	public function update(matrix:Matrix, node:Node, colorTransform:ColorTransform, visible:Bool) {
-		var pivotX:Float = node.pivotX + _display.pivotX;
-		var pivotY:Float = node.pivotY + _display.pivotY;
+		var pivotX:Float = node.pivotX + display.pivotX;
+		var pivotY:Float = node.pivotY + display.pivotY;
 		matrix.tx -= matrix.a * pivotX + matrix.c * pivotY;
 		matrix.ty -= matrix.b * pivotX + matrix.d * pivotY;
 		
@@ -47,7 +51,10 @@ class StarlingDisplayBridge implements IDisplayBridge{
 		if ((colorTransform != null) && Std.is(display, Quad)) {
 			var quad:Quad = cast(display, Quad);
 			quad.alpha = colorTransform.alphaMultiplier;
-			quad.color = cast(((colorTransform.redMultiplier * 0xff)<<16), UInt) + cast(((colorTransform.greenMultiplier * 0xff)<<8), UInt) + cast((colorTransform.blueMultiplier * 0xff), UInt);
+			var r:UInt = cast((colorTransform.redMultiplier * 0xff), Int) << 16;
+			var g:UInt = cast((colorTransform.greenMultiplier * 0xff), Int) << 8;
+			var b:UInt = cast(colorTransform.blueMultiplier, Int) * 0xff;
+			quad.color = r + g + b;
 		}
 		
 		display.visible = visible;

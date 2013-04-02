@@ -2,15 +2,12 @@ package;
 
 import hxDragonBones.Armature;
 import hxDragonBones.factorys.BaseFactory;
-import hxDragonBones.factorys.StarlingFactory;
 import nme.Assets;
-import nme.display.BitmapData;
 import nme.display.Sprite;
 import nme.display.StageAlign;
 import nme.display.StageScaleMode;
 import nme.events.Event;
 import nme.Lib;
-import nme.utils.ByteArray;
 
 /**
  * @author SlavaRa
@@ -64,8 +61,8 @@ class Main extends Sprite {
 	function onFactoryComplete(event:Event) {
 		var factory:BaseFactory = cast(event.currentTarget, BaseFactory);
 		var armature:Armature = factory.buildArmature("CharacterAnimations");
-		armature.animation.gotoAndPlay("Idle");
-		addChild(armature.display);
+		//armature.animation.gotoAndPlay("Idle");
+		//addChild(armature.display);
 	}
 	
 	function onStageAddedToStage(event:Event) {

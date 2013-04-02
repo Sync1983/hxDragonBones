@@ -25,9 +25,8 @@ import nme.events.Event;
 import nme.events.EventDispatcher;
 import nme.events.IEventDispatcher;
 import nme.geom.Matrix;
-import nme.Lib;
-import nme.utils.ByteArray;
 import nme.ObjectHash;
+import nme.utils.ByteArray;
 
 /**
  * @author SlavaRa
@@ -55,9 +54,7 @@ class BaseFactory extends EventDispatcher{
 		var decompressedData:DecompressedData = XMLDataParser.decompressData(bytes);
 		
 		var skeletonData:SkeletonData = XMLDataParser.parseSkeletonData(decompressedData.skeletonXML);
-		if (skeletonName == null) {
-			skeletonName = skeletonData.name;
-		}
+		skeletonName = if(skeletonName != null) skeletonName else skeletonData.name;
 		addSkeletonData(skeletonData, skeletonName);
 		
 		var loader:Loader = new Loader();
@@ -75,17 +72,13 @@ class BaseFactory extends EventDispatcher{
 	}
 	
 	public function addSkeletonData(skeletonData:SkeletonData, ?name:String) {
-		if (name == null) {
-			name = skeletonData.name;
-		}
+		name = if(name != null) name else skeletonData.name;
 		
 		if(name == null) {
 			throw "Unnamed data!";
 		}
 		
-		if(skeletonData != null) {
-			_skeletonDataDic.set(name, skeletonData);
-		}
+		_skeletonDataDic.set(name, skeletonData);
 	}
 	
 	public function removeSkeletonData(name:String) {
@@ -97,17 +90,13 @@ class BaseFactory extends EventDispatcher{
 	}
 	
 	public function addTextureAtlas(textureAtlas:ITextureAtlas, ?name:String) {
-		if((name == null) && (textureAtlas != null)) {
-			name = textureAtlas.name;
-		}
+		name = if(name != null) name else textureAtlas.name;
 		
 		if(name == null) {
 			throw "Unnamed data!";
 		}
 		
-		if(textureAtlas != null) {
-			_textureAtlasDic.set(name, textureAtlas);
-		}
+		_textureAtlasDic.set(name, textureAtlas);
 	}
 	
 	public function removeTextureAtlas(name:String) {
@@ -136,9 +125,7 @@ class BaseFactory extends EventDispatcher{
 	}
 	
 	public function buildArmature(armatureName:String, ?animationName:String, ?skeletonName:String, ?textureAtlasName:String):Armature {
-		if (animationName == null) {
-			animationName = armatureName;
-		}
+		animationName = if(animationName != null) animationName else armatureName;
 		
 		var skeletonData:SkeletonData = null;
 		var armatureData:ArmatureData = null;
@@ -199,7 +186,7 @@ class BaseFactory extends EventDispatcher{
 		return armature;
 	}
 	
-	public function getTextureDisplay(textureName:String, ?textureAtlasName:String, ?pivotX:Null<Float>, ?pivotY:Null<Float>):Dynamic {
+	public function getTextureDisplay(textureName:String, ?textureAtlasName:String, ?pivotX:Null<Int>, ?pivotY:Null<Int>):Dynamic {
 		var textureAtlas:ITextureAtlas = null;
 		if(textureAtlasName != null) {
 			textureAtlas = _textureAtlasDic.get(textureAtlasName);
@@ -212,21 +199,21 @@ class BaseFactory extends EventDispatcher{
 			}
 		}
 		
-		if(textureAtlas != null) {
-			if ((pivotX == null) || (pivotY == null)) {
-				var skeletonData:SkeletonData = _skeletonDataDic.get(textureAtlasName);
-				if(skeletonData != null) {
-					var displayData:DisplayData = skeletonData.getDisplayData(textureName);
-					if(displayData != null) {
-						pivotX = (pivotX != null) ? pivotX : displayData.pivotX;
-						pivotY = (pivotY != null) ? pivotY : displayData.pivotY;
-					}
+		if(textureAtlas == null) {
+			return null;
+		}
+		
+		if ((pivotX == null) || (pivotY == null)) {
+			var skeletonData:SkeletonData = _skeletonDataDic.get(textureAtlasName);
+			if(skeletonData != null) {
+				var displayData:DisplayData = skeletonData.getDisplayData(textureName);
+				if(displayData != null) {
+					if(pivotX != null) pivotX = displayData.pivotX;
+					if(pivotY != null) pivotY = displayData.pivotY;
 				}
 			}
-			
-			return generateTextureDisplay(textureAtlas, textureName, cast(pivotX, Int), cast(pivotY, Int));
 		}
-		return null;
+		return generateTextureDisplay(textureAtlas, textureName, pivotX, pivotY);
 	}
 	
 	function buildBone(boneData:BoneData):Bone {

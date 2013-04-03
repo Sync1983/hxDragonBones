@@ -208,7 +208,7 @@ class Animation{
 				
 				var event:AnimationEvent = null;
 				if (_playType == LOOP) {
-					var loop:Int = cast(progress, Int);
+					var loop:Int = Std.int(progress);
 					if(loop != _loop) {
 						_loop = loop;
 						_nextFrameDataTimeEdge = 0;

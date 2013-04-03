@@ -1,5 +1,6 @@
 package hxDragonBones;
 
+import haxe.Log;
 import hxDragonBones.animation.Tween;
 import hxDragonBones.display.IDisplayBridge;
 import hxDragonBones.objects.Node;
@@ -172,7 +173,6 @@ class Bone extends EventDispatcher{
 	}
 	
 	public function update() {
-		Log.trace("update");
 		if ((children.length > 0) || isOnStage) {
 			global.x 		= origin.x + node.x + tweenNode.x;
 			global.y 		= origin.y + node.y + tweenNode.y;
@@ -214,16 +214,18 @@ class Bone extends EventDispatcher{
 			
 			var currentDisplay:Dynamic = displayBridge.display;
 			
-			if(isOnStage && (currentDisplay != null)) {
+			if (isOnStage && (currentDisplay != null)) {
+				var colorTransform:ColorTransform = null;
 				if(tween.differentColorTransform) {
 					if(armature.colorTransform != null){
 						tweenColorTransform.concat(armature.colorTransform);
 					}
-					displayBridge.update(globalTransformMatrix, global, tweenColorTransform, visible);
+					colorTransform = tweenColorTransform;
 				} else if(armature.colorTransformChange) {
+					colorTransform = armature.colorTransform;
 					armature.colorTransformChange = false;
-					displayBridge.update(globalTransformMatrix, global, armature.colorTransform, visible);
 				}
+				displayBridge.update(globalTransformMatrix, global, colorTransform, visible);
 			}
 		}
 	}

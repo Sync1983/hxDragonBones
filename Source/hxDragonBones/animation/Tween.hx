@@ -1,4 +1,5 @@
 package hxDragonBones.animation;
+import haxe.Log;
 import haxe.remoting.FlashJsConnection;
 import hxDragonBones.Armature;
 import hxDragonBones.Bone;
@@ -19,12 +20,12 @@ class Tween{
 	static inline var HALF_PI:Float = Math.PI * 0.5;
 	static var _soundManager:SoundEventManager = SoundEventManager.instance;
 	
-	public static function getEaseValue(value:Null<Float>, easing:Null<Float>):Float {
+	public static function getEaseValue(value:Null<Float>, ?easing:Null<Float>):Float {
 		var valueEase:Float = 0;
-		if(easing == null) {
+		if (easing == null) {
 			return valueEase;
 		} else if (easing > 1) {
-			valueEase = 0.5 * (1 - Math.cos(value * Math.PI )) - value;
+			valueEase = 0.5 * (1 - Math.cos(value * Math.PI)) - value;
 			easing -= 1;
 		} else if (easing > 0) {
 			valueEase = Math.sin(value * HALF_PI) - value;
@@ -128,7 +129,7 @@ class Tween{
 		if(playType == Animation.LOOP) {
 			progress /= _movementBoneData.scale;
 			progress += _movementBoneData.delay;
-			var loop:Int = cast(progress, Int);
+			var loop:Int = Std.int(progress);
 			if(_loop != loop) {
 				_nextFrameDataTimeEdge = 0;
 				_nextFrameDataID = 0;
@@ -263,7 +264,7 @@ class Tween{
 		}
 	}
 	
-	function updateFrameData(progress:Float, activeFrame:Bool = false, isList:Bool = false):Float {
+	function updateFrameData(progress:Float, ?activeFrame:Bool, ?isList:Bool):Float {
 		var playedTime:Float = _rawDuration * progress;
 		if (playedTime >= _nextFrameDataTimeEdge) {
 			var currentFrameDataID:Int;

@@ -28,7 +28,7 @@ class WorldClock implements IAnimatable {
 	var _animatableList:Array<IAnimatable>;
 	var _time:Float;
 	
-	public function contains(animatable:IAnimatable):Bool {
+	public function has(animatable:IAnimatable):Bool {
 		return Lambda.has(_animatableList, animatable);
 	}
 	

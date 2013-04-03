@@ -1,4 +1,5 @@
 package hxDragonBones.factorys;
+import haxe.Log;
 import hxDragonBones.Armature;
 import hxDragonBones.Bone;
 import hxDragonBones.display.NativeDisplayBridge;
@@ -26,8 +27,8 @@ import nme.events.EventDispatcher;
 import nme.events.IEventDispatcher;
 import nme.geom.Matrix;
 import nme.Lib;
-import nme.utils.ByteArray;
 import nme.ObjectHash;
+import nme.utils.ByteArray;
 
 /**
  * @author SlavaRa
@@ -38,26 +39,24 @@ class BaseFactory extends EventDispatcher{
 		super(target);
 		_helpMatrix = new Matrix();
 		_skeletonDataDic = new ObjectHash<String, SkeletonData>();
-		_textureAtlasDic = new ObjectHash<String, ITextureAtlas>();
+		_name2TexAtlas = new ObjectHash<String, ITextureAtlas>();
 		_loader2TexAtlasXML = new ObjectHash<Loader, Xml>();
 	}
 	
 	var _helpMatrix:Matrix;
 	var _skeletonDataDic:ObjectHash<String, SkeletonData>;
-	var _textureAtlasDic:ObjectHash<String, ITextureAtlas>;
+	var _name2TexAtlas:ObjectHash<String, ITextureAtlas>;
 	var _loader2TexAtlasXML:ObjectHash<Loader, Xml>;
-	var _currentSkeletonData:SkeletonData;
-	var _currentTextureAtlas:Dynamic;
-	var _currentSkeletonName:String;
-	var _currentTextureAtlasName:String;
+	var _curSkeletonData:SkeletonData;
+	var _curTexAtlas:Dynamic;
+	var _curSkeletonName:String;
+	var _curTexAtlasName:String;
 	
 	public function parseData(bytes:ByteArray, ?skeletonName:String):SkeletonData {
 		var decompressedData:DecompressedData = XMLDataParser.decompressData(bytes);
 		
 		var skeletonData:SkeletonData = XMLDataParser.parseSkeletonData(decompressedData.skeletonXML);
-		if (skeletonName == null) {
-			skeletonName = skeletonData.name;
-		}
+		if(skeletonName == null) skeletonName = skeletonData.name;
 		addSkeletonData(skeletonData, skeletonName);
 		
 		var loader:Loader = new Loader();
@@ -70,48 +69,46 @@ class BaseFactory extends EventDispatcher{
 		return skeletonData;
 	}
 	
+	//TODO: not use
 	public function getSkeletonData(name:String):SkeletonData {
 		return _skeletonDataDic.get(name);
 	}
 	
+	//TODO: use only this
 	public function addSkeletonData(skeletonData:SkeletonData, ?name:String) {
-		if (name == null) {
-			name = skeletonData.name;
-		}
+		if(name == null) name = skeletonData.name;
 		
 		if(name == null) {
 			throw "Unnamed data!";
 		}
 		
-		if(skeletonData != null) {
-			_skeletonDataDic.set(name, skeletonData);
-		}
+		_skeletonDataDic.set(name, skeletonData);
 	}
 	
+	//TODO: not use
 	public function removeSkeletonData(name:String) {
 		_skeletonDataDic.remove(name);
 	}
 	
+	//TODO: not use
 	public function getTextureAtlas(name:String):Dynamic {
-		return _textureAtlasDic.get(name);
+		return _name2TexAtlas.get(name);
 	}
 	
-	public function addTextureAtlas(textureAtlas:ITextureAtlas, ?name:String) {
-		if((name == null) && (textureAtlas != null)) {
-			name = textureAtlas.name;
-		}
+	//TODO: use only this
+	public function addTextureAtlas(texAtlas:ITextureAtlas, ?name:String) {
+		if(name == null) name = texAtlas.name;
 		
 		if(name == null) {
 			throw "Unnamed data!";
 		}
 		
-		if(textureAtlas != null) {
-			_textureAtlasDic.set(name, textureAtlas);
-		}
+		_name2TexAtlas.set(name, texAtlas);
 	}
 	
+	//TODO: not use
 	public function removeTextureAtlas(name:String) {
-		_textureAtlasDic.remove(name);
+		_name2TexAtlas.remove(name);
 	}
 	
 	public function dispose(disposeData:Bool = true) {
@@ -120,38 +117,37 @@ class BaseFactory extends EventDispatcher{
 				skeletonData.dispose();
 			}
 			
-			for (textureAtlas in _textureAtlasDic) {
+			for (textureAtlas in _name2TexAtlas) {
 				textureAtlas.dispose();
 			}
 		}
 		
 		_skeletonDataDic = new ObjectHash<String, SkeletonData>();
-		_textureAtlasDic = new ObjectHash<String, ITextureAtlas>();
+		_name2TexAtlas = new ObjectHash<String, ITextureAtlas>();
 		_loader2TexAtlasXML = new ObjectHash<Loader, Xml>();
 		
-		_currentSkeletonData = null;
-		_currentTextureAtlas = null;
-		_currentSkeletonName = null;
-		_currentTextureAtlasName = null;
+		_curSkeletonData = null;
+		_curTexAtlas = null;
+		_curSkeletonName = null;
+		_curTexAtlasName = null;
 	}
 	
-	public function buildArmature(armatureName:String, ?animationName:String, ?skeletonName:String, ?textureAtlasName:String):Armature {
-		if (animationName == null) {
-			animationName = armatureName;
-		}
+	public function buildArmature(armatureName:String, ?animationName:String, ?skeletonName:String, ?texAtlasName:String):Armature {
+		if(animationName == null) animationName = armatureName;
 		
 		var skeletonData:SkeletonData = null;
 		var armatureData:ArmatureData = null;
-		if(skeletonName != null) {
+		if (skeletonName != null) {
 			skeletonData = _skeletonDataDic.get(skeletonName);
-			if(skeletonData != null) {
+			if (skeletonData != null) {
 				armatureData = skeletonData.getArmatureData(armatureName);
 			}
 		} else {
-			for (skeletonName in _skeletonDataDic.keys()) {
-				skeletonData = _skeletonDataDic.get(skeletonName);
+			for (key in _skeletonDataDic.keys()) {
+				skeletonData = _skeletonDataDic.get(key);
 				armatureData = skeletonData.getArmatureData(armatureName);
-				if(armatureData != null) {
+				if (armatureData != null) {
+					skeletonName = key;
 					break;
 				}
 			}
@@ -161,29 +157,29 @@ class BaseFactory extends EventDispatcher{
 			return null;
 		}
 		
-		_currentSkeletonName = skeletonName;
-		_currentSkeletonData = skeletonData;
+		_curSkeletonName = skeletonName;
+		_curSkeletonData = skeletonData;
 		
-		if (textureAtlasName != null) {
-			_currentTextureAtlasName = textureAtlasName;
+		if (texAtlasName != null) {
+			_curTexAtlasName = texAtlasName;
 		} else {
-			_currentTextureAtlasName = skeletonName;
+			_curTexAtlasName = skeletonName;
 		}
 		
-		_currentTextureAtlas = _textureAtlasDic.get(_currentTextureAtlasName);
+		_curTexAtlas = _name2TexAtlas.get(_curTexAtlasName);
 		
-		var animationData:AnimationData = _currentSkeletonData.getAnimationData(animationName);
+		var animationData:AnimationData = _curSkeletonData.getAnimationData(animationName);
 		
-		if(animationData == null) {
-			for (skeletonData in _skeletonDataDic) {
-				animationData = skeletonData.getAnimationData(animationName);
+		if (animationData == null) {
+			for (value in _skeletonDataDic) {
+				animationData = value.getAnimationData(animationName);
 				if(animationData != null) {
 					break;
 				}
 			}
 		}
 		
-		var armature:Armature = generateArmature();
+		var armature:Armature = createArmature();
 		armature.name = armatureName;
 		armature.animation.animationData = animationData;
 		for (boneName in armatureData.boneNames) {
@@ -199,56 +195,36 @@ class BaseFactory extends EventDispatcher{
 		return armature;
 	}
 	
-	public function getTextureDisplay(textureName:String, ?textureAtlasName:String, ?pivotX:Null<Float>, ?pivotY:Null<Float>):Dynamic {
-		var textureAtlas:ITextureAtlas = null;
-		if(textureAtlasName != null) {
-			textureAtlas = _textureAtlasDic.get(textureAtlasName);
+	//TODO: not use
+	public function getTextureDisplay(texName:String, ?texAtlasName:String, ?pivotX:Null<Int>, ?pivotY:Null<Int>):Dynamic {
+		var texAtlas:ITextureAtlas = null;
+		if(texAtlasName != null) {
+			texAtlas = _name2TexAtlas.get(texAtlasName);
 		} else {
-			for (textureAtlas in _textureAtlasDic) {
-				if(textureAtlas.getRegion(textureName) != null) {
+			for (value in _name2TexAtlas) {
+				if (value.getRegion(texName) != null) {
+					texAtlas = value;
 					break;
 				}
-				textureAtlas = null;
+				texAtlas = null;
 			}
 		}
 		
-		if(textureAtlas != null) {
-			if ((pivotX == null) || (pivotY == null)) {
-				var skeletonData:SkeletonData = _skeletonDataDic.get(textureAtlasName);
-				if(skeletonData != null) {
-					var displayData:DisplayData = skeletonData.getDisplayData(textureName);
-					if(displayData != null) {
-						pivotX = (pivotX != null) ? pivotX : displayData.pivotX;
-						pivotY = (pivotY != null) ? pivotY : displayData.pivotY;
-					}
-				}
-			}
-			
-			return generateTextureDisplay(textureAtlas, textureName, cast(pivotX, Int), cast(pivotY, Int));
+		if(texAtlas == null) {
+			return null;
 		}
-		return null;
-	}
-	
-	function buildBone(boneData:BoneData):Bone {
-		var bone:Bone = generateBone();
-		bone.origin.copy(boneData.node);
 		
-		var displayData:DisplayData;
-		for (i in (boneData.displayNames.length - 1) ... 0) {
-			var displayName:String = boneData.displayNames[i];
-			displayData = _currentSkeletonData.getDisplayData(displayName);
-			bone.changeDisplay(i);
-			if (displayData.isArmature) {
-				var childArmature:Armature = buildArmature(displayName, null, _currentSkeletonName, _currentTextureAtlasName);
-				if(childArmature != null) {
-					childArmature.animation.play();
-					bone.display = childArmature;
+		if ((pivotX == null) || (pivotY == null)) {
+			var skeletonData:SkeletonData = _skeletonDataDic.get(texAtlasName);
+			if(skeletonData != null) {
+				var displayData:DisplayData = skeletonData.getDisplayData(texName);
+				if(displayData != null) {
+					if(pivotX != null) pivotX = displayData.pivotX;
+					if(pivotY != null) pivotY = displayData.pivotY;
 				}
-			} else {
-				bone.display = generateTextureDisplay(_currentTextureAtlas, displayName, displayData.pivotX, displayData.pivotY);
 			}
 		}
-		return bone;
+		return createTextureDisplay(texAtlas, texName, pivotX, pivotY);
 	}
 	
 	function loaderCompleteHandler(event:Event) {
@@ -260,8 +236,8 @@ class BaseFactory extends EventDispatcher{
 		
 		if((loaderInfo.loader.name != null) && (texAtlasXML != null)) {
 			
-			var textureAtlas:ITextureAtlas = generateTextureAtlas(getContent(loaderInfo), texAtlasXML);
-			addTextureAtlas(textureAtlas, loaderInfo.loader.name);
+			var texAtlas:ITextureAtlas = createTextureAtlas(getContent(loaderInfo), texAtlasXML);
+			addTextureAtlas(texAtlas, loaderInfo.loader.name);
 			
 			if ((Lambda.count(_loader2TexAtlasXML) == 0) && hasEventListener(Event.COMPLETE)) {
 				dispatchEvent(new Event(Event.COMPLETE));
@@ -273,6 +249,27 @@ class BaseFactory extends EventDispatcher{
 		#else
 		loaderInfo.loader.unload();
 		#end
+	}
+	
+	function buildBone(boneData:BoneData):Bone {
+		var bone:Bone = createBone();
+		bone.origin.copy(boneData.node);
+		
+		for (i in 0 ... boneData.displayNames.length) {
+			var name:String = boneData.displayNames[i];
+			var displayData:DisplayData = _curSkeletonData.getDisplayData(name);
+			bone.changeDisplay(i);
+			if (displayData.isArmature) {
+				var armature:Armature = buildArmature(name, null, _curSkeletonName, _curTexAtlasName);
+				if(armature != null) {
+					armature.animation.play();
+					bone.display = armature;
+				}
+			} else {
+				bone.display = createTextureDisplay(_curTexAtlas, name, displayData.pivotX, displayData.pivotY);
+			}
+		}
+		return bone;
 	}
 	
 	function getContent(loaderInfo:LoaderInfo):Dynamic {
@@ -287,53 +284,48 @@ class BaseFactory extends EventDispatcher{
 		return throw "non supported type";
 	}
 	
-	function generateTextureAtlas(content:Dynamic, textureAtlasXML:Dynamic):ITextureAtlas {
+	function createTextureAtlas(content:Dynamic, textureAtlasXML:Dynamic):ITextureAtlas {
 		return new NativeTextureAtlas(content, cast(textureAtlasXML, Xml));
 	}
 	
-	function generateArmature():Armature {
+	function createArmature():Armature {
 		return new Armature(new Sprite());
 	}
 	
-	function generateBone():Bone {
+	function createBone():Bone {
 		return new Bone(new NativeDisplayBridge());
 	}
 	
-	function generateTextureDisplay(textureAtlas:ITextureAtlas, fullName:String, pivotX:Int, pivotY:Int):Dynamic {
-		var nativeTextureAtlas:NativeTextureAtlas = cast(textureAtlas, NativeTextureAtlas);
-		if(nativeTextureAtlas != null){
-			var movieClip:MovieClip = nativeTextureAtlas.movieClip;
-			if ((movieClip != null) && (movieClip.totalFrames >= 3)) {
-				movieClip.gotoAndStop(movieClip.totalFrames);
-				movieClip.gotoAndStop(fullName);
-				if (movieClip.numChildren > 0) {
-					try {
-						var displaySWF:DisplayObject = movieClip.getChildAt(0);
-						displaySWF.x = 0;
-						displaySWF.y = 0;
-						return displaySWF;
-					} catch(error:Error) {
-						throw "Can not get the movie clip, please make sure the version of the resource compatible with app version!";
-					}
+	function createTextureDisplay(texAtlas:ITextureAtlas, fullName:String, ?pivotX:Null<Int>, ?pivotY:Null<Int>):Dynamic {
+		var nativeTextureAtlas:NativeTextureAtlas = cast(texAtlas, NativeTextureAtlas);
+		if (nativeTextureAtlas != null) {
+			var clip:MovieClip = nativeTextureAtlas.movieClip;
+			if ((clip != null) && (clip.totalFrames >= 3)) {
+				clip.gotoAndStop(clip.totalFrames);
+				clip.gotoAndStop(fullName);
+				if (clip.numChildren > 0) {
+					var displayObject:DisplayObject = clip.getChildAt(0);
+					displayObject.x = 0;
+					displayObject.y = 0;
+					return displayObject;
 				}
 			} else if(nativeTextureAtlas.bitmapData != null) {
 				var subTextureData:SubTextureData = cast(nativeTextureAtlas.getRegion(fullName), SubTextureData);
 				if (subTextureData != null) {
-					var displayShape:Shape = new Shape();
+					var shape:Shape = new Shape();
+					
 					//1.4
-					pivotX = (pivotX != 0) ? pivotX : subTextureData.pivotX;
-					pivotY = (pivotY != 0) ? pivotY : subTextureData.pivotY;
-					_helpMatrix.a = 1;
-					_helpMatrix.b = 0;
-					_helpMatrix.c = 0;
-					_helpMatrix.d = 1;
+					pivotX = (pivotX != null) ? pivotX : subTextureData.pivotX;
+					pivotY = (pivotY != null) ? pivotY : subTextureData.pivotY;
+					
+					_helpMatrix.identity();
 					_helpMatrix.scale(nativeTextureAtlas.scale, nativeTextureAtlas.scale);
 					_helpMatrix.tx = -subTextureData.x - pivotX;
 					_helpMatrix.ty = -subTextureData.y - pivotY;
 					
-					displayShape.graphics.beginBitmapFill(nativeTextureAtlas.bitmapData, _helpMatrix, false, true);
-					displayShape.graphics.drawRect(-pivotX, -pivotY, subTextureData.width, subTextureData.height);
-					return displayShape;
+					shape.graphics.beginBitmapFill(nativeTextureAtlas.bitmapData, _helpMatrix, false, true);
+					shape.graphics.drawRect(-pivotX, -pivotY, subTextureData.width, subTextureData.height);
+					return shape;
 				}
 			}
 		}

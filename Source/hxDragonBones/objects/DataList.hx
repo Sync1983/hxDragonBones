@@ -1,5 +1,6 @@
 package hxDragonBones.objects;
 
+import haxe.Log;
 import nme.ObjectHash;
 
 /**
@@ -55,5 +56,4 @@ class DataList{
 			dataNames.splice(Lambda.indexOf(dataNames, dataName), 1);
 		}
 	}
-	
 }

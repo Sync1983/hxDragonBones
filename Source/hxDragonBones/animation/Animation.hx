@@ -1,4 +1,5 @@
 package hxDragonBones.animation;
+import haxe.Log;
 import haxe.remoting.FlashJsConnection;
 import hxDragonBones.Armature;
 import hxDragonBones.events.AnimationEvent;
@@ -57,16 +58,15 @@ class Animation{
 		return animationData;
 	}
 	
-	//BUG
 	function get_isPlaying():Bool {
 		if(isPlaying) {
-			return (_loop >= 0) || (currentTime < totalTime) && !isPlaying;
+			return (_loop >= 0) || (currentTime < totalTime);
 		}
 		return false;
 	}
 	
 	function get_isComplete():Bool {
-		return _loop < 0 && (currentTime >= totalTime);
+		return (_loop < 0) && (currentTime >= totalTime);
 	}
 	
 	function get_isPause():Bool {
@@ -98,7 +98,7 @@ class Animation{
 		_armature = null;
 	}
 	
-	public function gotoAndPlay(movementID:String, tweenTime:Float = -1, duration:Float = -1, loop:Dynamic = null) {
+	public function gotoAndPlay(movementID:String, tweenTime:Float = -1, duration:Float = -1, ?loop:Dynamic) {
 		if (animationData == null) {
 			return;
 		}
@@ -125,7 +125,7 @@ class Animation{
 		}
 		
 		if(totalTime < 0) {
-			this.totalTime = 0;
+			totalTime = 0;
 		}
 		
 		_duration = (duration >= 0) ? duration : this.movementData.durationTween;
@@ -152,7 +152,7 @@ class Animation{
 			var movementBoneData:MovementBoneData = this.movementData.getMovementBoneData(bone.name);
 			if (movementBoneData != null) {
 				bone.tween.gotoAndPlay(movementBoneData, _rawDuration, loop, tweenEasing);
-				if(bone.childArmature != null) {
+				if (bone.childArmature != null) {
 					bone.childArmature.animation.gotoAndPlay(movementID);
 				}
 			} else {
@@ -173,14 +173,14 @@ class Animation{
 			return;
 		}
 		
-		if(movementID == null) {
-			if(movementList != null) {
+		if (movementID == null) {
+			if (movementList != null) {
 				gotoAndPlay(movementList[0]);
 			}
 			return;
 		}
 		
-		if(isComplete) {
+		if (isComplete) {
 			gotoAndPlay(movementID);
 		} else if(!isPlaying) {
 			isPlaying = true;

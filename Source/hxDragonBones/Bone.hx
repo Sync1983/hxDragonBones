@@ -36,6 +36,7 @@ class Bone extends EventDispatcher{
 		tweenColorTransform = new ColorTransform();
 		
 		tween = new Tween(this);
+		isOnStage = false;
 	}
 	
 	public var name:String;
@@ -60,7 +61,8 @@ class Bone extends EventDispatcher{
 	var _displayIndex:Int;
 	
 	function get_childArmature():Armature {
-		return cast(_displayList[_displayIndex], Armature);
+		var d:Dynamic = _displayList[_displayIndex];
+		return Std.is(d, Armature) ? cast(d, Armature) : null;
 	}
 	
 	function get_display():Dynamic {
@@ -83,13 +85,13 @@ class Bone extends EventDispatcher{
 		if(displayIndex < 0) {
 			if(isOnStage) {
 				isOnStage = false;
-				displayBridge.removeDisplay();
+				displayBridge.removeDisplayFromParent();
 			}
 		} else {
 			if(!isOnStage) {
 				isOnStage = true;
 				if(armature != null) {
-					displayBridge.addDisplay(armature.display, cast(global.z, Int));
+					displayBridge.addDisplayTo(armature.display, cast(global.z, Int));
 					armature.bonesIndexChanged = true;
 				}
 			}
@@ -147,7 +149,7 @@ class Bone extends EventDispatcher{
 			child.setParent(this);
 			
 			if (armature != null) {
-				armature.addToBones(child);
+				armature.addDisplayToBones(child);
 			}
 		}
 	}
@@ -170,33 +172,34 @@ class Bone extends EventDispatcher{
 	}
 	
 	public function update() {
+		Log.trace("update");
 		if ((children.length > 0) || isOnStage) {
-			global.x = origin.x + node.x + tweenNode.x;
-			global.y = origin.y + node.y + tweenNode.y;
-			global.skewX = origin.skewX + node.skewX + tweenNode.skewX;
-			global.skewY = origin.skewY + node.skewY + tweenNode.skewY;
-			global.scaleX = origin.scaleX + node.scaleX + tweenNode.scaleX;
-			global.scaleY = origin.scaleY + node.scaleY + tweenNode.scaleY;
-			global.pivotX = origin.pivotX + node.pivotX + tweenNode.pivotX;
-			global.pivotY = origin.pivotY + node.pivotY + tweenNode.pivotY;
-			global.z = origin.z + node.z + tweenNode.z;
+			global.x 		= origin.x + node.x + tweenNode.x;
+			global.y 		= origin.y + node.y + tweenNode.y;
+			global.skewX 	= origin.skewX + node.skewX + tweenNode.skewX;
+			global.skewY 	= origin.skewY + node.skewY + tweenNode.skewY;
+			global.scaleX 	= origin.scaleX + node.scaleX + tweenNode.scaleX;
+			global.scaleY 	= origin.scaleY + node.scaleY + tweenNode.scaleY;
+			global.pivotX 	= origin.pivotX + node.pivotX + tweenNode.pivotX;
+			global.pivotY 	= origin.pivotY + node.pivotY + tweenNode.pivotY;
+			global.z 		= origin.z + node.z + tweenNode.z;
 			
 			if(parent != null) {
-				_helpPoint.x = global.x;
-				_helpPoint.y = global.y;
-				_helpPoint = parent.globalTransformMatrix.transformPoint(_helpPoint);
-				global.x = _helpPoint.x;
-				global.y = _helpPoint.y;
-				global.skewX += parent.global.skewX;
-				global.skewY += parent.global.skewY;
+				_helpPoint.x 	= global.x;
+				_helpPoint.y 	= global.y;
+				_helpPoint 		= parent.globalTransformMatrix.transformPoint(_helpPoint);
+				global.x 		= _helpPoint.x;
+				global.y 		= _helpPoint.y;
+				global.skewX 	+= parent.global.skewX;
+				global.skewY 	+= parent.global.skewY;
 			}
 			
-			globalTransformMatrix.a = global.scaleX * Math.cos(global.skewY);
-			globalTransformMatrix.b = global.scaleX * Math.sin(global.skewY);
-			globalTransformMatrix.c = -global.scaleY * Math.sin(global.skewX);
-			globalTransformMatrix.d = global.scaleY * Math.cos(global.skewX);
-			globalTransformMatrix.tx = global.x;
-			globalTransformMatrix.ty = global.y;
+			globalTransformMatrix.a 	= global.scaleX * Math.cos(global.skewY);
+			globalTransformMatrix.b 	= global.scaleX * Math.sin(global.skewY);
+			globalTransformMatrix.c 	= -global.scaleY * Math.sin(global.skewX);
+			globalTransformMatrix.d 	= global.scaleY * Math.cos(global.skewX);
+			globalTransformMatrix.tx 	= global.x;
+			globalTransformMatrix.ty 	= global.y;
 			
 			if (children.length > 0) {
 				for (child in children) {

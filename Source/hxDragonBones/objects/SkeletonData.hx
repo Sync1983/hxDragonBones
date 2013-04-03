@@ -1,4 +1,5 @@
 package hxDragonBones.objects;
+import nme.Lib;
 
 /**
  * @author SlavaRa
@@ -16,8 +17,8 @@ class SkeletonData{
 	public var armatureNames(get_armatureNames, null):Array<String>;
 	public var animationNames(get_animationNames, null):Array<String>;
 	public var armatureDataList:DataList;
-	public var displayDataList:DataList;
 	public var animationDataList:DataList;
+	public var displayDataList:DataList;
 	
 	function get_armatureNames():Array<String> {
 		return armatureDataList.dataNames.slice(0);

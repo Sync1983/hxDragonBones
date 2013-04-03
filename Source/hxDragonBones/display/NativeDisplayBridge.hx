@@ -1,11 +1,11 @@
 package hxDragonBones.display;
+import haxe.Log;
 import nme.display.DisplayObjectContainer;
 import nme.geom.ColorTransform;
 import hxDragonBones.objects.Node;
 import nme.geom.Matrix;
 
 /**
- * ...
  * @author SlavaRa
  */
 class NativeDisplayBridge implements IDisplayBridge{
@@ -23,19 +23,20 @@ class NativeDisplayBridge implements IDisplayBridge{
 			return value;
 		}
 		var index:Int = 0;
-		if (display) {
-			var parent:DisplayObjectContainer = display.parent;
+		var parent:DisplayObjectContainer = null;
+		if (display != null) {
+			parent = display.parent;
 			if (parent != null) {
 				index = parent.getChildIndex(display);
 			}
-			removeDisplay();
+			removeDisplayFromParent();
 		}
 		display = value;
-		addDisplay(display, index);
+		addDisplayTo(parent, index);
 		return value;
 	}
 	
-	public function update(matrix:Matrix, node:Node, colorTransform:ColorTransform, visible:Bool) {
+	public function update(matrix:Matrix, node:Node, ?colorTransform:ColorTransform, visible:Bool) {
 		var pivotX:Float = node.pivotX;
 		var pivotY:Float = node.pivotY;
 		matrix.tx -= matrix.a * pivotX + matrix.c * pivotY;
@@ -48,7 +49,7 @@ class NativeDisplayBridge implements IDisplayBridge{
 		display.visible = visible;
 	}
 	
-	public function addDisplay(container:Dynamic, index:Int = -1) {
+	public function addDisplayTo(container:Dynamic, index:Int = -1) {
 		if((container != null) && (display != null)) {
 			if(index < 0) {
 				container.addChild(display);
@@ -58,7 +59,7 @@ class NativeDisplayBridge implements IDisplayBridge{
 		}
 	}
 	
-	public function removeDisplay() {
+	public function removeDisplayFromParent() {
 		if((display != null) && (display.parent != null)) {
 			display.parent.removeChild(display);
 		}

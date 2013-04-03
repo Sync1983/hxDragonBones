@@ -1,4 +1,5 @@
 package hxDragonBones.objects;
+import nme.Lib;
 
 /**
  * @author SlavaRa
@@ -56,4 +57,5 @@ class ArmatureData{
 			}
 		}
 	}
+	
 }

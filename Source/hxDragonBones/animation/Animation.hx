@@ -98,7 +98,7 @@ class Animation{
 		_armature = null;
 	}
 	
-	public function gotoAndPlay(movementID:String, tweenTime:Float = -1, duration:Float = -1, loop:Dynamic = null) {
+	public function gotoAndPlay(movementID:String, tweenTime:Float = -1, duration:Float = -1, ?loop:Dynamic) {
 		if (animationData == null) {
 			return;
 		}
@@ -125,7 +125,7 @@ class Animation{
 		}
 		
 		if(totalTime < 0) {
-			this.totalTime = 0;
+			totalTime = 0;
 		}
 		
 		_duration = (duration >= 0) ? duration : this.movementData.durationTween;

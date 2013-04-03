@@ -1,5 +1,6 @@
 package;
 
+import hxDragonBones.animation.WorldClock;
 import hxDragonBones.Armature;
 import hxDragonBones.factorys.BaseFactory;
 import nme.Assets;
@@ -61,8 +62,14 @@ class Main extends Sprite {
 	function onFactoryComplete(event:Event) {
 		var factory:BaseFactory = cast(event.currentTarget, BaseFactory);
 		var armature:Armature = factory.buildArmature("CharacterAnimations");
-		//armature.animation.gotoAndPlay("Idle");
-		//addChild(armature.display);
+		addChild(armature.display);
+		WorldClock.clock.add(armature);
+		armature.animation.gotoAndPlay("Idle");
+		addEventListener(Event.ENTER_FRAME, onEnterFrame);
+	}
+	
+	function onEnterFrame(event:Event){
+		WorldClock.clock.advanceTime( -1);
 	}
 	
 	function onStageAddedToStage(event:Event) {

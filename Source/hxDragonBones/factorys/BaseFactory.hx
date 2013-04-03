@@ -48,7 +48,7 @@ class BaseFactory extends EventDispatcher{
 	var _currentSkeletonData:SkeletonData;
 	var _currentTextureAtlas:Dynamic;
 	var _currentSkeletonName:String;
-	var _currentTextureAtlasName:String;
+	var _currentTexAtlasName:String;
 	
 	public function parseData(bytes:ByteArray, ?skeletonName:String):SkeletonData {
 		var decompressedData:DecompressedData = XMLDataParser.decompressData(bytes);
@@ -121,10 +121,10 @@ class BaseFactory extends EventDispatcher{
 		_currentSkeletonData = null;
 		_currentTextureAtlas = null;
 		_currentSkeletonName = null;
-		_currentTextureAtlasName = null;
+		_currentTexAtlasName = null;
 	}
 	
-	public function buildArmature(armatureName:String, ?animationName:String, ?skeletonName:String, ?textureAtlasName:String):Armature {
+	public function buildArmature(armatureName:String, ?animationName:String, ?skeletonName:String, ?texAtlasName:String):Armature {
 		animationName = if(animationName != null) animationName else armatureName;
 		
 		var skeletonData:SkeletonData = null;
@@ -151,13 +151,13 @@ class BaseFactory extends EventDispatcher{
 		_currentSkeletonName = skeletonName;
 		_currentSkeletonData = skeletonData;
 		
-		if (textureAtlasName != null) {
-			_currentTextureAtlasName = textureAtlasName;
+		if (texAtlasName != null) {
+			_currentTexAtlasName = texAtlasName;
 		} else {
-			_currentTextureAtlasName = skeletonName;
+			_currentTexAtlasName = skeletonName;
 		}
 		
-		_currentTextureAtlas = _textureAtlasDic.get(_currentTextureAtlasName);
+		_currentTextureAtlas = _textureAtlasDic.get(_currentTexAtlasName);
 		
 		var animationData:AnimationData = _currentSkeletonData.getAnimationData(animationName);
 		
@@ -186,34 +186,34 @@ class BaseFactory extends EventDispatcher{
 		return armature;
 	}
 	
-	public function getTextureDisplay(textureName:String, ?textureAtlasName:String, ?pivotX:Null<Int>, ?pivotY:Null<Int>):Dynamic {
-		var textureAtlas:ITextureAtlas = null;
-		if(textureAtlasName != null) {
-			textureAtlas = _textureAtlasDic.get(textureAtlasName);
+	public function getTextureDisplay(texName:String, ?texAtlasName:String, ?pivotX:Null<Int>, ?pivotY:Null<Int>):Dynamic {
+		var texAtlas:ITextureAtlas = null;
+		if(texAtlasName != null) {
+			texAtlas = _textureAtlasDic.get(texAtlasName);
 		} else {
-			for (textureAtlas in _textureAtlasDic) {
-				if(textureAtlas.getRegion(textureName) != null) {
+			for (texAtlas in _textureAtlasDic) {
+				if(texAtlas.getRegion(texName) != null) {
 					break;
 				}
-				textureAtlas = null;
+				texAtlas = null;
 			}
 		}
 		
-		if(textureAtlas == null) {
+		if(texAtlas == null) {
 			return null;
 		}
 		
 		if ((pivotX == null) || (pivotY == null)) {
-			var skeletonData:SkeletonData = _skeletonDataDic.get(textureAtlasName);
+			var skeletonData:SkeletonData = _skeletonDataDic.get(texAtlasName);
 			if(skeletonData != null) {
-				var displayData:DisplayData = skeletonData.getDisplayData(textureName);
+				var displayData:DisplayData = skeletonData.getDisplayData(texName);
 				if(displayData != null) {
 					if(pivotX != null) pivotX = displayData.pivotX;
 					if(pivotY != null) pivotY = displayData.pivotY;
 				}
 			}
 		}
-		return generateTextureDisplay(textureAtlas, textureName, pivotX, pivotY);
+		return generateTextureDisplay(texAtlas, texName, pivotX, pivotY);
 	}
 	
 	function buildBone(boneData:BoneData):Bone {
@@ -226,7 +226,7 @@ class BaseFactory extends EventDispatcher{
 			displayData = _currentSkeletonData.getDisplayData(displayName);
 			bone.changeDisplay(i);
 			if (displayData.isArmature) {
-				var childArmature:Armature = buildArmature(displayName, null, _currentSkeletonName, _currentTextureAtlasName);
+				var childArmature:Armature = buildArmature(displayName, null, _currentSkeletonName, _currentTexAtlasName);
 				if(childArmature != null) {
 					childArmature.animation.play();
 					bone.display = childArmature;
@@ -247,8 +247,8 @@ class BaseFactory extends EventDispatcher{
 		
 		if((loaderInfo.loader.name != null) && (texAtlasXML != null)) {
 			
-			var textureAtlas:ITextureAtlas = generateTextureAtlas(getContent(loaderInfo), texAtlasXML);
-			addTextureAtlas(textureAtlas, loaderInfo.loader.name);
+			var texAtlas:ITextureAtlas = generateTextureAtlas(getContent(loaderInfo), texAtlasXML);
+			addTextureAtlas(texAtlas, loaderInfo.loader.name);
 			
 			if ((Lambda.count(_loader2TexAtlasXML) == 0) && hasEventListener(Event.COMPLETE)) {
 				dispatchEvent(new Event(Event.COMPLETE));
@@ -286,7 +286,7 @@ class BaseFactory extends EventDispatcher{
 		return new Bone(new NativeDisplayBridge());
 	}
 	
-	function generateTextureDisplay(textureAtlas:ITextureAtlas, fullName:String, pivotX:Int, pivotY:Int):Dynamic {
+	function generateTextureDisplay(textureAtlas:ITextureAtlas, fullName:String, ?pivotX:Null<Int>, ?pivotY:Null<Int>):Dynamic {
 		var nativeTextureAtlas:NativeTextureAtlas = cast(textureAtlas, NativeTextureAtlas);
 		if(nativeTextureAtlas != null){
 			var movieClip:MovieClip = nativeTextureAtlas.movieClip;
@@ -294,33 +294,28 @@ class BaseFactory extends EventDispatcher{
 				movieClip.gotoAndStop(movieClip.totalFrames);
 				movieClip.gotoAndStop(fullName);
 				if (movieClip.numChildren > 0) {
-					try {
-						var displaySWF:DisplayObject = movieClip.getChildAt(0);
-						displaySWF.x = 0;
-						displaySWF.y = 0;
-						return displaySWF;
-					} catch(error:Error) {
-						throw "Can not get the movie clip, please make sure the version of the resource compatible with app version!";
-					}
+					var displayObject:DisplayObject = movieClip.getChildAt(0);
+					displayObject.x = 0;
+					displayObject.y = 0;
+					return displayObject;
 				}
 			} else if(nativeTextureAtlas.bitmapData != null) {
 				var subTextureData:SubTextureData = cast(nativeTextureAtlas.getRegion(fullName), SubTextureData);
 				if (subTextureData != null) {
-					var displayShape:Shape = new Shape();
+					var shape:Shape = new Shape();
+					
 					//1.4
-					pivotX = (pivotX != 0) ? pivotX : subTextureData.pivotX;
-					pivotY = (pivotY != 0) ? pivotY : subTextureData.pivotY;
-					_helpMatrix.a = 1;
-					_helpMatrix.b = 0;
-					_helpMatrix.c = 0;
-					_helpMatrix.d = 1;
+					pivotX = (pivotX != null) ? pivotX : subTextureData.pivotX;
+					pivotY = (pivotY != null) ? pivotY : subTextureData.pivotY;
+					
+					_helpMatrix.identity();
 					_helpMatrix.scale(nativeTextureAtlas.scale, nativeTextureAtlas.scale);
 					_helpMatrix.tx = -subTextureData.x - pivotX;
 					_helpMatrix.ty = -subTextureData.y - pivotY;
 					
-					displayShape.graphics.beginBitmapFill(nativeTextureAtlas.bitmapData, _helpMatrix, false, true);
-					displayShape.graphics.drawRect(-pivotX, -pivotY, subTextureData.width, subTextureData.height);
-					return displayShape;
+					shape.graphics.beginBitmapFill(nativeTextureAtlas.bitmapData, _helpMatrix, false, true);
+					shape.graphics.drawRect(-pivotX, -pivotY, subTextureData.width, subTextureData.height);
+					return shape;
 				}
 			}
 		}

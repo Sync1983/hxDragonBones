@@ -1,5 +1,4 @@
 package hxDragonBones.factorys;
-import haxe.Log;
 import hxDragonBones.Armature;
 import hxDragonBones.Bone;
 import hxDragonBones.display.NativeDisplayBridge;
@@ -21,12 +20,10 @@ import nme.display.LoaderInfo;
 import nme.display.MovieClip;
 import nme.display.Shape;
 import nme.display.Sprite;
-import nme.errors.Error;
 import nme.events.Event;
 import nme.events.EventDispatcher;
 import nme.events.IEventDispatcher;
 import nme.geom.Matrix;
-import nme.Lib;
 import nme.ObjectHash;
 import nme.utils.ByteArray;
 
@@ -324,7 +321,8 @@ class BaseFactory extends EventDispatcher{
 					_helpMatrix.ty = -subTextureData.y - pivotY;
 					
 					shape.graphics.beginBitmapFill(nativeTextureAtlas.bitmapData, _helpMatrix, false, true);
-					shape.graphics.drawRect(-pivotX, -pivotY, subTextureData.width, subTextureData.height);
+					shape.graphics.drawRect( -pivotX, -pivotY, subTextureData.width, subTextureData.height);
+					shape.graphics.endFill();
 					return shape;
 				}
 			}

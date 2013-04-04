@@ -20,7 +20,7 @@ class Tween{
 	static inline var HALF_PI:Float = Math.PI * 0.5;
 	static var _soundManager:SoundEventManager = SoundEventManager.instance;
 	
-	public static function getEaseValue(value:Null<Float>, ?easing:Null<Float>):Float {
+	public static function getEaseValue(value:Float, ?easing:Null<Float>):Float {
 		var valueEase:Float = 0;
 		if (easing == null) {
 			return valueEase;
@@ -59,8 +59,8 @@ class Tween{
 	var _offSetNode:Node;
 	var _offSetColorTransform:ColorTransform;
 	var _currentFrameData:FrameData;
-	var _tweenEasing:Null<Float>;
-	var _frameTweenEasing:Null<Float>;
+	var _tweenEasing:Float;
+	var _frameTweenEasing:Float;
 	var _isPause:Bool;
 	var _rawDuration:Float;
 	var _nextFrameDataTimeEdge:Float;
@@ -147,7 +147,7 @@ class Tween{
 		}
 		
 		
-		if ((_frameTweenEasing != null) || (_currentFrameData != null)) {
+		if (!Math.isNaN(_frameTweenEasing) || (_currentFrameData != null)) {
 			TransformUtils.setTweenNode(_currentNode, _offSetNode, _node, progress);
 			if(differentColorTransform) {
 				TransformUtils.setTweenColorTransform(_currentColorTransform, _offSetColorTransform, _colorTransform, progress);
@@ -183,8 +183,8 @@ class Tween{
 		
 		var progress:Float = 1 - (nextFrameDataTimeEdge - playedTime) / frameDuration;
 		
-		var tweenEasing:Null<Float> = (_tweenEasing == null)? currentFrameData.tweenEasing : _tweenEasing;
-		if (tweenEasing != null) {
+		var tweenEasing:Float = Math.isNaN(_tweenEasing) ? currentFrameData.tweenEasing : _tweenEasing;
+		if (tweenEasing != 0) {
 			progress = getEaseValue(progress, tweenEasing);
 		}
 		
@@ -284,7 +284,7 @@ class Tween{
 			if((nextFrameData.displayIndex >= 0) && _bone.armature.animation.tweenEnabled) {
 				_frameTweenEasing = currentFrameData.tweenEasing;
 			} else {
-				_frameTweenEasing = null;
+				_frameTweenEasing = Math.NaN;
 			}
 			
 			setOffset(currentFrameData.node, currentFrameData.colorTransform, nextFrameData.node, nextFrameData.colorTransform, nextFrameData.tweenRotate);
@@ -301,13 +301,12 @@ class Tween{
 		
 		progress = 1 - (_nextFrameDataTimeEdge - playedTime) / _frameDuration;
 		
-		if (_frameTweenEasing != null) {
-			var tweenEasing:Null<Float> = (_tweenEasing == null) ? _frameTweenEasing : _tweenEasing;
-			if (tweenEasing != null) {
+		if (!Math.isNaN(_frameTweenEasing)) {
+			var tweenEasing:Float = Math.isNaN(_tweenEasing) ? _frameTweenEasing : _tweenEasing;
+			if (tweenEasing != 0) {
 				progress = getEaseValue(progress, tweenEasing);
 			}
 		}
-		progress = getEaseValue(progress, _frameTweenEasing);
-		return progress;
+		return getEaseValue(progress, _frameTweenEasing);
 	}
 }

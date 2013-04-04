@@ -65,17 +65,18 @@ class Main extends Sprite {
 		var factory:BaseFactory = cast(event.currentTarget, BaseFactory);
 		var armature:Armature = factory.buildArmature("CharacterAnimations");
 		armature.animation.gotoAndPlay("Idle", -1, -1, true);
+		
 		var s:Sprite = cast(armature.display, Sprite);
 		s.x = Lib.current.stage.stageWidth >>> 1;
 		s.y = Lib.current.stage.stageHeight >>> 1;
 		addChild(s);
 		
-		WorldClock.clock.add(armature);
+		WorldClock.instance.add(armature);
 		addEventListener(Event.ENTER_FRAME, onEnterFrame);
 	}
 	
 	function onEnterFrame(event:Event) {
-		WorldClock.clock.advanceTime(-1);
+		WorldClock.instance.advanceTime(-1);
 	}
 	
 	function onStageAddedToStage(event:Event) {

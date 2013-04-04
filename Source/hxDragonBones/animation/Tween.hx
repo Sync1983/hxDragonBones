@@ -20,9 +20,9 @@ class Tween{
 	static inline var HALF_PI:Float = Math.PI * 0.5;
 	static var _soundManager:SoundEventManager = SoundEventManager.instance;
 	
-	public static function getEaseValue(value:Null<Float>, ?easing:Null<Float>):Float {
+	public static function getEaseValue(value:Float, ?easing:Float):Float {
 		var valueEase:Float = 0;
-		if (easing == null) {
+		if (Math.isNaN(easing)) {
 			return valueEase;
 		} else if (easing > 1) {
 			valueEase = 0.5 * (1 - Math.cos(value * Math.PI)) - value;
@@ -59,8 +59,8 @@ class Tween{
 	var _offSetNode:Node;
 	var _offSetColorTransform:ColorTransform;
 	var _currentFrameData:FrameData;
-	var _tweenEasing:Null<Float>;
-	var _frameTweenEasing:Null<Float>;
+	var _tweenEasing:Float;
+	var _frameTweenEasing:Float;
 	var _isPause:Bool;
 	var _rawDuration:Float;
 	var _nextFrameDataTimeEdge:Float;
@@ -69,9 +69,11 @@ class Tween{
 	var _loop:Int;
 	
 	public function gotoAndPlay(movementBoneData:MovementBoneData, rawDuration:Float, loop:Bool, tweenEasing:Float) {
+		
 		if(movementBoneData == null) {
 			return;
 		}
+		
 		_movementBoneData = movementBoneData;
 		var totalFrames:Int = _movementBoneData.frameList.length;
 		if(totalFrames == 0) {
@@ -97,7 +99,7 @@ class Tween{
 			_rawDuration = 0;
 			nextFrameData = _movementBoneData.frameList[0];
 			setOffset(_node, _colorTransform, nextFrameData.node, nextFrameData.colorTransform);
-		} else if (loop && _movementBoneData.delay != 0) {
+		} else if (loop && (_movementBoneData.delay != 0)) {
 			getLoopListNode();
 			setOffset(_node, _colorTransform, _offSetNode, _offSetColorTransform);
 		} else {
@@ -105,7 +107,7 @@ class Tween{
 			setOffset(_node, _colorTransform, nextFrameData.node, nextFrameData.colorTransform);
 		}
 		
-		if(nextFrameData != null) {
+		if (nextFrameData != null) {
 			updateBoneDisplayIndex(nextFrameData);
 		}
 	}
@@ -147,7 +149,7 @@ class Tween{
 		}
 		
 		
-		if ((_frameTweenEasing != null) || (_currentFrameData != null)) {
+		if (!Math.isNaN(_frameTweenEasing) || (_currentFrameData != null)) {
 			TransformUtils.setTweenNode(_currentNode, _offSetNode, _node, progress);
 			if(differentColorTransform) {
 				TransformUtils.setTweenColorTransform(_currentColorTransform, _offSetColorTransform, _colorTransform, progress);
@@ -183,8 +185,8 @@ class Tween{
 		
 		var progress:Float = 1 - (nextFrameDataTimeEdge - playedTime) / frameDuration;
 		
-		var tweenEasing:Null<Float> = (_tweenEasing == null)? currentFrameData.tweenEasing : _tweenEasing;
-		if (tweenEasing != null) {
+		var tweenEasing:Float = Math.isNaN(_tweenEasing) ? currentFrameData.tweenEasing : _tweenEasing;
+		if (tweenEasing != 0) {
 			progress = getEaseValue(progress, tweenEasing);
 		}
 		
@@ -197,17 +199,17 @@ class Tween{
 	}
 	
 	function setOffset(currentNode:Node, currentColorTransform:ColorTransform, nextNode:Node, nextColorTransform:ColorTransform, tweenRotate:Int = 0) {
-		_currentNode.copy(currentNode);
+		_currentNode.copyFrom(currentNode);
 		TransformUtils.setOffSetNode(_currentNode, nextNode, _offSetNode, tweenRotate);
 		
-		_currentColorTransform.alphaOffset = currentColorTransform.alphaOffset;
-		_currentColorTransform.redOffset = currentColorTransform.redOffset;
-		_currentColorTransform.greenOffset = currentColorTransform.greenOffset;
-		_currentColorTransform.blueOffset = currentColorTransform.blueOffset;
-		_currentColorTransform.alphaMultiplier = currentColorTransform.alphaMultiplier;
-		_currentColorTransform.redMultiplier = currentColorTransform.redMultiplier;
-		_currentColorTransform.greenMultiplier = currentColorTransform.greenMultiplier;
-		_currentColorTransform.blueMultiplier = currentColorTransform.blueMultiplier;
+		_currentColorTransform.alphaOffset 		= currentColorTransform.alphaOffset;
+		_currentColorTransform.redOffset 		= currentColorTransform.redOffset;
+		_currentColorTransform.greenOffset 		= currentColorTransform.greenOffset;
+		_currentColorTransform.blueOffset 		= currentColorTransform.blueOffset;
+		_currentColorTransform.alphaMultiplier 	= currentColorTransform.alphaMultiplier;
+		_currentColorTransform.redMultiplier 	= currentColorTransform.redMultiplier;
+		_currentColorTransform.greenMultiplier 	= currentColorTransform.greenMultiplier;
+		_currentColorTransform.blueMultiplier 	= currentColorTransform.blueMultiplier;
 		
 		TransformUtils.setOffSetColorTransform(_currentColorTransform, nextColorTransform, _offSetColorTransform);
 		
@@ -284,7 +286,7 @@ class Tween{
 			if((nextFrameData.displayIndex >= 0) && _bone.armature.animation.tweenEnabled) {
 				_frameTweenEasing = currentFrameData.tweenEasing;
 			} else {
-				_frameTweenEasing = null;
+				_frameTweenEasing = Math.NaN;
 			}
 			
 			setOffset(currentFrameData.node, currentFrameData.colorTransform, nextFrameData.node, nextFrameData.colorTransform, nextFrameData.tweenRotate);
@@ -301,13 +303,12 @@ class Tween{
 		
 		progress = 1 - (_nextFrameDataTimeEdge - playedTime) / _frameDuration;
 		
-		if (_frameTweenEasing != null) {
-			var tweenEasing:Null<Float> = (_tweenEasing == null) ? _frameTweenEasing : _tweenEasing;
-			if (tweenEasing != null) {
+		if (!Math.isNaN(_frameTweenEasing)) {
+			var tweenEasing:Float = Math.isNaN(_tweenEasing) ? _frameTweenEasing : _tweenEasing;
+			if (tweenEasing != 0) {
 				progress = getEaseValue(progress, tweenEasing);
 			}
 		}
-		progress = getEaseValue(progress, _frameTweenEasing);
-		return progress;
+		return getEaseValue(progress, _frameTweenEasing);
 	}
 }

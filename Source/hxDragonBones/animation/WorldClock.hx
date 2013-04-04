@@ -1,4 +1,5 @@
 package hxDragonBones.animation;
+import haxe.Log;
 import hxDragonBones.animation.IAnimatable;
 import nme.Lib;
 
@@ -6,9 +7,17 @@ import nme.Lib;
  * @author SlavaRa
  */
 class WorldClock implements IAnimatable {
-	public static var clock:WorldClock = new WorldClock();
 	
-	public function new() {
+	public static var instance(get_instance, null):WorldClock;
+	
+	static function get_instance():WorldClock {
+		if (instance == null) {
+			instance = new WorldClock();
+		}
+		return instance;
+	}
+	
+	function new() {
 		time = Lib.getTimer() * 0.001;
 		timeScale = 1;
 		_animatableList = [];
@@ -18,7 +27,7 @@ class WorldClock implements IAnimatable {
 	public var timeScale(default, set_timeScale):Float;
 	
 	function set_timeScale(value:Float):Float {
-		if(value < 0) {
+		if((value < 0) || Math.isNaN(value)) {
 			value = 0;
 		}
 		timeScale = value;
@@ -41,7 +50,7 @@ class WorldClock implements IAnimatable {
 	public function remove(animatable:IAnimatable) {
 		var index:Int = Lambda.indexOf(_animatableList, animatable);
 		if(index >= 0) {
-			_animatableList[index] = null;
+			_animatableList.splice(index, 1);
 		}
 	}
 	
@@ -49,7 +58,7 @@ class WorldClock implements IAnimatable {
 		_animatableList = [];
 	}
 	
-	public function advanceTime(passedTime:Float):Void {
+	public function advanceTime(passedTime:Float) {
 		if(passedTime < 0) {
 			var currentTime:Float = Lib.getTimer() * 0.001;
 			passedTime = currentTime - time;
@@ -58,32 +67,8 @@ class WorldClock implements IAnimatable {
 		
 		passedTime *= timeScale;
 		
-		var length:Int = _animatableList.length;
-		if (length == 0) {
-			return;
-		}
-		var currentIndex:Int = 0;
-		var tmpI:Int = length;
-		
-		for(i in 0 ... length) {
-			var animatable:IAnimatable = _animatableList[i];
-			if (animatable != null){
-				if (currentIndex != i) {
-					_animatableList[currentIndex] = animatable;
-					_animatableList[i] = null;
-				}
-				animatable.advanceTime(passedTime);
-				currentIndex++;
-			}
-			tmpI = i;
-		}
-		
-		if (currentIndex != tmpI) {
-			length = _animatableList.length;
-			while (tmpI < length) {
-				_animatableList[currentIndex++] = _animatableList[tmpI++];
-			}
-			_animatableList = _animatableList.splice(0, currentIndex);
+		for(animatable in _animatableList) {
+			animatable.advanceTime(passedTime);
 		}
 	}
 }

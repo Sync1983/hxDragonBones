@@ -6,12 +6,10 @@ package hxDragonBones.objects;
 class DisplayData{
 
 	public function new() {
-		pivotX = null;
-		pivotY = null;
 		isArmature = false;
 	}
 	
-	public var pivotX:Null<Int>;
-	public var pivotY:Null<Int>;
+	public var pivotX:Float;
+	public var pivotY:Float;
 	public var isArmature:Bool;
 }

@@ -196,7 +196,7 @@ class BaseFactory extends EventDispatcher{
 	}
 	
 	//TODO: not use
-	public function getTextureDisplay(texName:String, ?texAtlasName:String, ?pivotX:Null<Int>, ?pivotY:Null<Int>):Dynamic {
+	public function getTextureDisplay(texName:String, ?texAtlasName:String, ?pivotX:Float, ?pivotY:Float):Dynamic {
 		var texAtlas:ITextureAtlas = null;
 		if(texAtlasName != null) {
 			texAtlas = _name2TexAtlas.get(texAtlasName);
@@ -214,17 +214,17 @@ class BaseFactory extends EventDispatcher{
 			return null;
 		}
 		
-		if ((pivotX == null) || (pivotY == null)) {
+		if (Math.isNaN(pivotX) || Math.isNaN(pivotY)) {
 			var skeletonData:SkeletonData = _skeletonDataDic.get(texAtlasName);
 			if(skeletonData != null) {
 				var displayData:DisplayData = skeletonData.getDisplayData(texName);
 				if(displayData != null) {
-					if(pivotX != null) pivotX = displayData.pivotX;
-					if(pivotY != null) pivotY = displayData.pivotY;
+					if(Math.isNaN(pivotX)) pivotX = displayData.pivotX;
+					if(Math.isNaN(pivotY)) pivotY = displayData.pivotY;
 				}
 			}
 		}
-		return createTextureDisplay(texAtlas, texName, pivotX, pivotY);
+		return createTextureDisplay(texAtlas, texName, Std.int(pivotX), Std.int(pivotY));
 	}
 	
 	function loaderCompleteHandler(event:Event) {
@@ -253,7 +253,7 @@ class BaseFactory extends EventDispatcher{
 	
 	function buildBone(boneData:BoneData):Bone {
 		var bone:Bone = createBone();
-		bone.origin.copy(boneData.node);
+		bone.origin.copyFrom(boneData.node);
 		
 		for (i in 0 ... boneData.displayNames.length) {
 			var name:String = boneData.displayNames[i];
@@ -266,7 +266,7 @@ class BaseFactory extends EventDispatcher{
 					bone.display = armature;
 				}
 			} else {
-				bone.display = createTextureDisplay(_curTexAtlas, name, displayData.pivotX, displayData.pivotY);
+				bone.display = createTextureDisplay(_curTexAtlas, name, Std.int(displayData.pivotX), Std.int(displayData.pivotY));
 			}
 		}
 		return bone;

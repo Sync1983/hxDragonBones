@@ -20,9 +20,9 @@ class Tween{
 	static inline var HALF_PI:Float = Math.PI * 0.5;
 	static var _soundManager:SoundEventManager = SoundEventManager.instance;
 	
-	public static function getEaseValue(value:Float, ?easing:Null<Float>):Float {
+	public static function getEaseValue(value:Float, ?easing:Float):Float {
 		var valueEase:Float = 0;
-		if (easing == null) {
+		if (Math.isNaN(easing)) {
 			return valueEase;
 		} else if (easing > 1) {
 			valueEase = 0.5 * (1 - Math.cos(value * Math.PI)) - value;
@@ -69,9 +69,11 @@ class Tween{
 	var _loop:Int;
 	
 	public function gotoAndPlay(movementBoneData:MovementBoneData, rawDuration:Float, loop:Bool, tweenEasing:Float) {
+		
 		if(movementBoneData == null) {
 			return;
 		}
+		
 		_movementBoneData = movementBoneData;
 		var totalFrames:Int = _movementBoneData.frameList.length;
 		if(totalFrames == 0) {
@@ -97,7 +99,7 @@ class Tween{
 			_rawDuration = 0;
 			nextFrameData = _movementBoneData.frameList[0];
 			setOffset(_node, _colorTransform, nextFrameData.node, nextFrameData.colorTransform);
-		} else if (loop && _movementBoneData.delay != 0) {
+		} else if (loop && (_movementBoneData.delay != 0)) {
 			getLoopListNode();
 			setOffset(_node, _colorTransform, _offSetNode, _offSetColorTransform);
 		} else {
@@ -105,7 +107,7 @@ class Tween{
 			setOffset(_node, _colorTransform, nextFrameData.node, nextFrameData.colorTransform);
 		}
 		
-		if(nextFrameData != null) {
+		if (nextFrameData != null) {
 			updateBoneDisplayIndex(nextFrameData);
 		}
 	}
@@ -193,21 +195,20 @@ class Tween{
 		
 		TransformUtils.setOffSetColorTransform(currentFrameData.colorTransform, nextFrameData.colorTransform, _offSetColorTransform);
 		TransformUtils.setTweenColorTransform(_currentColorTransform, _offSetColorTransform, _offSetColorTransform, progress);
-		
 	}
 	
 	function setOffset(currentNode:Node, currentColorTransform:ColorTransform, nextNode:Node, nextColorTransform:ColorTransform, tweenRotate:Int = 0) {
-		_currentNode.copy(currentNode);
+		_currentNode.copyFrom(currentNode);
 		TransformUtils.setOffSetNode(_currentNode, nextNode, _offSetNode, tweenRotate);
 		
-		_currentColorTransform.alphaOffset = currentColorTransform.alphaOffset;
-		_currentColorTransform.redOffset = currentColorTransform.redOffset;
-		_currentColorTransform.greenOffset = currentColorTransform.greenOffset;
-		_currentColorTransform.blueOffset = currentColorTransform.blueOffset;
-		_currentColorTransform.alphaMultiplier = currentColorTransform.alphaMultiplier;
-		_currentColorTransform.redMultiplier = currentColorTransform.redMultiplier;
-		_currentColorTransform.greenMultiplier = currentColorTransform.greenMultiplier;
-		_currentColorTransform.blueMultiplier = currentColorTransform.blueMultiplier;
+		_currentColorTransform.alphaOffset 		= currentColorTransform.alphaOffset;
+		_currentColorTransform.redOffset 		= currentColorTransform.redOffset;
+		_currentColorTransform.greenOffset 		= currentColorTransform.greenOffset;
+		_currentColorTransform.blueOffset 		= currentColorTransform.blueOffset;
+		_currentColorTransform.alphaMultiplier 	= currentColorTransform.alphaMultiplier;
+		_currentColorTransform.redMultiplier 	= currentColorTransform.redMultiplier;
+		_currentColorTransform.greenMultiplier 	= currentColorTransform.greenMultiplier;
+		_currentColorTransform.blueMultiplier 	= currentColorTransform.blueMultiplier;
 		
 		TransformUtils.setOffSetColorTransform(_currentColorTransform, nextColorTransform, _offSetColorTransform);
 		

@@ -18,36 +18,38 @@ class Armature extends EventDispatcher, implements IAnimatable{
 	public function new(display:Dynamic) {
 		super();
 		this.display = display;
-		boneDepthList = [];
-		_rootBoneList = [];
+		bones = [];
+		_rootBones = [];
 		animation = new Animation(this);
 		bonesIndexChanged = false;
 	}
 	
 	public var name:String;
 	public var userData:Dynamic;
-	public var colorTransform(default, set_colorTransform):ColorTransform;
 	public var display(default, null):Dynamic;
 	public var animation(default, null):Animation;
+	public var bones:Array<Bone>;
 	public var bonesIndexChanged:Bool;
-	public var boneDepthList:Array<Bone>;
+	public var colorTransform(default, set_colorTransform):ColorTransform;
 	public var colorTransformChange:Bool;
 	
 	function set_colorTransform(value:ColorTransform):ColorTransform {
+		if(value == colorTransform) return value;
 		colorTransform = value;
 		colorTransformChange = true;
 		return value;
 	}
 	
-	var _rootBoneList:Array<Bone>;
+	var _rootBones:Array<Bone>;
 	
 	public function dispose() {
-		for (bone in _rootBoneList) {
-			bone.dispose();
-		}
+		userData = null;
+		colorTransform = null;
 		
-		boneDepthList = [];
-		_rootBoneList = [];
+		Lambda.iter(_rootBones, function(b) b.dispose());
+		
+		bones = null;
+		_rootBones = null;
 		
 		animation.dispose();
 		animation = null;
@@ -55,7 +57,7 @@ class Armature extends EventDispatcher, implements IAnimatable{
 	
 	public function getBone(name:String):Bone {
 		if(name != null) {
-			for(bone in boneDepthList) {
+			for(bone in bones) {
 				if(bone.name == name) {
 					return bone;
 				}
@@ -66,7 +68,7 @@ class Armature extends EventDispatcher, implements IAnimatable{
 	
 	public function getBoneByDisplay(display:Dynamic):Bone {
 		if(display != null) {
-			for (bone in boneDepthList) {
+			for (bone in bones) {
 				if(bone.display == display) {
 					return bone;
 				}
@@ -76,7 +78,7 @@ class Armature extends EventDispatcher, implements IAnimatable{
 	}
 	
 	public function getBones():Array<Bone> 	{
-		return boneDepthList.slice(0);
+		return bones.slice(0);
 	}
 	
 	public function addBone(bone:Bone, ?parentName:String) {
@@ -86,7 +88,7 @@ class Armature extends EventDispatcher, implements IAnimatable{
 				boneParent.addChild(bone);
 			} else {
 				bone.removeFromParent();
-				addDisplayToBones(bone, true);
+				addToBones(bone, true);
 			}
 		}
 	}
@@ -111,8 +113,8 @@ class Armature extends EventDispatcher, implements IAnimatable{
 	}
 	
 	public function updateBonesZ() {
-		boneDepthList.sort(sortBoneZIndex);
-		for (bone in boneDepthList){
+		bones.sort(function(a, b) return Reflect.compare(a.global.z, b.global.z));
+		for (bone in bones){
 			if(bone.isOnStage) {
 				bone.displayBridge.addDisplayTo(display);
 			}
@@ -125,58 +127,48 @@ class Armature extends EventDispatcher, implements IAnimatable{
 	}
 	
 	public function update() {
-		for (bone in _rootBoneList) {
-			bone.update();
-		}
+		Lambda.iter(_rootBones, function(b) b.update());
 		
 		if(bonesIndexChanged) {
 			updateBonesZ();
 		}
 	}
 	
-	public function addDisplayToBones(bone:Bone, ?root:Bool) {
-		if(!Lambda.has(boneDepthList, bone)) {
-			boneDepthList.push(bone);
+	public function addToBones(bone:Bone, ?root:Bool) {
+		if(!Lambda.has(bones, bone)) {
+			bones.push(bone);
 		}
 		
-		var index:Int = Lambda.indexOf(_rootBoneList, bone);
+		var index:Int = Lambda.indexOf(_rootBones, bone);
 		if(root) {
 			if(index == -1) {
-				_rootBoneList.push(bone);
+				_rootBones.push(bone);
 			}
 		} else if(index != -1) {
-			_rootBoneList.splice(index, 1);
+			_rootBones.splice(index, 1);
 		}
 		
 		bone.armature = this;
-		bone.displayBridge.addDisplayTo(display, cast(bone.global.z, Int));
-		for(child in bone.children) {
-			addDisplayToBones(child);
-		}
+		bone.displayBridge.addDisplayTo(display, Std.int(bone.global.z));
+		Lambda.iter(bone.children, function(b) addToBones(b));
 		bonesIndexChanged = true;
 	}
 	
 	public function removeFromBones(bone:Bone)	{
-		var boneIndex:Int = Lambda.indexOf(boneDepthList, bone);
-		if(boneIndex >= 0) {
-			boneDepthList.splice(boneIndex, 1);
+		var index:Int = Lambda.indexOf(bones, bone);
+		if(index >= 0) {
+			bones.splice(index, 1);
 		}
 		
-		boneIndex = Lambda.indexOf(_rootBoneList, bone);
-		if(boneIndex != -1) {
-			_rootBoneList.splice(boneIndex, 1);
+		index = Lambda.indexOf(_rootBones, bone);
+		if(index != -1) {
+			_rootBones.splice(index, 1);
 		}
 		
 		bone.armature = null;
 		bone.displayBridge.removeDisplayFromParent();
-		for(child in bone.children) {
-			removeFromBones(child);
-		}
+		Lambda.iter(bone.children, function(b) removeFromBones(b));
 		bonesIndexChanged = true;
 	}
 	
-	function sortBoneZIndex(bone1:Bone, bone2:Bone):Int {
-		return (bone1.global.z >= bone2.global.z) ? 1: -1;
-	}
-
 }

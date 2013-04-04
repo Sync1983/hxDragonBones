@@ -15,7 +15,7 @@ class FrameData{
 	}
 	
 	public var duration:Float;
-	public var tweenEasing:Null<Float>;
+	public var tweenEasing:Float;
 	public var tweenRotate:Int;
 	public var displayIndex:Int;
 	public var movement:String;

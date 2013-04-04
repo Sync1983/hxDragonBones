@@ -108,7 +108,7 @@ class Bone extends EventDispatcher{
 	}
 	
 	public function changeDisplayList(displayList:Array<Dynamic>) {
-		var length:Int = cast(Math.min(_displayList.length, displayList.length), Int);
+		var length:Int = Std.int(Math.min(_displayList.length, displayList.length));
 		for (i in 0 ... length) {
 			changeDisplay(i);
 			display = displayList[i];
@@ -117,10 +117,7 @@ class Bone extends EventDispatcher{
 	}
 	
 	public function dispose() {
-		for (child in children) {
-			cast(child, Bone).dispose();
-		}
-		
+		Lambda.iter(children, function(b) b.dispose());
 		_displayList = [];
 		children = [];
 		armature = null;
@@ -150,7 +147,7 @@ class Bone extends EventDispatcher{
 			child.setParent(this);
 			
 			if (armature != null) {
-				armature.addDisplayToBones(child);
+				armature.addToBones(child);
 			}
 		}
 	}
@@ -176,13 +173,13 @@ class Bone extends EventDispatcher{
 		if ((children.length > 0) || isOnStage) {
 			global.x 		= origin.x + node.x + tweenNode.x;
 			global.y 		= origin.y + node.y + tweenNode.y;
+			global.z 		= origin.z + node.z + tweenNode.z;
 			global.skewX 	= origin.skewX + node.skewX + tweenNode.skewX;
 			global.skewY 	= origin.skewY + node.skewY + tweenNode.skewY;
 			global.scaleX 	= origin.scaleX + node.scaleX + tweenNode.scaleX;
 			global.scaleY 	= origin.scaleY + node.scaleY + tweenNode.scaleY;
 			global.pivotX 	= origin.pivotX + node.pivotX + tweenNode.pivotX;
 			global.pivotY 	= origin.pivotY + node.pivotY + tweenNode.pivotY;
-			global.z 		= origin.z + node.z + tweenNode.z;
 			
 			if(parent != null) {
 				_helpPoint.x 	= global.x;
@@ -201,33 +198,32 @@ class Bone extends EventDispatcher{
 			globalTransformMatrix.tx 	= global.x;
 			globalTransformMatrix.ty 	= global.y;
 			
-			if (children.length > 0) {
-				for (child in children) {
-					cast(child, Bone).update();
-				}
-			}
+			Lambda.iter(children, function(b) b.dispose());
 			
-			var childArmature:Armature = this.childArmature;
 			if(childArmature != null) {
 				childArmature.update();
 			}
 			
-			var currentDisplay:Dynamic = displayBridge.display;
-			
-			if (isOnStage && (currentDisplay != null)) {
-				var colorTransform:ColorTransform = null;
-				if(tween.differentColorTransform) {
-					if(armature.colorTransform != null){
-						tweenColorTransform.concat(armature.colorTransform);
-					}
-					colorTransform = tweenColorTransform;
-				} else if(armature.colorTransformChange) {
-					colorTransform = armature.colorTransform;
-					armature.colorTransformChange = false;
-				}
-				displayBridge.update(globalTransformMatrix, global, colorTransform, visible);
+			if (isOnStage && (displayBridge.display != null)) {
+				displayBridge.update(globalTransformMatrix, global, getColorTransform(), visible);
 			}
 		}
+	}
+	
+	function getColorTransform():ColorTransform {
+		if (tween.differentColorTransform) {
+			if (armature.colorTransform != null) {
+				tweenColorTransform.concat(armature.colorTransform);
+			}
+			return tweenColorTransform;
+		}
+		
+		if (armature.colorTransformChange) {
+			armature.colorTransformChange = false;
+			return armature.colorTransform;
+		}
+		
+		return null;
 	}
 	
 	function setParent(parent:Bone) {
@@ -236,4 +232,5 @@ class Bone extends EventDispatcher{
 		}
 		this.parent = parent;
 	}
+	
 }

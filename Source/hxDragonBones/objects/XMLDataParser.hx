@@ -331,7 +331,7 @@ class XMLDataParser{
 					progress = 0;
 				}
 				
-				if(_helpFrameData.tweenEasing == null) {
+				if(Math.isNaN(_helpFrameData.tweenEasing)) {
 					progress = 0;
 				} else {
 					progress = Tween.getEaseValue(progress, _helpFrameData.tweenEasing);

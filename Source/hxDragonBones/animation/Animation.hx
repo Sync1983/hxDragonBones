@@ -79,7 +79,7 @@ class Animation{
 		}
 		timeScale = value;
 		
-		for (bone in _armature.boneDepthList) {
+		for (bone in _armature.bones) {
 			if(bone.childArmature != null) {
 				bone.childArmature.animation.timeScale = timeScale;
 			}
@@ -132,6 +132,7 @@ class Animation{
 		if(_duration < 0) {
 			_duration = 0;
 		}
+		
 		loop = cast((loop == null ? this.movementData.loop : loop), Bool);
 		
 		_rawDuration = this.movementData.duration;
@@ -145,13 +146,10 @@ class Animation{
 			_playType = loop ? LOOP_START : LIST_START;
 		}
 		
-		var tweenEasing:Float = this.movementData.tweenEasing;
-		
-		//TODO:
-		for (bone in _armature.boneDepthList) {
+		for (bone in _armature.bones) {
 			var movementBoneData:MovementBoneData = this.movementData.getMovementBoneData(bone.name);
 			if (movementBoneData != null) {
-				bone.tween.gotoAndPlay(movementBoneData, _rawDuration, loop, tweenEasing);
+				bone.tween.gotoAndPlay(movementBoneData, _rawDuration, loop, this.movementData.tweenEasing);
 				if (bone.childArmature != null) {
 					bone.childArmature.animation.gotoAndPlay(movementID);
 				}
@@ -192,85 +190,84 @@ class Animation{
 	}
 	
 	public function advanceTime(passedTime:Float) {
+		if (!isPlaying) {
+			return;
+		}
+		
 		var childArmature:Armature;
 		
-		if(isPlaying) {
-			if ((_loop > 0) || (currentTime < totalTime) || (totalTime == 0)) {
-				var progress:Float;
-				if(totalTime > 0) {
-					currentTime += passedTime * timeScale;
-					progress = currentTime / totalTime;
-				} else {
-					currentTime = 1;
-					totalTime = 1;
-					progress = 1;
-				}
-				
-				var event:AnimationEvent = null;
-				if (_playType == LOOP) {
-					var loop:Int = Std.int(progress);
-					if(loop != _loop) {
-						_loop = loop;
-						_nextFrameDataTimeEdge = 0;
-						if(_armature.hasEventListener(AnimationEvent.LOOP_COMPLETE)) {
-							event = new AnimationEvent(AnimationEvent.LOOP_COMPLETE);
-							event.movementID = movementID;
-						}
-					}
-				} else if (progress >= 1) {
-					switch(_playType) {
-						case SINGLE, LIST:
-							progress = 1;
-							if(_armature.hasEventListener(AnimationEvent.COMPLETE)) {
-								event = new AnimationEvent(AnimationEvent.COMPLETE);
-								event.movementID = movementID;
-							}
-						case LIST_START:
-							progress = 0;
-							_playType = LIST;
-							currentTime = 0;
-							totalTime = _duration;
-							if(_armature.hasEventListener(AnimationEvent.START)) {
-								event = new AnimationEvent(AnimationEvent.START);
-								event.movementID = movementID;
-							}
-						case LOOP_START:
-							progress = 0;
-							_playType = LOOP;
-							currentTime = 0;
-							totalTime = _duration;
-							if(_armature.hasEventListener(AnimationEvent.START)) {
-								event = new AnimationEvent(AnimationEvent.START);
-								event.movementID = movementID;
-							}
-					}
-				}
-				
-				for (bone in _armature.boneDepthList) {
-					bone.tween.advanceTime(progress, _playType);
-					
-					childArmature = bone.childArmature;
-					if(childArmature != null) {
-						childArmature.animation.advanceTime(passedTime);
-					}
-				}
-				
-				if (((_playType == LIST )|| (_playType == LOOP)) && (movementData.movementFrameList.length > 0)) {
-					if(_loop > 0) {
-						progress -= _loop;
-					}
-					updateFrameData(progress);
-				}
-				
-				if(event != null) {
-					_armature.dispatchEvent(event);
-				}
+		if ((_loop > 0) || (currentTime < totalTime) || (totalTime == 0)) {
+			
+			var event:AnimationEvent = null;
+			var progress:Float;
+			
+			if(totalTime > 0) {
+				currentTime += passedTime * timeScale;
+				progress = currentTime / totalTime;
 			} else {
-				for (bone in _armature.boneDepthList) {
-					childArmature = bone.childArmature;
-					if(childArmature != null) {
-						childArmature.animation.advanceTime(passedTime);
+				currentTime = 1;
+				totalTime = 1;
+				progress = 1;
+			}
+			
+			if (_playType == LOOP) {
+				var loop:Int = Std.int(progress);
+				if(loop != _loop) {
+					_loop = loop;
+					_nextFrameDataTimeEdge = 0;
+					if(_armature.hasEventListener(AnimationEvent.LOOP_COMPLETE)) {
+						event = new AnimationEvent(AnimationEvent.LOOP_COMPLETE);
 					}
+				}
+			} else if (progress >= 1) {
+				switch(_playType) {
+					case SINGLE, LIST:
+						progress = 1;
+						if(_armature.hasEventListener(AnimationEvent.COMPLETE)) {
+							event = new AnimationEvent(AnimationEvent.COMPLETE);
+						}
+					case LIST_START:
+						progress = 0;
+						_playType = LIST;
+						currentTime = 0;
+						totalTime = _duration;
+						if(_armature.hasEventListener(AnimationEvent.START)) {
+							event = new AnimationEvent(AnimationEvent.START);
+						}
+					case LOOP_START:
+						progress = 0;
+						_playType = LOOP;
+						currentTime = 0;
+						totalTime = _duration;
+						if(_armature.hasEventListener(AnimationEvent.START)) {
+							event = new AnimationEvent(AnimationEvent.START);
+						}
+				}
+			}
+			
+			for (bone in _armature.bones) {
+				bone.tween.advanceTime(progress, _playType);
+				
+				if(bone.childArmature != null) {
+					bone.childArmature.animation.advanceTime(passedTime);
+				}
+			}
+			
+			if (((_playType == LIST) || (_playType == LOOP)) && (movementData.movementFrameList.length > 0)) {
+				if(_loop > 0) {
+					progress -= _loop;
+				}
+				updateFrameData(progress);
+			}
+			
+			if (event != null) {
+				event.movementID = movementID;
+				_armature.dispatchEvent(event);
+			}
+		} else {
+			for (bone in _armature.bones) {
+				if(bone.childArmature != null) {
+					bone.childArmature.animation.advanceTime(passedTime);
 				}
 			}
 		}
@@ -278,24 +275,24 @@ class Animation{
 	
 	function updateFrameData(progress:Float) {
 		var playedTime:Float = _rawDuration * progress;
-		if (playedTime >= _nextFrameDataTimeEdge) {
-			_breakFrameWhile = false;
-			var length:Int = movementData.movementFrameList.length;
-			do  {
-				var currentFrameDataID:Int = _nextFrameDataID;
-				var currentFrameData:MovementFrameData = movementData.movementFrameList[currentFrameDataID];
-				var frameDuration:Float = currentFrameData.duration;
-				_nextFrameDataTimeEdge += frameDuration;
-				if (++_nextFrameDataID >= length) {
-					_nextFrameDataID = 0;
-				}
-				arriveFrameData(currentFrameData);
-				if(_breakFrameWhile) {
-					break;
-				}
-			}
-			while (playedTime >= _nextFrameDataTimeEdge);
+		if (playedTime < _nextFrameDataTimeEdge) {
+			return;
 		}
+		
+		_breakFrameWhile = false;
+		var length:Int = movementData.movementFrameList.length;
+		do  {
+			var currentFrameData:MovementFrameData = movementData.movementFrameList[_nextFrameDataID];
+			var frameDuration:Float = currentFrameData.duration;
+			_nextFrameDataTimeEdge += frameDuration;
+			if (++_nextFrameDataID >= length) {
+				_nextFrameDataID = 0;
+			}
+			arriveFrameData(currentFrameData);
+			if(_breakFrameWhile) {
+				break;
+			}
+		} while (playedTime >= _nextFrameDataTimeEdge);
 	}
 	
 	function arriveFrameData(movementFrameData:MovementFrameData) {

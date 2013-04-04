@@ -1,6 +1,5 @@
 package hxDragonBones.utils;
 
-import hxDragonBones.animation.Tween;
 import hxDragonBones.objects.Node;
 import nme.geom.ColorTransform;
 import nme.geom.Matrix;
@@ -63,7 +62,7 @@ class TransformUtils{
 	}
 	
 	public static function setOffSetNode(from:Node, to:Node, offSet:Node, tweenRotate:Int = 0) {
-		offSet.x =	to.x - from.x;
+		offSet.x = to.x - from.x;
 		offSet.y = to.y - from.y;
 		offSet.skewX =	to.skewX - from.skewX;
 		offSet.skewY =	to.skewY - from.skewY;
@@ -106,7 +105,7 @@ class TransformUtils{
 			current.scaleY + progress * offSet.scaleY,
 			current.pivotX + progress * offSet.pivotX,
 			current.pivotY + progress * offSet.pivotY,
-			cast(tween.z, Int)
+			Std.int(tween.z)
 		);
 	}
 

@@ -1,5 +1,4 @@
 package hxDragonBones.animation;
-import haxe.Log;
 import hxDragonBones.animation.IAnimatable;
 import nme.Lib;
 
@@ -42,15 +41,14 @@ class WorldClock implements IAnimatable {
 	}
 	
 	public function add(animatable:IAnimatable) {
-		if((animatable != null) && !Lambda.has(_animatableList, animatable)) {
+		if((animatable != null) && !has(animatable)) {
 			_animatableList.push(animatable);
 		}
 	}
 	
 	public function remove(animatable:IAnimatable) {
-		var index:Int = Lambda.indexOf(_animatableList, animatable);
-		if(index >= 0) {
-			_animatableList.splice(index, 1);
+		if(has(animatable)) {
+			_animatableList.splice(Lambda.indexOf(_animatableList, animatable), 1);
 		}
 	}
 	
@@ -60,15 +58,14 @@ class WorldClock implements IAnimatable {
 	
 	public function advanceTime(passedTime:Float) {
 		if(passedTime < 0) {
-			var currentTime:Float = Lib.getTimer() * 0.001;
-			passedTime = currentTime - time;
-			time = currentTime;
+			var curTime:Float = Lib.getTimer() * 0.001;
+			passedTime = curTime - time;
+			time = curTime;
 		}
 		
 		passedTime *= timeScale;
 		
-		for(animatable in _animatableList) {
-			animatable.advanceTime(passedTime);
-		}
+		Lambda.iter(_animatableList, function(a) a.advanceTime(passedTime));
 	}
+	
 }

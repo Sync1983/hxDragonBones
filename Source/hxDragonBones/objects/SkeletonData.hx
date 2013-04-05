@@ -21,19 +21,19 @@ class SkeletonData{
 	public var displayDataList:DataList;
 	
 	function get_armatureNames():Array<String> {
-		return armatureDataList.dataNames.slice(0);
+		return armatureDataList.names.slice(0);
 	}
 	
 	function get_animationNames():Array<String> {
-		return animationDataList.dataNames.slice(0);
+		return animationDataList.names.slice(0);
 	}
 	
 	public function dispose() {
-		for (armatureName in armatureDataList.dataNames) {
+		for (armatureName in armatureDataList.names) {
 			cast(armatureDataList.getData(armatureName), ArmatureData).dispose();
 		}
 		
-		for (animationName in animationDataList.dataNames) {
+		for (animationName in animationDataList.names) {
 			cast(animationDataList.getData(animationName), AnimationData).dispose();
 		}
 		

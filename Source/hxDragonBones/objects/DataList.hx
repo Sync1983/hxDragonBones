@@ -9,51 +9,51 @@ import nme.ObjectHash;
 class DataList{
 
 	public function new() {
-		_dataDic = new ObjectHash<String, Dynamic>();
-		dataNames = [];
+		dispose();
 	}
 	
-	public var dataNames:Array<String>;
-	var _dataDic:ObjectHash<String, Dynamic>;
+	public var names:Array<String>;
+	var _name2Data:ObjectHash<String, Dynamic>;
 	
 	public function dispose() {
-		_dataDic = new ObjectHash<String, Dynamic>();
-		dataNames = [];
+		_name2Data = new ObjectHash<String, Dynamic>();
+		names = [];
 	}
 	
-	public function getData(dataName:String):Dynamic {
-		return _dataDic.get(dataName);
+	public function getData(name:String):Dynamic {
+		return _name2Data.get(name);
 	}
 	
 	public function getDataAt(index:Int):Dynamic {
-		return _dataDic.get(dataNames[index]);
+		return _name2Data.get(names[index]);
 	}
 	
-	public function addData(data:Dynamic, dataName:String) {
-		if((data != null) && (dataName != null)) {
-			_dataDic.set(dataName, data);
-			if(!Lambda.has(dataNames, dataName)) {
-				dataNames.push(dataName);
-			}
+	public function addData(data:Dynamic, name:String) {
+		if ((data == null) || (name == null)) {
+			return;
+		}
+		_name2Data.set(name, data);
+		if(!Lambda.has(names, name)) {
+			names.push(name);
 		}
 	}
 	
 	public function removeData(data:Dynamic) {
-		if(data != null) {
-			for(dataName in _dataDic) {
-				if(_dataDic.get(dataName) == data) {
-					removeDataByName(dataName);
-					return;
-				}
+		if (data == null) {
+			return;
+		}
+		for(name in _name2Data) {
+			if(_name2Data.get(name) == data) {
+				removeDataByName(name);
+				return;
 			}
 		}
 	}
 	
-	public function removeDataByName(dataName:String) {
-		var data:Dynamic = _dataDic.get(dataName);
-		if (data != null) {
-			_dataDic.remove(dataName);
-			dataNames.splice(Lambda.indexOf(dataNames, dataName), 1);
+	public function removeDataByName(name:String) {
+		if (_name2Data.exists(name)) {
+			_name2Data.remove(name);
+			names.splice(Lambda.indexOf(names, name), 1);
 		}
 	}
 }

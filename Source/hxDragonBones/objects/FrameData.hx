@@ -8,10 +8,10 @@ class FrameData{
 
 	public function new() {
 		duration = 0;
-		//NaN: no tweens;  -1: ease out; 0: linear; 1: ease in; 2: ease in&out
 		tweenEasing = 0;
 		node = new Node();
 		colorTransform = new ColorTransform();
+		visible = true;
 	}
 	
 	public var duration:Float;

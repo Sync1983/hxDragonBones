@@ -34,7 +34,9 @@ class Armature extends EventDispatcher, implements IAnimatable{
 	public var colorTransformChange:Bool;
 	
 	function set_colorTransform(value:ColorTransform):ColorTransform {
-		if(value == colorTransform) return value;
+		if (value == colorTransform) {
+			return value;
+		}
 		colorTransform = value;
 		colorTransformChange = true;
 		return value;
@@ -43,14 +45,12 @@ class Armature extends EventDispatcher, implements IAnimatable{
 	var _rootBones:Array<Bone>;
 	
 	public function dispose() {
-		userData = null;
-		colorTransform = null;
-		
 		Lambda.iter(_rootBones, function(b) b.dispose());
 		
+		userData = null;
+		colorTransform = null;
 		bones = null;
 		_rootBones = null;
-		
 		animation.dispose();
 		animation = null;
 	}
@@ -156,7 +156,7 @@ class Armature extends EventDispatcher, implements IAnimatable{
 	
 	public function removeFromBones(bone:Bone)	{
 		var index:Int = Lambda.indexOf(bones, bone);
-		if(index >= 0) {
+		if(index != -1) {
 			bones.splice(index, 1);
 		}
 		

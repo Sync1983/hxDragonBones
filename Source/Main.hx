@@ -4,13 +4,15 @@ import haxe.Log;
 import hxDragonBones.animation.WorldClock;
 import hxDragonBones.Armature;
 import hxDragonBones.factorys.BaseFactory;
-import hxDragonBones.objects.SkeletonData;
 import nme.Assets;
+import nme.display.DisplayObject;
+import nme.display.FPS;
 import nme.display.Sprite;
 import nme.display.StageAlign;
 import nme.display.StageScaleMode;
 import nme.events.Event;
 import nme.Lib;
+import nme.utils.Timer;
 
 /**
  * @author SlavaRa
@@ -54,6 +56,8 @@ class Main extends Sprite {
 		}
 		_isInitialized = true;
 		
+		addChild(new FPS(50, 50, 0xFFFFFF));
+		
 		var factory:BaseFactory = new BaseFactory();
 		factory.addEventListener(Event.COMPLETE, onFactoryComplete);
 		factory.parseData(Assets.getBytes("assets/img/character_output_bin"));
@@ -69,14 +73,15 @@ class Main extends Sprite {
 		var s:Sprite = cast(armature.display, Sprite);
 		s.x = Lib.current.stage.stageWidth >>> 1;
 		s.y = Lib.current.stage.stageHeight >>> 1;
+		s.name = "name";
 		addChild(s);
 		
 		WorldClock.instance.add(armature);
 		addEventListener(Event.ENTER_FRAME, onEnterFrame);
 	}
 	
-	function onEnterFrame(event:Event) {
-		WorldClock.instance.advanceTime(-1);
+	function onEnterFrame(?event:Event) {
+		WorldClock.instance.advanceTime( -1);
 	}
 	
 	function onStageAddedToStage(event:Event) {

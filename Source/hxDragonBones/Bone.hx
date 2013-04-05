@@ -17,14 +17,14 @@ class Bone extends EventDispatcher{
 
 	static var _helpPoint:Point = new Point();
 	
-	public function new(displayBridge:IDisplayBridge) {
+	public function new(bridge:IDisplayBridge) {
 		super();
 		
 		origin = new Node();
 		global = new Node();
 		node = new Node();
 		
-		this.displayBridge = displayBridge;
+		displayBridge = bridge;
 		
 		children = [];
 		
@@ -71,7 +71,7 @@ class Bone extends EventDispatcher{
 	}
 	
 	function set_display(value:Dynamic):Dynamic {
-		if(displayBridge.display == value) {
+		if(value == displayBridge.display) {
 			return;
 		}
 		_displayList[_displayIndex] = value;
@@ -92,7 +92,7 @@ class Bone extends EventDispatcher{
 			if(!isOnStage) {
 				isOnStage = true;
 				if(armature != null) {
-					displayBridge.addDisplayTo(armature.display, cast(global.z, Int));
+					displayBridge.addDisplayTo(armature.display, Std.int(global.z));
 					armature.bonesIndexChanged = true;
 				}
 			}
@@ -107,13 +107,14 @@ class Bone extends EventDispatcher{
 		}
 	}
 	
-	public function changeDisplayList(displayList:Array<Dynamic>) {
-		var length:Int = Std.int(Math.min(_displayList.length, displayList.length));
+	public function changeDisplayList(list:Array<Dynamic>) {
+		var indexBackup:Int = _displayIndex;
+		var length:Int = Std.int(Math.min(_displayList.length, list.length));
 		for (i in 0 ... length) {
 			changeDisplay(i);
-			display = displayList[i];
+			display = list[i];
 		}
-		changeDisplay(_displayIndex);
+		changeDisplay(indexBackup);
 	}
 	
 	public function dispose() {
@@ -125,7 +126,7 @@ class Bone extends EventDispatcher{
 		userData = null;
 	}
 	
-	public function contains(bone:Bone, deepLevel:Bool = false):Bool {
+	public function contains(bone:Bone, ?deepLevel:Bool):Bool {
 		if(deepLevel) {
 			var ancestor:Bone = this;
 			while ((ancestor != bone) && (ancestor != null)) {

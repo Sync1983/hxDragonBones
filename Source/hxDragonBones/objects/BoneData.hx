@@ -10,7 +10,7 @@ class BoneData{
 		node = new Node();
 	}
 	
-	public var parent:String;
+	public var parent:String;//TODO: name?
 	public var node:Node;
 	public var displayNames:Array<String>;
 	

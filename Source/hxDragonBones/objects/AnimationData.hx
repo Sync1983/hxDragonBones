@@ -13,16 +13,14 @@ class AnimationData{
 	public var movementDataList:DataList;
 	
 	function get_movementList():Array<String> {
-		return movementDataList.dataNames.slice(0);
+		return movementDataList.names.slice(0);
 	}
 	
 	
 	public function dispose() {
-		for (movementName in movementDataList.dataNames) {
-			var movementData:MovementData = cast(movementDataList.getData(movementName), MovementData);
-			movementData.dispose();
+		for (name in movementDataList.names) {
+			cast(movementDataList.getData(name), MovementData).dispose();
 		}
-		
 		movementDataList.dispose();
 	}
 	

@@ -213,14 +213,14 @@ class Tween{
 		TransformUtils.setOffSetColorTransform(_currentColorTransform, nextColorTransform, _offSetColorTransform);
 		
 		if(
-				_offSetColorTransform.alphaOffset 		!= 0
-			|| 	_offSetColorTransform.redOffset 		!= 0
-			||	_offSetColorTransform.greenOffset 		!= 0
-			|| 	_offSetColorTransform.blueOffset 		!= 0
-			|| 	_offSetColorTransform.alphaMultiplier 	!= 0
-			|| 	_offSetColorTransform.redMultiplier 	!= 0
-			|| 	_offSetColorTransform.greenMultiplier 	!= 0
-			|| 	_offSetColorTransform.blueMultiplier 	!= 0
+			_offSetColorTransform.alphaOffset 		!= 0 ||
+			_offSetColorTransform.redOffset 		!= 0 ||
+			_offSetColorTransform.greenOffset 		!= 0 ||
+			_offSetColorTransform.blueOffset 		!= 0 ||
+			_offSetColorTransform.alphaMultiplier 	!= 0 ||
+			_offSetColorTransform.redMultiplier 	!= 0 ||
+			_offSetColorTransform.greenMultiplier 	!= 0 ||
+			_offSetColorTransform.blueMultiplier 	!= 0
 		) {
 			differentColorTransform = true;
 		} else {

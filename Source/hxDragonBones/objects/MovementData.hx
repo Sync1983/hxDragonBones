@@ -24,9 +24,8 @@ class MovementData{
 	public var tweenEasing:Float;
 	
 	public function dispose() {
-		for (movementBoneName in movementBoneDataList.dataNames) {
-			var movementBoneData:MovementBoneData = cast(movementBoneDataList.getData(movementBoneName), MovementBoneData);
-			movementBoneData.dispose();
+		for (movementBoneName in movementBoneDataList.names) {
+			cast(movementBoneDataList.getData(movementBoneName), MovementBoneData).dispose();
 		}
 		
 		movementBoneDataList.dispose();

@@ -27,9 +27,10 @@ class Animation{
 	public function new(armature:Armature) {
 		_armature = armature;
 		timeScale = 1;
+		tweenEnabled = true;
 	}
 	
-	public var tweenEnabled:Bool = true;
+	public var tweenEnabled:Bool;
 	public var animationData(default, set_animationData):AnimationData;
 	public var currentTime(default, null):Float;
 	public var totalTime(default, null):Float;
@@ -74,9 +75,8 @@ class Animation{
 	}
 	
 	function set_timeScale(value:Float):Float {
-		if(value < 0) {
-			value = 0;
-		}
+		if (value < 0) value = 0;
+		
 		timeScale = value;
 		
 		for (bone in _armature.bones) {
@@ -283,8 +283,7 @@ class Animation{
 		var length:Int = movementData.movementFrameList.length;
 		do  {
 			var currentFrameData:MovementFrameData = movementData.movementFrameList[_nextFrameDataID];
-			var frameDuration:Float = currentFrameData.duration;
-			_nextFrameDataTimeEdge += frameDuration;
+			_nextFrameDataTimeEdge += currentFrameData.duration;
 			if (++_nextFrameDataID >= length) {
 				_nextFrameDataID = 0;
 			}

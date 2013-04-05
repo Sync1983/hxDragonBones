@@ -29,16 +29,6 @@ class XMLDataParser{
 		}
 	}
 	
-	public static function getElementsByAttribute(xmlList:Iterator<Xml>, attribute:String, value:String):Array<Xml> {
-		var result:Array<Xml> = [];
-		for (xml in xmlList) {
-			if (xml.get(attribute) == value) {
-				result.push(xml);
-			}
-		}
-		return result;
-	}
-	
 	public static function compressData(skeletonXML:Xml, textureAtlasXML:Xml, byteArray:ByteArray):ByteArray  {
 		var byteArrayCopy:ByteArray = new ByteArray();
 		byteArrayCopy.writeBytes(byteArray);
@@ -55,6 +45,7 @@ class XMLDataParser{
 		xmlBytes.clear();
 		#end
 		
+		xmlBytes.length = 0;
 		xmlBytes.writeUTFBytes(skeletonXML.toString());
 		xmlBytes.compress();
 		
@@ -395,7 +386,7 @@ class XMLDataParser{
 			frameData.soundEffect 	= frameXml.get(ConstValues.A_SOUND_EFFECT);
 			
 			var visible:String = frameXml.get(ConstValues.A_VISIBLE);
-			frameData.visible = (visible == "1" || visible =="");
+			frameData.visible = ((visible == "1") || (visible == "") || (visible == null));
 		}
 	}
 	

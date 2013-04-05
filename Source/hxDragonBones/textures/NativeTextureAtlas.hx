@@ -1,4 +1,5 @@
 package hxDragonBones.textures;
+import haxe.Log;
 import hxDragonBones.utils.ConstValues;
 import nme.display.BitmapData;
 import nme.display.MovieClip;
@@ -11,6 +12,7 @@ import nme.ObjectHash;
 class NativeTextureAtlas implements ITextureAtlas{
 
 	public function new(texture:Dynamic, texAtlasXml:Xml, scale:Float = 1, ?isDifferentXML:Bool) {
+		Log.trace(1);
 		this.scale = scale;
 		_isDifferentXML = isDifferentXML;
 		

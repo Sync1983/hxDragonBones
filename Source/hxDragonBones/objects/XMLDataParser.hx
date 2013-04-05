@@ -1,13 +1,18 @@
 package hxDragonBones.objects;
+#if cpp
+import cpp.zip.Uncompress;
+#elseid neko
+import neko.zip.Uncompress;
+#end
 import haxe.Log;
 import hxDragonBones.animation.Tween;
 import hxDragonBones.errors.UnknownDataError;
 import hxDragonBones.utils.BytesType;
 import hxDragonBones.utils.ConstValues;
 import hxDragonBones.utils.TransformUtils;
+import native.utils.CompressionAlgorithm;
 import nme.errors.Error;
 import nme.geom.ColorTransform;
-import nme.Lib;
 import nme.utils.ByteArray;
 
 /**
@@ -41,11 +46,12 @@ class XMLDataParser{
 		byteArrayCopy.writeBytes(xmlBytes);
 		byteArrayCopy.writeInt(xmlBytes.length);
 		
-		#if flash 
-		xmlBytes.clear();
+		#if flash
+		xmlBytes.length = 0;
+		#elseif (cpp || neko)
+		xmlBytes.setLength(0);
 		#end
 		
-		xmlBytes.length = 0;
 		xmlBytes.writeUTFBytes(skeletonXML.toString());
 		xmlBytes.compress();
 		
@@ -56,12 +62,12 @@ class XMLDataParser{
 		return byteArrayCopy;
 	}
 	
-	public static inline function decompressData(compressedByteArray:ByteArray):DecompressedData {
+	public static function decompressData(compressedByteArray:ByteArray):DecompressedData {
 		switch(BytesType.getType(compressedByteArray)) {
 			case BytesType.SWF, BytesType.PNG, BytesType.JPG:
 				var skeletonXML:Xml = null;
 				var textureAtlasXML:Xml = null;
-				try  {
+				//try  {
 					compressedByteArray.position = compressedByteArray.length - 4;
 					var strSize:Int = compressedByteArray.readInt();
 					var position:Int = compressedByteArray.length - 4 - strSize;
@@ -69,7 +75,12 @@ class XMLDataParser{
 					var xmlBytes:ByteArray = new ByteArray();
 					xmlBytes.writeBytes(compressedByteArray, position, strSize);
 					xmlBytes.uncompress();
+					
+					#if flash
 					compressedByteArray.length = position;
+					#elseif (cpp || neko)
+					compressedByteArray.setLength(position);
+					#end
 					
 					skeletonXML = Xml.parse(xmlBytes.readUTFBytes(xmlBytes.length));
 					
@@ -78,17 +89,24 @@ class XMLDataParser{
 					position = compressedByteArray.length - 4 - strSize;
 					
 					#if flash
-					xmlBytes.clear();
+					xmlBytes.length = 0;
+					#elseif (cpp || neko)
+					xmlBytes.setLength(0);
 					#end
 					
-					xmlBytes.length = 0;
 					xmlBytes.writeBytes(compressedByteArray, position, strSize);
 					xmlBytes.uncompress();
+					
+					#if flash
 					compressedByteArray.length = position;
+					#elseif (cpp || neko)
+					compressedByteArray.setLength(position);
+					#end
+					
 					textureAtlasXML = Xml.parse(xmlBytes.readUTFBytes(xmlBytes.length));
-				} catch (error:Error) {
-					throw "Decompress error!";//TODO: понять из-за чего может быть ошибка, исключить try...catch
-				}
+				//} catch (error:Error) {
+					//throw "Decompress error: " + error.message;//TODO: понять из-за чего может быть ошибка, исключить try...catch
+				//}
 				return new DecompressedData(skeletonXML, textureAtlasXML, compressedByteArray);
 			case BytesType.ZIP:
 				throw "Can not decompress zip!";

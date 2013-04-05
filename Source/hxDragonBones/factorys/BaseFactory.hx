@@ -1,4 +1,5 @@
 package hxDragonBones.factorys;
+import haxe.Log;
 import hxDragonBones.Armature;
 import hxDragonBones.Bone;
 import hxDragonBones.display.NativeDisplayBridge;
@@ -33,7 +34,7 @@ import nme.utils.ByteArray;
  */
 class BaseFactory extends EventDispatcher{
 
-	static var _helpMatrix:Matrix = new Matrix();
+	static var helpMatrix:Matrix = new Matrix();
 	
 	public function new(?target:IEventDispatcher) {
 		super(target);
@@ -329,12 +330,12 @@ class BaseFactory extends EventDispatcher{
 						pivotY = subTexData.pivotY;
 					}
 					
-					_helpMatrix.identity();
-					_helpMatrix.scale(nativeTexAtlas.scale, nativeTexAtlas.scale);
-					_helpMatrix.tx = -subTexData.x - pivotX;
-					_helpMatrix.ty = -subTexData.y - pivotY;
+					helpMatrix.identity();
+					helpMatrix.scale(nativeTexAtlas.scale, nativeTexAtlas.scale);
+					helpMatrix.tx = -subTexData.x - pivotX;
+					helpMatrix.ty = -subTexData.y - pivotY;
 					
-					shape.graphics.beginBitmapFill(nativeTexAtlas.bitmapData, _helpMatrix, false, true);
+					shape.graphics.beginBitmapFill(nativeTexAtlas.bitmapData, helpMatrix, false, true);
 					shape.graphics.drawRect( -pivotX, -pivotY, subTexData.width, subTexData.height);
 					shape.graphics.endFill();
 					return shape;

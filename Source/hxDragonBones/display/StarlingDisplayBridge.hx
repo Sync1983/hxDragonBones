@@ -25,22 +25,21 @@ class StarlingDisplayBridge implements IDisplayBridge{
 			return value;
 		}
 		
-		var parent:DisplayObjectContainer = null;
 		var index:Int = 0;
-		
-		if(display){
+		var parent:DisplayObjectContainer = null;
+		if(display != null){
 			parent = display.parent;
 			if(parent != null) {
 				index = parent.getChildIndex(display);
 			}
-			removeDisplay();
+			removeDisplayFromParent();
 		}
 		display = value;
-		addDisplay(parent, index);
+		addDisplayTo(parent, index);
 		return value;
 	}
 	
-	public function update(matrix:Matrix, node:Node, colorTransform:ColorTransform, visible:Bool) {
+	public function update(matrix:Matrix, node:Node, ?colorTransform:ColorTransform, visible:Bool):Void {
 		var pivotX:Float = node.pivotX + display.pivotX;
 		var pivotY:Float = node.pivotY + display.pivotY;
 		matrix.tx -= matrix.a * pivotX + matrix.c * pivotY;
@@ -60,7 +59,7 @@ class StarlingDisplayBridge implements IDisplayBridge{
 		display.visible = visible;
 	}
 	
-	public function addDisplay(container:Dynamic, index:Int = -1) {
+	public function addDisplayTo(container:Dynamic, index:Int = -1) {
 		if((container != null) && (display != null)) {
 			if(index < 0) {
 				container.addChild(display);
@@ -70,7 +69,7 @@ class StarlingDisplayBridge implements IDisplayBridge{
 		}
 	}
 	
-	public function removeDisplay() {
+	public function removeDisplayFromParent() {
 		if((display != null) && (display.parent != null)) {
 			display.parent.removeChild(display);
 		}

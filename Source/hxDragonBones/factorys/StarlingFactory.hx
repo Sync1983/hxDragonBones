@@ -3,11 +3,13 @@ import flash.xml.XML;
 import hxDragonBones.Armature;
 import hxDragonBones.Bone;
 import hxDragonBones.display.StarlingDisplayBridge;
+import hxDragonBones.textures.ITextureAtlas;
 import hxDragonBones.textures.StarlingTextureAtlas;
 import hxDragonBones.textures.SubTextureData;
 import hxDragonBones.utils.ConstValues;
 import nme.display.BitmapData;
 import nme.display.MovieClip;
+import nme.geom.Matrix;
 import nme.geom.Rectangle;
 import starling.core.Starling;
 import starling.display.Image;
@@ -21,38 +23,44 @@ import starling.textures.TextureAtlas;
  */
 class StarlingFactory extends BaseFactory{
 
+	static var helpMatrix:Matrix = new Matrix();
+	
 	public function new() {
 		super();
 		generateMipMaps = true;
 		optimizeForRenderToTexture = true;
-		scaleForTexture = 1;
+		scaleForTex = 1;
 	}
 	
 	public var generateMipMaps:Bool;
 	public var optimizeForRenderToTexture:Bool;
-	public var scaleForTexture:Float;
+	public var scaleForTex:Float;
 	
-	override function generateArmature():Armature {
+	override function createArmature():Armature {
 		return new Armature(new Sprite());
 	}
 	
-	override function generateBone():Bone {
+	override function createBone():Bone {
 		return new Bone(new StarlingDisplayBridge());
 	}
 	
-	override function generateTextureDisplay(textureAtlas:Dynamic, fullName:String, pivotX:Int, pivotY:Int):Dynamic {
+	override function createTextureDisplay(texAtlas:ITextureAtlas, fullName:String, pivotX:Int = 0, pivotY:Int = 0):Dynamic {
 		//1.4
-		if(Std.is(textureAtlas, StarlingTextureAtlas)) {
-			var starlingTextureAtlas:StarlingTextureAtlas = cast(textureAtlas, StarlingTextureAtlas);
+		if(Std.is(texAtlas, StarlingTextureAtlas)) {
+			var starlingTextureAtlas:StarlingTextureAtlas = cast(texAtlas, StarlingTextureAtlas);
 			var rectangle:Rectangle = starlingTextureAtlas.getRegion(fullName);
 			if(Std.is(rectangle, SubTextureData)){
 				var subTextureData:SubTextureData = cast(rectangle, SubTextureData);
-				pivotX = (pivotX != 0) ? pivotX : subTextureData.pivotX;
-				pivotY = (pivotY != 0) ? pivotY : subTextureData.pivotY;
+				if (pivotX == 0) {
+					pivotX = subTextureData.pivotX;
+				}
+				if (pivotY == 0) {
+					pivotY = subTextureData.pivotY;
+				}
 			}
 		}
 		
-		var texture:Texture = cast(textureAtlas, TextureAtlas).getTexture(fullName);
+		var texture:Texture = cast(texAtlas, TextureAtlas).getTexture(fullName);
 		if(Std.is(texture, SubTexture)) {
 			var image:Image = new Image(cast(texture, SubTexture));
 			image.pivotX = pivotX;
@@ -63,43 +71,39 @@ class StarlingFactory extends BaseFactory{
 		return null;
 	}
 	
-	override function generateTextureAtlas(content:Dynamic, textureAtlasXML:Dynamic):Dynamic {
-		var texAtlasXML:XML = cast(textureAtlasXML, XML);
-		var texture:Texture = null;
+	override function createTextureAtlas(content:Dynamic, textureAtlasXML:Dynamic):Dynamic {
+		var texAtlasXml:Xml = cast(textureAtlasXML, Xml);
+		var tex:Texture = null;
 		var bitmapData:BitmapData = null;
 		if(Std.is(content, BitmapData)) {
 			bitmapData = cast(content, BitmapData);
-			texture = Texture.fromBitmapData(bitmapData, generateMipMaps, optimizeForRenderToTexture, scaleForTexture);
+			tex = Texture.fromBitmapData(bitmapData, generateMipMaps, optimizeForRenderToTexture, scaleForTex);
 		} else if(Std.is(content, MovieClip)) {
-			var width:Int = Std.parseInt(texAtlasXML.attribute(ConstValues.A_WIDTH).toString()) * cast(scaleForTexture, Int);
-			var height:Int = Std.parseInt(texAtlasXML.attribute(ConstValues.A_HEIGHT).toString()) * cast(scaleForTexture, Int);
+			var width:Int = Std.parseInt(texAtlasXml.get(ConstValues.A_WIDTH)) * Std.int(scaleForTex);
+			var height:Int = Std.parseInt(texAtlasXml.get(ConstValues.A_HEIGHT)) * Std.int(scaleForTex);
 			
-			_helpMatrix.a = 1;
-			_helpMatrix.b = 0;
-			_helpMatrix.c = 0;
-			_helpMatrix.d = 1;
-			_helpMatrix.scale(scaleForTexture, scaleForTexture);
-			_helpMatrix.tx = 0;
-			_helpMatrix.ty = 0;
+			helpMatrix.identity();
+			helpMatrix.scale(scaleForTex, scaleForTex);
+			helpMatrix.tx = 0;
+			helpMatrix.ty = 0;
 			
 			var movieClip:MovieClip = cast(content, MovieClip);
 			movieClip.gotoAndStop(1);
 			bitmapData = new BitmapData(width, height, true, 0xFF00FF);
-			bitmapData.draw(movieClip, _helpMatrix);
+			bitmapData.draw(movieClip, helpMatrix);
 			movieClip.gotoAndStop(movieClip.totalFrames);
-			texture = Texture.fromBitmapData(bitmapData, generateMipMaps, optimizeForRenderToTexture, scaleForTexture);
+			tex = Texture.fromBitmapData(bitmapData, generateMipMaps, optimizeForRenderToTexture, scaleForTex);
 		} else {
 			//
 		}
 		
-		var textureAtlas:StarlingTextureAtlas = new StarlingTextureAtlas(texture, texAtlasXML);
-		
+		var texAtlas:StarlingTextureAtlas = new StarlingTextureAtlas(tex, new XML(texAtlasXml.toString()));
 		if(Starling.handleLostContext) {
-			textureAtlas.bitmapData = bitmapData;
+			texAtlas.bitmapData = bitmapData;
 		} else {
 			bitmapData.dispose();
 		}
-		return textureAtlas;
+		return texAtlas;
 	}
 	
 }

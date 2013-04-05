@@ -9,7 +9,6 @@ import starling.textures.Texture;
 import starling.textures.TextureAtlas;
 
 /**
- * ...
  * @author SlavaRa
  */
 class StarlingTextureAtlas extends TextureAtlas, implements ITextureAtlas{
@@ -38,9 +37,7 @@ class StarlingTextureAtlas extends TextureAtlas, implements ITextureAtlas{
 	public override function dispose() {
 		super.dispose();
 		
-		for (subTexture in _subTextureDic) {
-			subTexture.dispose();
-		}
+		Lambda.iter(_subTextureDic, function(t) t.dispose());
 		
 		_subTextureDic = new ObjectHash<String, Texture>();
 		
@@ -66,7 +63,7 @@ class StarlingTextureAtlas extends TextureAtlas, implements ITextureAtlas{
 	function parseAtlasXml(atlasXml:Xml) {
 		var scale:Float = _isDifferentXML ? _scale : 1;
 		
-		for (subTexture in atlasXml.elementsNamed("SubTexture")) {
+		for (subTexture in atlasXml.firstElement().elementsNamed("SubTexture")) {
 			var name:String 		= subTexture.get("name");
 			var x:Float 			= Std.parseFloat(subTexture.get("x")) 			/ scale;
 			var y:Float 			= Std.parseFloat(subTexture.get("y")) 			/ scale;

@@ -6,7 +6,6 @@
 	<app main="Main" path="export" swf-version="11.4"/>
 
 	<source path="Source" />
-	<source path="Libs" />
 
 	<haxelib name="nme" />
 	<haxelib name="actuate" />

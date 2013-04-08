@@ -17,14 +17,13 @@
   <!-- Other classes to be compiled into your SWF -->
   <classpaths>
     <class path="Source" />
-    <class path="Libs" />
     <class path="c:\Motion-Twin\haxe\lib\nme/3,5,5/" />
     <class path="c:\Motion-Twin\haxe\lib\starling/1,2,2/" />
-    <class path="export/windows/cpp/haxe" />
+    <class path="export/android/haxe" />
   </classpaths>
   <!-- Build options -->
   <build>
-    <option directives="as3_native&#xA;nme_install_tool&#xA;windows&#xA;desktop" />
+    <option directives="as3_native&#xA;nme_install_tool&#xA;android&#xA;mobile&#xA;android" />
     <option flashStrict="False" />
     <option mainClass="ApplicationMain" />
     <option enabledebug="True" />

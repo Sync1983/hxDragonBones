@@ -22,9 +22,6 @@ import starling.events.Event;
  * @author SlavaRa
  */
 class Main extends Sprite {
-	// CLASS PROPERTIES --------------------------------------------------------------------/
-	// CLASS METHODS -----------------------------------------------------------------------/
-	// CONSTRUCTOR -------------------------------------------------------------------------/
 	
 	public function new() {
 		super();
@@ -32,16 +29,7 @@ class Main extends Sprite {
 		addListeners();
 	}
 	
-	// OVERRIDEN PROPERTIES ----------------------------------------------------------------/
-	// OVERRIDEN METHODS -------------------------------------------------------------------/
-	// IMPLEMENTED METHODS -----------------------------------------------------------------/
-	// PUBLIC PROPERTIES -------------------------------------------------------------------/
-	// PUBLIC METHODS ----------------------------------------------------------------------/
-	// PRIVATE PROPERTIES ------------------------------------------------------------------/
-	
 	var _isInitialized:Bool;
-	
-	// PRIVATE METHODS ---------------------------------------------------------------------/
 	
 	function setupStage() {
 		Lib.current.stage.align = StageAlign.TOP_LEFT;
@@ -71,8 +59,6 @@ class Main extends Sprite {
 		#end
 	}
 	
-	// EVENT HANDLERS ----------------------------------------------------------------------/
-	
 	function onFactoryComplete(event:Event) {
 		var factory:BaseFactory = cast(event.currentTarget, BaseFactory);
 		
@@ -80,7 +66,7 @@ class Main extends Sprite {
 		var paddingWidth:Int = 50;
 		var paddingHeight:Int = 20;
 		var paddingLeft:Int = 25;
-		var paddingTop:Int = 300;
+		var paddingTop:Int = 200;
 		var Dx:Int = 25;
 		
 		for (i in 0 ... 100) {
@@ -93,7 +79,6 @@ class Main extends Sprite {
 			WorldClock.instance.add(armature);
 		}
 		addEventListener(Event.ENTER_FRAME, onEnterFrame);
-		Log.trace(numChildren);
 	}
 	
 	function onEnterFrame(?event:Event) {
@@ -119,7 +104,6 @@ class Main extends Sprite {
 	function onStageResize(event:Event) {
 	}
 	
-	// ACCESSORS ---------------------------------------------------------------------------/
 }
 
 #if flash11

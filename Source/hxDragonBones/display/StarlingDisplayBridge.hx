@@ -1,4 +1,5 @@
 package hxDragonBones.display;
+import haxe.Log;
 import nme.geom.ColorTransform;
 import hxDragonBones.objects.Node;
 import nme.geom.Matrix;
@@ -13,7 +14,6 @@ import starling.display.Quad;
 class StarlingDisplayBridge implements IDisplayBridge{
 
 	public function new() {
-		
 	}
 	
 	//{ region INTERFACE hxDragonBones.display.IDisplayBridge

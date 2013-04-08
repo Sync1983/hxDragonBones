@@ -15,7 +15,8 @@ class BoneData{
 	public var displayNames:Array<String>;
 	
 	public function dispose() {
-		displayNames = [];
+		displayNames = null;
+		node = null;
 	}
 	
 }

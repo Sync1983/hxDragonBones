@@ -14,7 +14,7 @@ class TransformUtils{
 	static var _helpMatrix:Matrix = new Matrix();
 	static var _helpPoint:Point = new Point();
 	
-	public static function transformPointWithParent(bone:Node, parent:Node) {
+	public static inline function transformPointWithParent(bone:Node, parent:Node) {
 		nodeToMatrix(parent, _helpMatrix);
 		
 		_helpPoint.x = bone.x;

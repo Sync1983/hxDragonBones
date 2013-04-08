@@ -96,7 +96,7 @@ class Bone extends EventDispatcher{
 					armature.bonesIndexChanged = true;
 				}
 			}
-			if(_displayIndex != displayIndex) {
+			if(displayIndex != _displayIndex) {
 				var length:Int = _displayList.length;
 				if((displayIndex >= length) && (length > 0)) {
 					displayIndex = length - 1;
@@ -118,7 +118,9 @@ class Bone extends EventDispatcher{
 	}
 	
 	public function dispose() {
-		Lambda.iter(children, function(b) b.dispose());
+		for (c in children) {
+			c.dispose();
+		}
 		_displayList = null;
 		children = null;
 		armature = null;
@@ -199,7 +201,10 @@ class Bone extends EventDispatcher{
 			globalTransformMatrix.tx 	= global.x;
 			globalTransformMatrix.ty 	= global.y;
 			
-			Lambda.iter(children, function(b) b.dispose());
+			//NOTE: ?
+			//for (i in children) {
+				//i.dispose();
+			//}
 			
 			if(childArmature != null) {
 				childArmature.update();

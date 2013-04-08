@@ -73,11 +73,11 @@ class Main extends Sprite {
 		addEventListener(Event.ENTER_FRAME, onEnterFrame);
 	}
 	
-	function onEnterFrame(?event:Event) {
+	function onEnterFrame(_) {
 		WorldClock.instance.advanceTime( -1);
 	}
 	
-	function onStageAddedToStage(event:Event) {
+	function onStageAddedToStage(_) {
 		removeEventListener(Event.ADDED_TO_STAGE, onStageAddedToStage);
 		#if ios
 		haxe.Timer.delay(initialize, 100); // iOS 6
@@ -107,19 +107,20 @@ class TestView extends starling.display.Sprite {
 		var paddingTop:Int = 300;
 		var Dx:Int = 25;
 		
-		for (i in 0 ... 60) {
-			var armature:Armature = factory.buildArmature("CharacterAnimations", null, "character");
+		for (i in 0 ... 100) {
+			var armature:Armature = factory.buildArmature("CharacterAnimations");
 			var display:starling.display.Sprite = cast(armature.display, starling.display.Sprite);
 			display.x = (i % columnNum) * paddingWidth + paddingLeft + ((i / columnNum) % 2) * Dx;
 			display.y = ((i / columnNum)) * paddingHeight + paddingTop;
 			armature.animation.gotoAndPlay("Idle", -1, -1, true);
+			//armature.animation.stop();
 			addChild(display);
 			WorldClock.instance.add(armature);
 		}
 		addEventListener(starling.events.Event.ENTER_FRAME, onEnterFrame);
 	}
 	
-	function onEnterFrame(?event:starling.events.Event) {
+	function onEnterFrame(_) {
 		WorldClock.instance.advanceTime( -1);
 	}
 	

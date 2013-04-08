@@ -18,7 +18,7 @@ class MovementBoneData{
 	public var delay:Float;
 	
 	public function dispose() {
-		frameList = [];
+		frameList = null;
 	}
 	
 	public function setValues(scale:Float = 1, delay:Float = 0) {

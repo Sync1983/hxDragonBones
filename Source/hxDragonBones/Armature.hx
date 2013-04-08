@@ -25,7 +25,6 @@ class Armature extends EventDispatcher, implements IAnimatable{
 	}
 	
 	public var name:String;
-	public var userData:Dynamic;
 	public var display(default, null):Dynamic;
 	public var animation(default, null):Animation;
 	public var bones:Array<Bone>;
@@ -45,9 +44,10 @@ class Armature extends EventDispatcher, implements IAnimatable{
 	var _rootBones:Array<Bone>;
 	
 	public function dispose() {
-		Lambda.iter(_rootBones, function(b) b.dispose());
+		for (b in _rootBones) {
+			b.dispose();
+		}
 		
-		userData = null;
 		colorTransform = null;
 		bones = null;
 		_rootBones = null;
@@ -77,10 +77,6 @@ class Armature extends EventDispatcher, implements IAnimatable{
 		return null;
 	}
 	
-	public function getBones():Array<Bone> 	{
-		return bones.slice(0);
-	}
-	
 	public function addBone(bone:Bone, ?parentName:String) {
 		if (bone != null) {
 			var boneParent:Bone = getBone(parentName); 
@@ -107,7 +103,7 @@ class Armature extends EventDispatcher, implements IAnimatable{
 		removeBone(getBone(boneName));
 	}
 	
-	public function advanceTime(passedTime:Float) {
+	public function advanceTime(passedTime:Float = -1) {
 		animation.advanceTime(passedTime);
 		update();
 	}
@@ -127,7 +123,9 @@ class Armature extends EventDispatcher, implements IAnimatable{
 	}
 	
 	public function update() {
-		Lambda.iter(_rootBones, function(b) b.update());
+		for (b in _rootBones) {
+			b.update();
+		}
 		
 		if(bonesIndexChanged) {
 			updateBonesZ();
@@ -150,7 +148,9 @@ class Armature extends EventDispatcher, implements IAnimatable{
 		
 		bone.armature = this;
 		bone.displayBridge.addDisplayTo(display, Std.int(bone.global.z));
-		Lambda.iter(bone.children, function(b) addToBones(b));
+		for(c in bone.children) {
+			addToBones(c);
+		}
 		bonesIndexChanged = true;
 	}
 	
@@ -167,7 +167,9 @@ class Armature extends EventDispatcher, implements IAnimatable{
 		
 		bone.armature = null;
 		bone.displayBridge.removeDisplayFromParent();
-		Lambda.iter(bone.children, function(b) removeFromBones(b));
+		for(c in bone.children) {
+			removeFromBones(c);
+		}
 		bonesIndexChanged = true;
 	}
 	

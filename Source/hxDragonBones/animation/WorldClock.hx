@@ -1,6 +1,6 @@
 package hxDragonBones.animation;
+import haxe.Timer;
 import hxDragonBones.animation.IAnimatable;
-import nme.Lib;
 
 /**
  * @author SlavaRa
@@ -17,7 +17,7 @@ class WorldClock implements IAnimatable {
 	}
 	
 	function new() {
-		time = Lib.getTimer() * 0.001;
+		time = Timer.stamp();
 		timeScale = 1;
 		_animatableList = [];
 	}
@@ -56,16 +56,18 @@ class WorldClock implements IAnimatable {
 		_animatableList = [];
 	}
 	
-	public function advanceTime(passedTime:Float) {
+	public function advanceTime(passedTime:Float = -1) {
 		if(passedTime < 0) {
-			var curTime:Float = Lib.getTimer() * 0.001;
+			var curTime:Float = Timer.stamp();
 			passedTime = curTime - time;
 			time = curTime;
 		}
 		
 		passedTime *= timeScale;
 		
-		Lambda.iter(_animatableList, function(a) a.advanceTime(passedTime));
+		for (a in _animatableList) {
+			a.advanceTime(passedTime);
+		}
 	}
 	
 }

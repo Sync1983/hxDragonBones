@@ -134,7 +134,7 @@ class Tween{
 			progress /= _movementBoneData.scale;
 			progress += _movementBoneData.delay;
 			var loop:Int = Std.int(progress);
-			if(_loop != loop) {
+			if(loop != _loop) {
 				_nextFrameDataTimeEdge = 0;
 				_nextFrameDataID = 0;
 				_loop = loop;
@@ -149,7 +149,6 @@ class Tween{
 		} else {
 			progress = Math.sin(progress * HALF_PI);
 		}
-		
 		
 		if (!Math.isNaN(_frameTweenEasing) || (_curFrameData != null)) {
 			TransformUtils.setTweenNode(_curNode, _offSetNode, _node, progress);
@@ -270,18 +269,17 @@ class Tween{
 	function updateFrameData(progress:Float, ?activeFrame:Bool, ?isList:Bool):Float {
 		var playedTime:Float = _rawDuration * progress;
 		if (playedTime >= _nextFrameDataTimeEdge) {
-			var currentFrameDataID:Int;
-			var length:Int = _movementBoneData.frameList.length;
+			var curFrameDataID:Int;
 			do {
-				currentFrameDataID = _nextFrameDataID;
-				_frameDuration = _movementBoneData.frameList[currentFrameDataID].duration;
+				curFrameDataID = _nextFrameDataID;
+				_frameDuration = _movementBoneData.frameList[curFrameDataID].duration;
 				_nextFrameDataTimeEdge += _frameDuration;
-				if (++_nextFrameDataID >= length) {
+				if (++_nextFrameDataID >= _movementBoneData.frameList.length) {
 					_nextFrameDataID = 0;
 				}
 			} while (playedTime >= _nextFrameDataTimeEdge);
 			
-			var curFrameData:FrameData = _movementBoneData.frameList[currentFrameDataID];
+			var curFrameData:FrameData = _movementBoneData.frameList[curFrameDataID];
 			var nextFrameData:FrameData = _movementBoneData.frameList[_nextFrameDataID];
 			
 			if((nextFrameData.displayIndex >= 0) && _bone.armature.animation.tweenEnabled) {

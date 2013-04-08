@@ -1,6 +1,7 @@
 package hxDragonBones.textures;
 
 import flash.xml.XML;
+import haxe.Log;
 import hxDragonBones.utils.ConstValues;
 import nme.display.BitmapData;
 import nme.geom.Rectangle;
@@ -36,7 +37,9 @@ class StarlingTextureAtlas extends TextureAtlas, implements ITextureAtlas{
 	public override function dispose() {
 		super.dispose();
 		
-		Lambda.iter(_subTextureDic, function(t) t.dispose());
+		for (i in _subTextureDic) {
+			i.dispose();
+		}
 		
 		_subTextureDic = null;
 		

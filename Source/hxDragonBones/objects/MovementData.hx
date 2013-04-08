@@ -1,4 +1,5 @@
 package hxDragonBones.objects;
+import haxe.Log;
 
 /**
  * @author SlavaRa
@@ -13,7 +14,6 @@ class MovementData{
 		movementBoneDataList = new DataList();
 		movementFrameList = [];
 	}
-	
 	
 	public var duration:Float;
 	public var durationTo:Float;

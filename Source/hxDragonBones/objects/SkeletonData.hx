@@ -30,11 +30,17 @@ class SkeletonData{
 	
 	public function dispose() {
 		for (armatureName in armatureDataList.names) {
-			cast(armatureDataList.getData(armatureName), ArmatureData).dispose();
+			var data:Dynamic = armatureDataList.getData(armatureName);
+			if (Std.is(data, ArmatureData)) {
+				cast(data, ArmatureData).dispose();
+			}
 		}
 		
 		for (animationName in animationDataList.names) {
-			cast(animationDataList.getData(animationName), AnimationData).dispose();
+			var data:Dynamic = animationDataList.getData(animationName);
+			if (Std.is(data, AnimationData)) {
+				cast(data, AnimationData).dispose();
+			}
 		}
 		
 		armatureDataList.dispose();
@@ -43,14 +49,17 @@ class SkeletonData{
 	}
 	
 	public function getArmatureData(name:String):ArmatureData {
-		return cast(armatureDataList.getData(name), ArmatureData);
+		var d:Dynamic = armatureDataList.getData(name);
+		return Std.is(d, ArmatureData) ? cast(d, ArmatureData) : null;
 	}
 	
 	public function getAnimationData(name:String):AnimationData {
-		return cast(animationDataList.getData(name), AnimationData);
+		var d:Dynamic = animationDataList.getData(name);
+		return Std.is(d, AnimationData) ? cast(d, AnimationData) : null;
 	}
 	
 	public function getDisplayData(name:String):DisplayData {
-		return cast(displayDataList.getData(name), DisplayData);
+		var d:Dynamic = displayDataList.getData(name);
+		return Std.is(d, DisplayData) ? cast(d, DisplayData) : null;
 	}
 }

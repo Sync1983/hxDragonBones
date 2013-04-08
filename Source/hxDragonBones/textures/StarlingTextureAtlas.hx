@@ -4,7 +4,6 @@ import flash.xml.XML;
 import hxDragonBones.utils.ConstValues;
 import nme.display.BitmapData;
 import nme.geom.Rectangle;
-import nme.ObjectHash;
 import starling.textures.Texture;
 import starling.textures.TextureAtlas;
 
@@ -22,11 +21,11 @@ class StarlingTextureAtlas extends TextureAtlas, implements ITextureAtlas{
 		if(textureAtlasXML != null) {
 			name = textureAtlasXML.attribute(ConstValues.A_NAME).toString();
 		}
-		_subTextureDic = new ObjectHash<String, Texture>();
+		_subTextureDic = new Hash<Texture>();
 	}
 	
 	public var bitmapData:BitmapData;
-	var _subTextureDic:ObjectHash<String, Texture>;
+	var _subTextureDic:Hash<Texture>;
 	var _isDifferentXML:Bool;
 	var _scale:Float;
 	
@@ -39,7 +38,7 @@ class StarlingTextureAtlas extends TextureAtlas, implements ITextureAtlas{
 		
 		Lambda.iter(_subTextureDic, function(t) t.dispose());
 		
-		_subTextureDic = new ObjectHash<String, Texture>();
+		_subTextureDic = null;
 		
 		if(bitmapData != null) {
 			bitmapData.dispose();

@@ -1,8 +1,5 @@
 package hxDragonBones.objects;
 
-import haxe.Log;
-import nme.ObjectHash;
-
 /**
  * @author SlavaRa
  */
@@ -13,19 +10,19 @@ class DataList{
 	}
 	
 	public var names:Array<String>;
-	var _name2Data:ObjectHash<String, Dynamic>;
+	var _name2Data:Hash<Dynamic>;
 	
 	public function dispose() {
-		_name2Data = new ObjectHash<String, Dynamic>();
+		_name2Data = new Hash<Dynamic>();
 		names = [];
 	}
 	
 	public function getData(name:String):Dynamic {
-		return _name2Data.get(name);
+		return _name2Data.exists(name) ? _name2Data.get(name) : null;
 	}
 	
 	public function getDataAt(index:Int):Dynamic {
-		return _name2Data.get(names[index]);
+		return getData(names[index]);
 	}
 	
 	public function addData(data:Dynamic, name:String) {

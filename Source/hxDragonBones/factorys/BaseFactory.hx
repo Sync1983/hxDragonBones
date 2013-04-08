@@ -1,5 +1,4 @@
 package hxDragonBones.factorys;
-import haxe.Log;
 import hxDragonBones.Armature;
 import hxDragonBones.Bone;
 import hxDragonBones.display.NativeDisplayBridge;
@@ -38,13 +37,13 @@ class BaseFactory extends EventDispatcher{
 	
 	public function new(?target:IEventDispatcher) {
 		super(target);
-		_name2SkeletonData = new ObjectHash<String, SkeletonData>();
-		_name2TexAtlas = new ObjectHash<String, ITextureAtlas>();
+		_name2SkeletonData = new Hash<SkeletonData>();
+		_name2TexAtlas = new Hash<ITextureAtlas>();
 		_loader2TexAtlasXML = new ObjectHash<Loader, Xml>();
 	}
 	
-	var _name2SkeletonData:ObjectHash<String, SkeletonData>;
-	var _name2TexAtlas:ObjectHash<String, ITextureAtlas>;
+	var _name2SkeletonData:Hash<SkeletonData>;
+	var _name2TexAtlas:Hash<ITextureAtlas>;
 	var _loader2TexAtlasXML:ObjectHash<Loader, Xml>;
 	var _curSkeletonData:SkeletonData;
 	var _curTexAtlas:Dynamic;
@@ -54,17 +53,17 @@ class BaseFactory extends EventDispatcher{
 	public function parseData(bytes:ByteArray, ?skeletonName:String):SkeletonData {
 		var decompressedData:DecompressedData = XMLDataParser.decompressData(bytes);
 		
-		var skeletonData:SkeletonData = XMLDataParser.parseSkeletonData(decompressedData.skeletonXML);
+		var skeletonData:SkeletonData = XMLDataParser.parseSkeletonData(decompressedData.skeletonXml);
 		if (skeletonName == null) {
 			skeletonName = skeletonData.name;
 		}
 		addSkeletonData(skeletonData, skeletonName);
 		
 		var loader:Loader = new Loader();
-		_loader2TexAtlasXML.set(loader, decompressedData.textureAtlasXML);
+		_loader2TexAtlasXML.set(loader, decompressedData.texAtlasXml);
 		loader.name = skeletonName;
 		loader.contentLoaderInfo.addEventListener(Event.COMPLETE, loaderCompleteHandler);
-		loader.loadBytes(decompressedData.textureBytes);
+		loader.loadBytes(decompressedData.texBytes);
 		
 		decompressedData.dispose();
 		return skeletonData;
@@ -122,10 +121,9 @@ class BaseFactory extends EventDispatcher{
 			Lambda.iter(_name2TexAtlas, function(t) t.dispose());
 		}
 		
-		_name2SkeletonData = new ObjectHash<String, SkeletonData>();
-		_name2TexAtlas = new ObjectHash<String, ITextureAtlas>();
-		_loader2TexAtlasXML = new ObjectHash<Loader, Xml>();
-		
+		_name2SkeletonData = null;
+		_name2TexAtlas = null;
+		_loader2TexAtlasXML = null;
 		_curSkeletonData = null;
 		_curTexAtlas = null;
 		_curSkeletonName = null;

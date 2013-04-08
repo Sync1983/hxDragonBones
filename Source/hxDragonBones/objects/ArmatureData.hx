@@ -1,4 +1,5 @@
 package hxDragonBones.objects;
+import haxe.Log;
 import nme.Lib;
 
 /**
@@ -26,21 +27,25 @@ class ArmatureData{
 	}
 	
 	public function getBoneData(name:String):BoneData {
-		return cast(boneDataList.getData(name), BoneData);
+		var d:Dynamic = boneDataList.getData(name);
+		return Std.is(d, BoneData) ? cast(d, BoneData) : null;
 	}
 	
 	public function updateBoneList() {
 		var sortList:Array<Dynamic> = [];
 		for (name in boneDataList.names) {
-			var boneData:BoneData = cast(boneDataList.getData(name), BoneData);
-			var levelValue:Int = Std.int(boneData.node.z);
-			var level:Int = 0;
-			while(boneData != null) {
-				level++;
-				levelValue += 1000 * level;
-				boneData = getBoneData(boneData.parent);
+			var d:Dynamic = boneDataList.getData(name);
+			if (Std.is(d, BoneData)) {
+				var boneData:BoneData = cast(d, BoneData);
+				var levelValue:Int = Std.int(boneData.node.z);
+				var level:Int = 0;
+				while(boneData != null) {
+					level++;
+					levelValue += 1000 * level;
+					boneData = getBoneData(boneData.parent);
+				}
+				sortList.push({level:levelValue, name:name});
 			}
-			sortList.push({level:levelValue, name:name});
 		}
 		
 		if (sortList.length > 0) {

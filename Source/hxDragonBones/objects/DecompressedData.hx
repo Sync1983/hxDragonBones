@@ -1,4 +1,5 @@
 package hxDragonBones.objects;
+import haxe.Log;
 import nme.utils.ByteArray;
 
 /**
@@ -6,19 +7,19 @@ import nme.utils.ByteArray;
  */
 class DecompressedData{
 
-	public function new(skeletonXML:Xml, textureAtlasXML:Xml, textureBytes:ByteArray) {
-		this.skeletonXML = skeletonXML;
-		this.textureAtlasXML = textureAtlasXML;
-		this.textureBytes = textureBytes;
+	public function new(skeletonXml:Xml, texAtlasXml:Xml, texBytes:ByteArray) {
+		this.skeletonXml = skeletonXml;
+		this.texAtlasXml = texAtlasXml;
+		this.texBytes = texBytes;
 	}
 	
-	public var skeletonXML:Xml;
-	public var textureAtlasXML:Xml;
-	public var textureBytes:ByteArray;
+	public var skeletonXml:Xml;
+	public var texAtlasXml:Xml;
+	public var texBytes:ByteArray;
 	
 	public function dispose() {
-		skeletonXML = null;
-		textureAtlasXML = null;
-		textureBytes = null;
+		skeletonXml = null;
+		texAtlasXml = null;
+		texBytes = null;
 	}
 }

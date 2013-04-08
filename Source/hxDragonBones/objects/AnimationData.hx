@@ -19,13 +19,17 @@ class AnimationData{
 	
 	public function dispose() {
 		for (name in movementDataList.names) {
-			cast(movementDataList.getData(name), MovementData).dispose();
+			var d:Dynamic = movementDataList.getData(name);
+			if (Std.is(d, MovementData)) {
+				cast(d, MovementData).dispose();
+			}
 		}
 		movementDataList.dispose();
 	}
 	
 	public function getMovementData(name:String):MovementData {
-		return cast(movementDataList.getData(name), MovementData);
+		var d:Dynamic = movementDataList.getData(name);
+		return Std.is(d, MovementData) ? cast(d, MovementData) : null;
 	}
 	
 }

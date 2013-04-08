@@ -12,11 +12,10 @@ import nme.ObjectHash;
 class NativeTextureAtlas implements ITextureAtlas{
 
 	public function new(texture:Dynamic, texAtlasXml:Xml, scale:Float = 1, ?isDifferentXML:Bool) {
-		Log.trace(1);
 		this.scale = scale;
 		_isDifferentXML = isDifferentXML;
 		
-		_name2SubTexData = new ObjectHash<String, Rectangle>();
+		_name2SubTexData = new Hash<Rectangle>();
 		
 		if (Std.is(texture, BitmapData)) {
 			bitmapData = cast(texture, BitmapData);
@@ -32,7 +31,7 @@ class NativeTextureAtlas implements ITextureAtlas{
 	public var bitmapData(default, null):BitmapData;
 	public var scale(default, null):Float;
 	
-	var _name2SubTexData:ObjectHash<String, Rectangle>;
+	var _name2SubTexData:Hash<Rectangle>;
 	var _isDifferentXML:Bool;
 	
 	//{ region INTERFACE hxDragonBones.textures.ITextureAtlas

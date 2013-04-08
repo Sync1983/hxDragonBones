@@ -25,7 +25,10 @@ class MovementData{
 	
 	public function dispose() {
 		for (movementBoneName in movementBoneDataList.names) {
-			cast(movementBoneDataList.getData(movementBoneName), MovementBoneData).dispose();
+			var d:Dynamic = movementBoneDataList.getData(movementBoneName);
+			if (Std.is(d, MovementBoneData)) {
+				cast(d, MovementBoneData).dispose();
+			}
 		}
 		
 		movementBoneDataList.dispose();
@@ -33,6 +36,7 @@ class MovementData{
 	}
 	
 	public function getMovementBoneData(name:String):MovementBoneData {
-		return cast(movementBoneDataList.getData(name), MovementBoneData);
+		var d:Dynamic = movementBoneDataList.getData(name);
+		return Std.is(d, MovementBoneData) ? cast(d, MovementBoneData) : null;
 	}
 }

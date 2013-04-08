@@ -5,7 +5,6 @@ import hxDragonBones.animation.WorldClock;
 import hxDragonBones.Armature;
 import hxDragonBones.factorys.BaseFactory;
 import nme.Assets;
-import nme.display.DisplayObject;
 import nme.display.FPS;
 import nme.display.Sprite;
 import nme.display.StageAlign;
@@ -15,6 +14,8 @@ import nme.Lib;
 import nme.utils.Timer;
 #if flash11
 import starling.core.Starling;
+import starling.display.Sprite;
+import starling.events.Event;
 #end
 
 /**
@@ -82,9 +83,9 @@ class Main extends Sprite {
 		var paddingTop:Int = 300;
 		var Dx:Int = 25;
 		
-		for (i in 0 ... 20) {
-			var armature:Armature = factory.buildArmature("CharacterAnimations", null, "character");
-			var display:Sprite = cast(armature.display, Sprite);
+		for (i in 0 ... 100) {
+			var armature:Armature = factory.buildArmature("CharacterAnimations");
+			var display:Sprite = cast(armature.display, nme.display.Sprite);
 			display.x = (i % columnNum) * paddingWidth + paddingLeft + ((i / columnNum) % 2) * Dx;
 			display.y = ((i / columnNum)) * paddingHeight + paddingTop;
 			armature.animation.gotoAndPlay("Idle", -1, -1, true);
@@ -92,6 +93,7 @@ class Main extends Sprite {
 			WorldClock.instance.add(armature);
 		}
 		addEventListener(Event.ENTER_FRAME, onEnterFrame);
+		Log.trace(numChildren);
 	}
 	
 	function onEnterFrame(?event:Event) {
@@ -121,21 +123,16 @@ class Main extends Sprite {
 }
 
 #if flash11
-import starling.display.Sprite;
-import hxDragonBones.factorys.StarlingFactory;
-import starling.events.Event;
 class TestView extends starling.display.Sprite {
 	
 	public function new() {
 		super();
-		Log.trace("catch");
 		var factory:StarlingFactory = new StarlingFactory();
 		factory.addEventListener(Event.COMPLETE, onFactoryComplete);
 		factory.parseData(Assets.getBytes("assets/img/character_output_bin"));
 	}
 	
 	function onFactoryComplete(event:Event)  {
-		Log.trace("catch onFactoryComplete");
 		var factory:StarlingFactory = cast(event.currentTarget, StarlingFactory);
 		var columnNum:Int = 15;
 		var paddingWidth:Int = 50;

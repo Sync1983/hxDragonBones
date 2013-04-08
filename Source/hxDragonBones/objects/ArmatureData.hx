@@ -12,7 +12,7 @@ class ArmatureData{
 	}
 	
 	public var boneNames(get_boneNames, null):Array<String>;
-	public function get_boneNames():Array<String> {
+	function get_boneNames():Array<String> {
 		return boneDataList.names.slice(0);
 	}
 	
@@ -20,7 +20,10 @@ class ArmatureData{
 	
 	public function dispose() {
 		for (name in boneDataList.names) {
-			cast(boneDataList.getData(name), BoneData).dispose();
+			var d:Dynamic = boneDataList.getData(name);
+			if (Std.is(d, BoneData)) {
+				cast(d, BoneData).dispose();
+			}
 		}
 		
 		boneDataList.dispose();

@@ -29,8 +29,6 @@ class Main extends Sprite {
 		addListeners();
 	}
 	
-	var _isInitialized:Bool;
-	
 	function setupStage() {
 		Lib.current.stage.align = StageAlign.TOP_LEFT;
 		Lib.current.stage.scaleMode = StageScaleMode.NO_SCALE;
@@ -38,16 +36,9 @@ class Main extends Sprite {
 	
 	function addListeners() {
 		addEventListener(Event.ADDED_TO_STAGE, onStageAddedToStage);
-		Lib.current.stage.addEventListener(Event.ACTIVATE, onStageActivate);
-		Lib.current.stage.addEventListener(Event.DEACTIVATE, onStageDeactivate);
 	}
 	
 	function initialize() {
-		if (_isInitialized) {
-			return;
-		}
-		_isInitialized = true;
-		
 		addChild(new FPS(50, 50, 0xFFFFFF));
 		
 		#if flash11
@@ -87,21 +78,11 @@ class Main extends Sprite {
 	
 	function onStageAddedToStage(event:Event) {
 		removeEventListener(Event.ADDED_TO_STAGE, onStageAddedToStage);
-		Lib.current.stage.addEventListener(Event.RESIZE, onStageResize);
 		#if ios
-		haxe.Timer.delay(init, 100); // iOS 6
+		haxe.Timer.delay(initialize, 100); // iOS 6
 		#else
 		initialize();
 		#end
-	}
-	
-	function onStageActivate(event:Event) {
-	}
-	
-	function onStageDeactivate(event:Event) {
-	}
-	
-	function onStageResize(event:Event) {
 	}
 	
 }

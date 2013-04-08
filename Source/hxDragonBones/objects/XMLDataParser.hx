@@ -188,11 +188,6 @@ class XMLDataParser{
 				var name:String = animation.get(ConstValues.A_NAME);
 				var armatureData:ArmatureData = _curSkeletonData.getArmatureData(name);
 				var animationData:AnimationData = _curSkeletonData.getAnimationData(name);
-				
-				if (armatureData == null) {
-					throw name;
-				}
-				
 				if (animationData != null) {
 					parseAnimationData(animation, animationData, armatureData);
 				} else {

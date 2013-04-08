@@ -119,8 +119,8 @@ class Bone extends EventDispatcher{
 	
 	public function dispose() {
 		Lambda.iter(children, function(b) b.dispose());
-		_displayList = [];
-		children = [];
+		_displayList = null;
+		children = null;
 		armature = null;
 		parent = null;
 		userData = null;

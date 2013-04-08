@@ -1,5 +1,4 @@
 package hxDragonBones.utils;
-import nme.Lib;
 import nme.utils.ByteArray;
 
 /**

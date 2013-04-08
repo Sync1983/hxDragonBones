@@ -1,5 +1,4 @@
 package hxDragonBones.objects;
-import haxe.Log;
 import hxDragonBones.animation.Tween;
 import hxDragonBones.utils.BytesType;
 import hxDragonBones.utils.ConstValues;
@@ -55,42 +54,38 @@ class XMLDataParser{
 			case BytesType.SWF, BytesType.PNG, BytesType.JPG:
 				var skeletonXml:Xml = null;
 				var texAtlasXml:Xml = null;
-				//try  {
-					compressedBytes.position = compressedBytes.length - 4;
-					var strSize:Int = compressedBytes.readInt();
-					var position:Int = compressedBytes.length - 4 - strSize;
-					
-					var xmlBytes:ByteArray = new ByteArray();
-					xmlBytes.writeBytes(compressedBytes, position, strSize);
-					
-					xmlBytes.uncompress();
-					
-					#if flash
-					compressedBytes.length = position;
-					#elseif (cpp || neko)
-					compressedBytes.setLength(position);
-					#end
-					
-					skeletonXml = Xml.parse(xmlBytes.readUTFBytes(xmlBytes.length));
-					
-					compressedBytes.position = compressedBytes.length - 4;
-					strSize = compressedBytes.readInt();
-					position = compressedBytes.length - 4 - strSize;
-					
-					xmlBytes.clear();
-					xmlBytes.writeBytes(compressedBytes, position, strSize);
-					xmlBytes.uncompress();
-					
-					#if flash
-					compressedBytes.length = position;
-					#elseif (cpp || neko)
-					compressedBytes.setLength(position);
-					#end
-					
-					texAtlasXml = Xml.parse(xmlBytes.readUTFBytes(xmlBytes.length));
-				//} catch (error:Error) {
-					//throw "Decompress error: " + error.message;//TODO: понять из-за чего может быть ошибка, исключить try...catch
-				//}
+				compressedBytes.position = compressedBytes.length - 4;
+				var strSize:Int = compressedBytes.readInt();
+				var position:Int = compressedBytes.length - 4 - strSize;
+				
+				var xmlBytes:ByteArray = new ByteArray();
+				xmlBytes.writeBytes(compressedBytes, position, strSize);
+				
+				xmlBytes.uncompress();
+				
+				#if flash
+				compressedBytes.length = position;
+				#elseif (cpp || neko)
+				compressedBytes.setLength(position);
+				#end
+				
+				skeletonXml = Xml.parse(xmlBytes.readUTFBytes(xmlBytes.length));
+				
+				compressedBytes.position = compressedBytes.length - 4;
+				strSize = compressedBytes.readInt();
+				position = compressedBytes.length - 4 - strSize;
+				
+				xmlBytes.clear();
+				xmlBytes.writeBytes(compressedBytes, position, strSize);
+				xmlBytes.uncompress();
+				
+				#if flash
+				compressedBytes.length = position;
+				#elseif (cpp || neko)
+				compressedBytes.setLength(position);
+				#end
+				
+				texAtlasXml = Xml.parse(xmlBytes.readUTFBytes(xmlBytes.length));
 				return new DecompressedData(skeletonXml, texAtlasXml, compressedBytes);
 			case BytesType.ZIP: throw "Can not decompress zip!";
 			default: throw "Unknow format";

@@ -118,7 +118,7 @@ class BaseFactory extends EventDispatcher{
 	public function dispose(disposeData:Bool = true) {
 		if (disposeData) {
 			Lambda.iter(_name2SkeletonData, function(d) d.dispose());
-			Lambda.iter(_name2TexAtlas, function(t) t.dispose());
+			Lambda.iter(_name2TexAtlas, function(d) d.dispose());
 		}
 		
 		_name2SkeletonData = null;

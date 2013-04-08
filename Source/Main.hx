@@ -13,6 +13,7 @@ import nme.events.Event;
 import nme.Lib;
 import nme.utils.Timer;
 #if flash11
+import hxDragonBones.factorys.StarlingFactory;
 import starling.core.Starling;
 import starling.display.Sprite;
 import starling.events.Event;

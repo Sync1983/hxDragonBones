@@ -1,11 +1,11 @@
 package hxDragonBones.objects;
-import haxe.Log;
-import nme.Lib;
+import hxDragonBones.utils.DisposeUtils;
+import hxDragonBones.utils.IDisposable;
 
 /**
  * @author SlavaRa
  */
-class SkeletonData{
+class SkeletonData implements IDisposable{
 
 	public function new() {
 		armatureDataList = new DataList();
@@ -30,37 +30,26 @@ class SkeletonData{
 	}
 	
 	public function dispose() {
-		for (armatureName in armatureDataList.names) {
-			var data:Dynamic = armatureDataList.getData(armatureName);
-			if (Std.is(data, ArmatureData)) {
-				cast(data, ArmatureData).dispose();
-			}
+		for (name in armatureDataList.names) {
+			DisposeUtils.dispose(armatureDataList.getDataByName(name));
 		}
-		
-		for (animationName in animationDataList.names) {
-			var data:Dynamic = animationDataList.getData(animationName);
-			if (Std.is(data, AnimationData)) {
-				cast(data, AnimationData).dispose();
-			}
+		for (name in animationDataList.names) {
+			DisposeUtils.dispose(animationDataList.getDataByName(name));
 		}
-		
-		armatureDataList.dispose();
-		animationDataList.dispose();
-		displayDataList.dispose();
+		DisposeUtils.dispose(armatureDataList);
+		DisposeUtils.dispose(animationDataList);
+		DisposeUtils.dispose(displayDataList);
 	}
 	
 	public function getArmatureData(name:String):ArmatureData {
-		var d:Dynamic = armatureDataList.getData(name);
-		return Std.is(d, ArmatureData) ? cast(d, ArmatureData) : null;
+		return cast armatureDataList.getDataByName(name);
 	}
 	
 	public function getAnimationData(name:String):AnimationData {
-		var d:Dynamic = animationDataList.getData(name);
-		return Std.is(d, AnimationData) ? cast(d, AnimationData) : null;
+		return cast animationDataList.getDataByName(name);
 	}
 	
 	public function getDisplayData(name:String):DisplayData {
-		var d:Dynamic = displayDataList.getData(name);
-		return Std.is(d, DisplayData) ? cast(d, DisplayData) : null;
+		return cast displayDataList.getDataByName(name);
 	}
 }

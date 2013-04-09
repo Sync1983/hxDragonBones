@@ -47,9 +47,7 @@ class WorldClock implements IAnimatable {
 	}
 	
 	public function remove(animatable:IAnimatable) {
-		if(has(animatable)) {
-			_animatableList.splice(Lambda.indexOf(_animatableList, animatable), 1);
-		}
+		_animatableList.remove(animatable);
 	}
 	
 	public function clear() {

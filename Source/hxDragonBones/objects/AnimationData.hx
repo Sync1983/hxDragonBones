@@ -1,9 +1,11 @@
 package hxDragonBones.objects;
+import hxDragonBones.utils.DisposeUtils;
+import hxDragonBones.utils.IDisposable;
 
 /**
  * @author SlavaRa
  */
-class AnimationData{
+class AnimationData implements IDisposable {
 
 	public function new() {
 		movementDataList = new DataList();
@@ -19,17 +21,13 @@ class AnimationData{
 	
 	public function dispose() {
 		for (name in movementDataList.names) {
-			var d:Dynamic = movementDataList.getData(name);
-			if (Std.is(d, MovementData)) {
-				cast(d, MovementData).dispose();
-			}
+			DisposeUtils.dispose(movementDataList.getDataByName(name));
 		}
-		movementDataList.dispose();
+		DisposeUtils.dispose(movementDataList);
 	}
 	
 	public function getMovementData(name:String):MovementData {
-		var d:Dynamic = movementDataList.getData(name);
-		return Std.is(d, MovementData) ? cast(d, MovementData) : null;
+		return cast movementDataList.getDataByName(name);
 	}
 	
 }

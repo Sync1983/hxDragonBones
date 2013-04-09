@@ -3,17 +3,16 @@ package hxDragonBones;
 import haxe.Log;
 import hxDragonBones.animation.Animation;
 import hxDragonBones.animation.IAnimatable;
-import hxDragonBones.animation.IAnimatable;
 import hxDragonBones.events.ArmatureEvent;
-import nme.display.Sprite;
+import hxDragonBones.utils.IDisposable;
 import nme.events.EventDispatcher;
-import nme.events.IEventDispatcher;
 import nme.geom.ColorTransform;
+import nme.Lib;
 
 /**
  * @author SlavaRa
  */
-class Armature extends EventDispatcher, implements IAnimatable{
+class Armature extends EventDispatcher, implements IAnimatable, implements IDisposable{
 
 	public function new(display:Dynamic) {
 		super();
@@ -44,8 +43,8 @@ class Armature extends EventDispatcher, implements IAnimatable{
 	var _rootBones:Array<Bone>;
 	
 	public function dispose() {
-		for (b in _rootBones) {
-			b.dispose();
+		for (i in _rootBones) {
+			i.dispose();
 		}
 		
 		colorTransform = null;
@@ -108,8 +107,18 @@ class Armature extends EventDispatcher, implements IAnimatable{
 		update();
 	}
 	
+	public function update() {
+		for (i in _rootBones) {
+			i.update();
+		}
+		
+		if(bonesIndexChanged) {
+			updateBonesZ();
+		}
+	}
+	
 	public function updateBonesZ() {
-		bones.sort(function(a, b) return Reflect.compare(a.global.z, b.global.z));
+		bones.sort(compareZ);
 		for (bone in bones){
 			if(bone.isOnStage) {
 				bone.displayBridge.addDisplayTo(display);
@@ -122,55 +131,41 @@ class Armature extends EventDispatcher, implements IAnimatable{
 		}
 	}
 	
-	public function update() {
-		for (b in _rootBones) {
-			b.update();
-		}
-		
-		if(bonesIndexChanged) {
-			updateBonesZ();
-		}
-	}
-	
 	public function addToBones(bone:Bone, ?root:Bool) {
 		if(!Lambda.has(bones, bone)) {
 			bones.push(bone);
 		}
 		
-		var index:Int = Lambda.indexOf(_rootBones, bone);
-		if(root) {
-			if(index == -1) {
+		if (root) {
+			if (!Lambda.has(_rootBones, bone)) {
 				_rootBones.push(bone);
 			}
-		} else if(index != -1) {
-			_rootBones.splice(index, 1);
+		} else {
+			_rootBones.remove(bone);
 		}
 		
 		bone.armature = this;
 		bone.displayBridge.addDisplayTo(display, Std.int(bone.global.z));
-		for(c in bone.children) {
-			addToBones(c);
+		for(i in bone.children) {
+			addToBones(i);
 		}
 		bonesIndexChanged = true;
 	}
 	
 	public function removeFromBones(bone:Bone)	{
-		var index:Int = Lambda.indexOf(bones, bone);
-		if(index != -1) {
-			bones.splice(index, 1);
-		}
-		
-		index = Lambda.indexOf(_rootBones, bone);
-		if(index != -1) {
-			_rootBones.splice(index, 1);
-		}
+		bones.remove(bone);
+		_rootBones.remove(bone);
 		
 		bone.armature = null;
 		bone.displayBridge.removeDisplayFromParent();
-		for(c in bone.children) {
-			removeFromBones(c);
+		for(i in bone.children) {
+			removeFromBones(i);
 		}
 		bonesIndexChanged = true;
+	}
+	
+	function compareZ(a, b):Int {
+		return Reflect.compare(a.global.z, b.global.z);
 	}
 	
 }

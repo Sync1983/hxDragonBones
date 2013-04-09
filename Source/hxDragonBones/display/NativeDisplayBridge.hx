@@ -11,7 +11,6 @@ import nme.geom.Matrix;
 class NativeDisplayBridge implements IDisplayBridge{
 
 	public function new() {
-		
 	}
 	
 	//{ region INTERFACE hxDragonBones.display.IDisplayBridge

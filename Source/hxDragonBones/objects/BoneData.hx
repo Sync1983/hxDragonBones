@@ -1,9 +1,10 @@
 package hxDragonBones.objects;
+import hxDragonBones.utils.IDisposable;
 
 /**
  * @author SlavaRa
  */
-class BoneData{
+class BoneData implements IDisposable{
 
 	public function new() {
 		displayNames = [];

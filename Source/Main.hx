@@ -1,11 +1,14 @@
 package;
 
+import com.fermmmtools.debug.Stats;
 import haxe.Log;
 import hxDragonBones.animation.WorldClock;
 import hxDragonBones.Armature;
 import hxDragonBones.factorys.BaseFactory;
+import hxDragonBones.utils.IDisposable;
 import nme.Assets;
 import nme.display.FPS;
+import nme.display.InterpolationMethod;
 import nme.display.Sprite;
 import nme.display.StageAlign;
 import nme.display.StageScaleMode;
@@ -30,6 +33,10 @@ class Main extends Sprite {
 		addListeners();
 	}
 	
+	#if !flash
+	var factory:BaseFactory;
+	#end
+	
 	function setupStage() {
 		Lib.current.stage.align = StageAlign.TOP_LEFT;
 		Lib.current.stage.scaleMode = StageScaleMode.NO_SCALE;
@@ -37,44 +44,6 @@ class Main extends Sprite {
 	
 	function addListeners() {
 		addEventListener(Event.ADDED_TO_STAGE, onStageAddedToStage);
-	}
-	
-	function initialize() {
-		addChild(new FPS(50, 50, 0xFFFFFF));
-		
-		#if flash11
-		new Starling(TestView, Lib.current.stage).start();
-		#else
-		var factory:BaseFactory = new BaseFactory();
-		factory.addEventListener(Event.COMPLETE, onFactoryComplete);
-		factory.parseData(Assets.getBytes("assets/img/character_output_bin"));
-		#end
-	}
-	
-	function onFactoryComplete(event:Event) {
-		var factory:BaseFactory = cast(event.currentTarget, BaseFactory);
-		
-		var columnNum:Int = 15;
-		var paddingWidth:Int = 50;
-		var paddingHeight:Int = 20;
-		var paddingLeft:Int = 25;
-		var paddingTop:Int = 200;
-		var Dx:Int = 25;
-		
-		for (i in 0 ... 100) {
-			var armature:Armature = factory.buildArmature("CharacterAnimations");
-			var display:Sprite = cast(armature.display, nme.display.Sprite);
-			display.x = (i % columnNum) * paddingWidth + paddingLeft + ((i / columnNum) % 2) * Dx;
-			display.y = ((i / columnNum)) * paddingHeight + paddingTop;
-			armature.animation.gotoAndPlay("Idle", -1, -1, true);
-			addChild(display);
-			WorldClock.instance.add(armature);
-		}
-		addEventListener(Event.ENTER_FRAME, onEnterFrame);
-	}
-	
-	function onEnterFrame(_) {
-		WorldClock.instance.advanceTime( -1);
 	}
 	
 	function onStageAddedToStage(_) {
@@ -86,6 +55,42 @@ class Main extends Sprite {
 		#end
 	}
 	
+	function initialize() {
+		Lib.current.addChild(new Stats());
+		#if flash11
+		new Starling(TestView, Lib.current.stage).start();
+		#else
+		factory = new BaseFactory();
+		factory.onDataParsed.bindVoid(onFactoryDataParsed);
+		factory.parseData(Assets.getBytes("assets/img/character_output_bin"));
+		#end
+	}
+	
+	#if !flash11
+	function onFactoryDataParsed() {
+		var columnNum:Int = 15;
+		var paddingWidth:Int = 50;
+		var paddingHeight:Int = 20;
+		var paddingLeft:Int = 25;
+		var paddingTop:Int = 200;
+		var Dx:Int = 25;
+		
+		for (i in 0 ... 1) {
+			var armature:Armature = factory.buildArmature("CharacterAnimations");
+			var display:Sprite = cast(armature.display, nme.display.Sprite);
+			display.x = (i % columnNum) * paddingWidth + paddingLeft + ((i / columnNum) % 2) * Dx;
+			display.y = ((i / columnNum)) * paddingHeight + paddingTop;
+			armature.animation.gotoAndPlay("Idle", true);
+			addChild(display);
+			WorldClock.instance.add(armature);
+		}
+		addEventListener(Event.ENTER_FRAME, onEnterFrame);
+	}
+	
+	function onEnterFrame(_) {
+		WorldClock.instance.advanceTime( -1);
+	}
+	#end
 }
 
 #if flash11
@@ -93,13 +98,14 @@ class TestView extends starling.display.Sprite {
 	
 	public function new() {
 		super();
-		var factory:StarlingFactory = new StarlingFactory();
-		factory.addEventListener(Event.COMPLETE, onFactoryComplete);
+		factory = new StarlingFactory();
+		factory.onDataParsed.bindVoid(onFactoryDataParsed);
 		factory.parseData(Assets.getBytes("assets/img/character_output_bin"));
 	}
 	
-	function onFactoryComplete(event:Event)  {
-		var factory:StarlingFactory = cast(event.currentTarget, StarlingFactory);
+	var factory:StarlingFactory;
+	
+	function onFactoryDataParsed():Void  {
 		var columnNum:Int = 15;
 		var paddingWidth:Int = 50;
 		var paddingHeight:Int = 20;

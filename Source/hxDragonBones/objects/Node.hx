@@ -54,9 +54,4 @@ class Node{
 		pivotX 	= node.pivotX;
 		pivotY 	= node.pivotY;
 	}
-	
-	public function toString():String {
-		return "x:" + x + " y:" + y + " skewX:" + skewX + " skewY:" + skewY + " scaleX:" + scaleX + " scaleY:" + scaleY;
-	}
-	
 }

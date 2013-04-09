@@ -1,4 +1,6 @@
 package hxDragonBones.factorys;
+import hsl.haxe.direct.DirectSignaler;
+import hsl.haxe.Signaler;
 import hxDragonBones.Armature;
 import hxDragonBones.Bone;
 import hxDragonBones.display.NativeDisplayBridge;
@@ -12,6 +14,7 @@ import hxDragonBones.objects.XMLDataParser;
 import hxDragonBones.textures.ITextureAtlas;
 import hxDragonBones.textures.NativeTextureAtlas;
 import hxDragonBones.textures.SubTextureData;
+import hxDragonBones.utils.IDisposable;
 import nme.display.Bitmap;
 import nme.display.DisplayObject;
 import nme.display.DisplayObjectContainer;
@@ -21,8 +24,6 @@ import nme.display.MovieClip;
 import nme.display.Shape;
 import nme.display.Sprite;
 import nme.events.Event;
-import nme.events.EventDispatcher;
-import nme.events.IEventDispatcher;
 import nme.geom.Matrix;
 import nme.geom.Rectangle;
 import nme.ObjectHash;
@@ -31,16 +32,18 @@ import nme.utils.ByteArray;
 /**
  * @author SlavaRa
  */
-class BaseFactory extends EventDispatcher{
+class BaseFactory/*implements IDisposable*/{
 
 	static var helpMatrix:Matrix = new Matrix();
 	
-	public function new(?target:IEventDispatcher) {
-		super(target);
+	public function new() {
+		onDataParsed = new DirectSignaler(this);
 		_name2SkeletonData = new Hash<SkeletonData>();
 		_name2TexAtlas = new Hash<ITextureAtlas>();
 		_loader2TexAtlasXML = new ObjectHash<Loader, Xml>();
 	}
+	
+	public var onDataParsed(default, null):Signaler<Void>;
 	
 	var _name2SkeletonData:Hash<SkeletonData>;
 	var _name2TexAtlas:Hash<ITextureAtlas>;
@@ -247,8 +250,8 @@ class BaseFactory extends EventDispatcher{
 			var texAtlas:ITextureAtlas = createTextureAtlas(getContent(loaderInfo), texAtlasXML);
 			addTextureAtlas(texAtlas, loaderInfo.loader.name);
 			
-			if ((Lambda.count(_loader2TexAtlasXML) == 0) && hasEventListener(Event.COMPLETE)) {
-				dispatchEvent(new Event(Event.COMPLETE));
+			if (Lambda.count(_loader2TexAtlasXML) == 0) {
+				onDataParsed.dispatch();
 			}
 		}
 		

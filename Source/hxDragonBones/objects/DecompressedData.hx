@@ -1,11 +1,12 @@
 package hxDragonBones.objects;
 import haxe.Log;
+import hxDragonBones.utils.IDisposable;
 import nme.utils.ByteArray;
 
 /**
  * @author SlavaRa
  */
-class DecompressedData{
+class DecompressedData implements IDisposable{
 
 	public function new(skeletonXml:Xml, texAtlasXml:Xml, texBytes:ByteArray) {
 		this.skeletonXml = skeletonXml;

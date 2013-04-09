@@ -1,11 +1,9 @@
 package hxDragonBones;
 
-import haxe.Log;
 import hxDragonBones.animation.Tween;
 import hxDragonBones.display.IDisplayBridge;
 import hxDragonBones.objects.Node;
-import nme.events.EventDispatcher;
-import nme.events.IEventDispatcher;
+import hxDragonBones.utils.IDisposable;
 import nme.geom.ColorTransform;
 import nme.geom.Matrix;
 import nme.geom.Point;
@@ -13,13 +11,11 @@ import nme.geom.Point;
 /**
  * @author SlavaRa
  */
-class Bone extends EventDispatcher{
+class Bone implements IDisposable {
 
 	static var _helpPoint:Point = new Point();
 	
 	public function new(bridge:IDisplayBridge) {
-		super();
-		
 		origin = new Node();
 		global = new Node();
 		node = new Node();
@@ -118,8 +114,8 @@ class Bone extends EventDispatcher{
 	}
 	
 	public function dispose() {
-		for (c in children) {
-			c.dispose();
+		for (i in children) {
+			i.dispose();
 		}
 		_displayList = null;
 		children = null;
@@ -156,13 +152,12 @@ class Bone extends EventDispatcher{
 	}
 	
 	public function removeChild(child:Bone) {
-		var index:Int = Lambda.indexOf(children, child);
-		if (index != -1) {
+		if (Lambda.has(children, child)) {
 			if (armature != null) {
 				armature.removeFromBones(child);
 			}
 			child.setParent(null);
-			children.splice(index, 1);
+			children.remove(child);
 		}
 	}
 	
@@ -184,7 +179,7 @@ class Bone extends EventDispatcher{
 			global.pivotX 	= origin.pivotX + node.pivotX + tweenNode.pivotX;
 			global.pivotY 	= origin.pivotY + node.pivotY + tweenNode.pivotY;
 			
-			if(parent != null) {
+			if (parent != null) {
 				_helpPoint.x 	= global.x;
 				_helpPoint.y 	= global.y;
 				_helpPoint 		= parent.globalTransformMatrix.transformPoint(_helpPoint);
@@ -194,17 +189,14 @@ class Bone extends EventDispatcher{
 				global.skewY 	+= parent.global.skewY;
 			}
 			
-			globalTransformMatrix.a 	= global.scaleX * Math.cos(global.skewY);
-			globalTransformMatrix.b 	= global.scaleX * Math.sin(global.skewY);
-			globalTransformMatrix.c 	= -global.scaleY * Math.sin(global.skewX);
-			globalTransformMatrix.d 	= global.scaleY * Math.cos(global.skewX);
-			globalTransformMatrix.tx 	= global.x;
-			globalTransformMatrix.ty 	= global.y;
+			globalTransformMatrix.identity();
+			globalTransformMatrix.rotate(global.skewX);
+			globalTransformMatrix.scale(global.scaleX, global.scaleY);
+			globalTransformMatrix.translate(global.x, global.y);
 			
 			//NOTE: ?
-			//for (i in children) {
+			//for (i in children)
 				//i.dispose();
-			//}
 			
 			if(childArmature != null) {
 				childArmature.update();

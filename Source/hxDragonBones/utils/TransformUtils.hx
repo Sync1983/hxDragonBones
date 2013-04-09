@@ -29,13 +29,11 @@ class TransformUtils{
 		bone.skewY -= parent.skewY;
 	}
 	
-	public static inline function nodeToMatrix(node:Node, matrix:Matrix) {
-		matrix.a 	= node.scaleX 	* Math.cos(node.skewY);
-		matrix.b 	= node.scaleX 	* Math.sin(node.skewY);
-		matrix.c 	= -node.scaleY 	* Math.sin(node.skewX);
-		matrix.d 	= node.scaleY 	* Math.cos(node.skewX);
-		matrix.tx 	= node.x;
-		matrix.ty 	= node.y;
+	public static inline function nodeToMatrix(node:Node, resultMatrix:Matrix) {
+		resultMatrix.identity();
+		resultMatrix.rotate(node.skewX);
+		resultMatrix.scale(node.scaleX, node.scaleY);
+		resultMatrix.translate(node.x, node.y);
 	}
 	
 	public static inline function setOffSetColorTransform(from:ColorTransform, to:ColorTransform, offset:ColorTransform) {

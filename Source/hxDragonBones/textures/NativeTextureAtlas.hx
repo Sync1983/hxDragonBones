@@ -1,6 +1,7 @@
 package hxDragonBones.textures;
 import haxe.Log;
 import hxDragonBones.utils.ConstValues;
+import hxDragonBones.utils.IDisposable;
 import nme.display.BitmapData;
 import nme.display.MovieClip;
 import nme.geom.Rectangle;
@@ -9,7 +10,7 @@ import nme.ObjectHash;
 /**
  * @author SlavaRa
  */
-class NativeTextureAtlas implements ITextureAtlas{
+class NativeTextureAtlas implements ITextureAtlas {
 
 	public function new(texture:Dynamic, texAtlasXml:Xml, scale:Float = 1, ?isDifferentXML:Bool) {
 		this.scale = scale;

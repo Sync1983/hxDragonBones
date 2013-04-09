@@ -1,6 +1,4 @@
 package hxDragonBones.animation;
-import haxe.Log;
-import haxe.remoting.FlashJsConnection;
 import hxDragonBones.Armature;
 import hxDragonBones.events.AnimationEvent;
 import hxDragonBones.events.FrameEvent;
@@ -10,11 +8,12 @@ import hxDragonBones.objects.AnimationData;
 import hxDragonBones.objects.MovementBoneData;
 import hxDragonBones.objects.MovementData;
 import hxDragonBones.objects.MovementFrameData;
+import hxDragonBones.utils.IDisposable;
 
 /**
  * @author SlavaRa
  */
-class Animation{
+class Animation implements IDisposable{
 
 	public static inline var SINGLE:Int = 0;
 	public static inline var LIST_START:Int = 1;
@@ -195,8 +194,6 @@ class Animation{
 		if (!isPlaying) {
 			return;
 		}
-		
-		var childArmature:Armature;
 		
 		if ((_loop > 0) || (currentTime < totalTime) || (totalTime == 0)) {
 			

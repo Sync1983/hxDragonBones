@@ -1,11 +1,11 @@
 package hxDragonBones.objects;
-import haxe.Log;
-import nme.Lib;
+import hxDragonBones.utils.DisposeUtils;
+import hxDragonBones.utils.IDisposable;
 
 /**
  * @author SlavaRa
  */
-class ArmatureData{
+class ArmatureData implements IDisposable{
 
 	public function new() {
 		boneDataList = new DataList();
@@ -20,26 +20,20 @@ class ArmatureData{
 	
 	public function dispose() {
 		for (name in boneDataList.names) {
-			var d:Dynamic = boneDataList.getData(name);
-			if (Std.is(d, BoneData)) {
-				cast(d, BoneData).dispose();
-			}
+			DisposeUtils.dispose(boneDataList.getDataByName(name));
 		}
-		
-		boneDataList.dispose();
+		DisposeUtils.dispose(boneDataList);
 	}
 	
 	public function getBoneData(name:String):BoneData {
-		var d:Dynamic = boneDataList.getData(name);
-		return Std.is(d, BoneData) ? cast(d, BoneData) : null;
+		return cast boneDataList.getDataByName(name);
 	}
 	
 	public function updateBoneList() {
 		var sortList:Array<Dynamic> = [];
 		for (name in boneDataList.names) {
-			var d:Dynamic = boneDataList.getData(name);
-			if (Std.is(d, BoneData)) {
-				var boneData:BoneData = cast(d, BoneData);
+			var boneData:BoneData = cast boneDataList.getDataByName(name);
+			if (boneData != null) {
 				var levelValue:Int = Std.int(boneData.node.z);
 				var level:Int = 0;
 				while(boneData != null) {
@@ -52,12 +46,16 @@ class ArmatureData{
 		}
 		
 		if (sortList.length > 0) {
-			sortList.sort(function(a, b) return Reflect.compare(a.level, b.level));
+			sortList.sort(compareLevel);
 			boneDataList.names = [];
 			for (item in sortList) {
 				boneDataList.names.push(item.name);
 			}
 		}
+	}
+	
+	function compareLevel(a,b):Int {
+		return Reflect.compare(a.level, b.level);
 	}
 	
 }

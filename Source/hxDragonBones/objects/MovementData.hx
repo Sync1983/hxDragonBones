@@ -1,16 +1,16 @@
 package hxDragonBones.objects;
-import haxe.Log;
+import hxDragonBones.utils.DisposeUtils;
+import hxDragonBones.utils.IDisposable;
 
 /**
  * @author SlavaRa
  */
-class MovementData{
+class MovementData implements IDisposable{
 
 	public function new() {
 		duration = 0;
 		durationTo = 0;
 		durationTween = 0;
-		
 		movementBoneDataList = new DataList();
 		movementFrameList = [];
 	}
@@ -25,18 +25,13 @@ class MovementData{
 	
 	public function dispose() {
 		for (movementBoneName in movementBoneDataList.names) {
-			var d:Dynamic = movementBoneDataList.getData(movementBoneName);
-			if (Std.is(d, MovementBoneData)) {
-				cast(d, MovementBoneData).dispose();
-			}
+			DisposeUtils.dispose(movementBoneDataList.getDataByName(movementBoneName));
 		}
-		
-		movementBoneDataList.dispose();
-		movementFrameList = [];
+		DisposeUtils.dispose(movementBoneDataList);
+		movementFrameList = null;
 	}
 	
 	public function getMovementBoneData(name:String):MovementBoneData {
-		var d:Dynamic = movementBoneDataList.getData(name);
-		return Std.is(d, MovementBoneData) ? cast(d, MovementBoneData) : null;
+		return cast movementBoneDataList.getDataByName(name);
 	}
 }

@@ -1,9 +1,10 @@
 package hxDragonBones.objects;
+import hxDragonBones.utils.IDisposable;
 
 /**
  * @author SlavaRa
  */
-class MovementBoneData{
+class MovementBoneData implements IDisposable{
 
 	public static var HIDE_DATA:MovementBoneData = new MovementBoneData();
 	

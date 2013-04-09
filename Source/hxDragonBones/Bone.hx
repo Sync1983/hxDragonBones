@@ -1,9 +1,11 @@
 package hxDragonBones;
 
+import haxe.Log;
 import hxDragonBones.animation.Tween;
 import hxDragonBones.display.IDisplayBridge;
 import hxDragonBones.objects.Node;
 import hxDragonBones.utils.IDisposable;
+import hxDragonBones.utils.TransformUtils;
 import nme.geom.ColorTransform;
 import nme.geom.Matrix;
 import nme.geom.Point;
@@ -14,6 +16,7 @@ import nme.geom.Point;
 class Bone implements IDisposable {
 
 	static var _helpPoint:Point = new Point();
+	static var counter:Int = 0;
 	
 	public function new(bridge:IDisplayBridge) {
 		origin = new Node();
@@ -59,7 +62,7 @@ class Bone implements IDisposable {
 	
 	function get_childArmature():Armature {
 		var d:Dynamic = _displayList[_displayIndex];
-		return Std.is(d, Armature) ? cast(d, Armature) : null;
+		return Std.is(d, Armature) ? cast d : null;
 	}
 	
 	function get_display():Dynamic {
@@ -189,16 +192,13 @@ class Bone implements IDisposable {
 				global.skewY 	+= parent.global.skewY;
 			}
 			
-			globalTransformMatrix.identity();
-			globalTransformMatrix.rotate(global.skewX);
-			globalTransformMatrix.scale(global.scaleX, global.scaleY);
-			globalTransformMatrix.translate(global.x, global.y);
+			TransformUtils.nodeToMatrix(global, globalTransformMatrix);
 			
 			//NOTE: ?
 			//for (i in children)
 				//i.dispose();
 			
-			if(childArmature != null) {
+			if (childArmature != null) {
 				childArmature.update();
 			}
 			

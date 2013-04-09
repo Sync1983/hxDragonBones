@@ -37,32 +37,32 @@ class TransformUtils{
 	}
 	
 	public static inline function setOffSetColorTransform(from:ColorTransform, to:ColorTransform, offset:ColorTransform) {
-		offset.alphaOffset 		= to.alphaOffset - from.alphaOffset;
-		offset.redOffset 		= to.redOffset - from.redOffset;
-		offset.greenOffset 		= to.greenOffset - from.greenOffset;
-		offset.blueOffset 		= to.blueOffset - from.blueOffset;
+		offset.alphaOffset 		= to.alphaOffset     - from.alphaOffset;
+		offset.redOffset 		= to.redOffset       - from.redOffset;
+		offset.greenOffset 		= to.greenOffset     - from.greenOffset;
+		offset.blueOffset 		= to.blueOffset      - from.blueOffset;
 		offset.alphaMultiplier 	= to.alphaMultiplier - from.alphaMultiplier;
-		offset.redMultiplier 	= to.redMultiplier - from.redMultiplier;
+		offset.redMultiplier 	= to.redMultiplier   - from.redMultiplier;
 		offset.greenMultiplier 	= to.greenMultiplier - from.greenMultiplier;
-		offset.blueMultiplier 	= to.blueMultiplier - from.blueMultiplier;
+		offset.blueMultiplier 	= to.blueMultiplier  - from.blueMultiplier;
 	}
 	
 	public static inline function setTweenColorTransform(current:ColorTransform, offSet:ColorTransform, tween:ColorTransform, progress:Float) {
-		tween.alphaOffset 		= current.alphaOffset + progress * offSet.alphaOffset;
-		tween.redOffset 		= current.redOffset + progress * offSet.redOffset;
-		tween.greenOffset 		= current.greenOffset + progress * offSet.greenOffset;
-		tween.blueOffset 		= current.blueOffset + progress * offSet.blueOffset;
-		tween.alphaMultiplier 	= current.alphaMultiplier + progress * offSet.alphaMultiplier;
-		tween.redMultiplier 	= current.redMultiplier + progress * offSet.redMultiplier;
-		tween.greenMultiplier 	= current.greenMultiplier + progress * offSet.greenMultiplier;
-		tween.blueMultiplier 	= current.blueMultiplier + progress * offSet.blueMultiplier;
+		tween.alphaOffset 		= current.alphaOffset     + offSet.alphaOffset     * progress;
+		tween.redOffset 		= current.redOffset       + offSet.redOffset       * progress;
+		tween.greenOffset 		= current.greenOffset     + offSet.greenOffset     * progress;
+		tween.blueOffset 		= current.blueOffset      + offSet.blueOffset      * progress;
+		tween.alphaMultiplier 	= current.alphaMultiplier + offSet.alphaMultiplier * progress;
+		tween.redMultiplier 	= current.redMultiplier   + offSet.redMultiplier   * progress;
+		tween.greenMultiplier 	= current.greenMultiplier + offSet.greenMultiplier * progress;
+		tween.blueMultiplier 	= current.blueMultiplier  + offSet.blueMultiplier  * progress;
 	}
 	
 	public static inline function setOffSetNode(from:Node, to:Node, offSet:Node, tweenRotate:Int = 0) {
-		offSet.x 		= to.x - from.x;
-		offSet.y 		= to.y - from.y;
-		offSet.skewX 	= to.skewX - from.skewX;
-		offSet.skewY 	= to.skewY - from.skewY;
+		offSet.x 		= to.x      - from.x;
+		offSet.y 		= to.y      - from.y;
+		offSet.skewX 	= to.skewX  - from.skewX;
+		offSet.skewY 	= to.skewY  - from.skewY;
 		offSet.scaleX 	= to.scaleX - from.scaleX;
 		offSet.scaleY 	= to.scaleY - from.scaleY;
 		offSet.pivotX 	= to.pivotX - from.pivotX;
@@ -95,14 +95,14 @@ class TransformUtils{
 	
 	public static inline function setTweenNode(current:Node, offSet:Node, tween:Node, progress:Float) {
 		tween.setValues(
-			current.x + progress * offSet.x,
-			current.y + progress * offSet.y,
-			current.skewX + progress * offSet.skewX,
-			current.skewY + progress * offSet.skewY,
-			current.scaleX + progress * offSet.scaleX,
-			current.scaleY + progress * offSet.scaleY,
-			current.pivotX + progress * offSet.pivotX,
-			current.pivotY + progress * offSet.pivotY,
+			current.x      + offSet.x      * progress,
+			current.y      + offSet.y      * progress,
+			current.skewX  + offSet.skewX  * progress,
+			current.skewY  + offSet.skewY  * progress,
+			current.scaleX + offSet.scaleX * progress,
+			current.scaleY + offSet.scaleY * progress,
+			current.pivotX + offSet.pivotX * progress,
+			current.pivotY + offSet.pivotY * progress,
 			Std.int(tween.z)
 		);
 	}

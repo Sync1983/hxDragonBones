@@ -1,4 +1,5 @@
 package hxDragonBones.animation;
+import haxe.Log;
 import hxDragonBones.Armature;
 import hxDragonBones.events.AnimationEvent;
 import hxDragonBones.events.FrameEvent;
@@ -246,8 +247,7 @@ class Animation implements IDisposable{
 			
 			for (bone in _armature.bones) {
 				bone.tween.advanceTime(progress, _playType);
-				
-				if(bone.childArmature != null) {
+				if (bone.childArmature != null) {
 					bone.childArmature.animation.advanceTime(passedTime);
 				}
 			}

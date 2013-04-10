@@ -2,10 +2,10 @@ package;
 
 import com.fermmmtools.debug.Stats;
 import haxe.Log;
-import hxDragonBones.animation.WorldClock;
-import hxDragonBones.Armature;
-import hxDragonBones.factorys.BaseFactory;
-import hxDragonBones.utils.IDisposable;
+import dragonbones.animation.WorldClock;
+import dragonbones.Armature;
+import dragonbones.factorys.BaseFactory;
+import dragonbones.utils.IDisposable;
 import nme.Assets;
 import nme.display.FPS;
 import nme.display.InterpolationMethod;
@@ -16,7 +16,7 @@ import nme.events.Event;
 import nme.Lib;
 import nme.utils.Timer;
 #if flash11
-import hxDragonBones.factorys.StarlingFactory;
+import dragonbones.factorys.StarlingFactory;
 import starling.core.Starling;
 import starling.display.Sprite;
 import starling.events.Event;
@@ -80,7 +80,7 @@ class Main extends Sprite {
 			var display:Sprite = cast(armature.display, nme.display.Sprite);
 			display.x = (i % columnNum) * paddingWidth + paddingLeft + ((i / columnNum) % 2) * Dx;
 			display.y = ((i / columnNum)) * paddingHeight + paddingTop;
-			armature.animation.gotoAndPlay("Idle", true);
+			armature.animation.gotoAndPlay("Idle", -1, -1, true);
 			addChild(display);
 			WorldClock.instance.add(armature);
 		}
@@ -88,7 +88,7 @@ class Main extends Sprite {
 	}
 	
 	function onEnterFrame(_) {
-		WorldClock.instance.advanceTime( -1);
+		WorldClock.instance.advanceTime();
 	}
 	#end
 }
@@ -106,20 +106,20 @@ class TestView extends starling.display.Sprite {
 	var factory:StarlingFactory;
 	
 	function onFactoryDataParsed():Void  {
-		var columnNum:Int = 15;
+		var columnNum:Int = 10;
 		var paddingWidth:Int = 50;
 		var paddingHeight:Int = 20;
 		var paddingLeft:Int = 25;
-		var paddingTop:Int = 300;
+		var paddingTop:Int = 250;
 		var Dx:Int = 25;
 		
-		for (i in 0 ... 100) {
+		//for (i in 0 ... 1000) {
+		for (i in 0 ... 1) {
 			var armature:Armature = factory.buildArmature("CharacterAnimations");
 			var display:starling.display.Sprite = cast(armature.display, starling.display.Sprite);
 			display.x = (i % columnNum) * paddingWidth + paddingLeft + ((i / columnNum) % 2) * Dx;
 			display.y = ((i / columnNum)) * paddingHeight + paddingTop;
 			armature.animation.gotoAndPlay("Idle", -1, -1, true);
-			//armature.animation.stop();
 			addChild(display);
 			WorldClock.instance.add(armature);
 		}
@@ -127,7 +127,7 @@ class TestView extends starling.display.Sprite {
 	}
 	
 	function onEnterFrame(_) {
-		WorldClock.instance.advanceTime( -1);
+		WorldClock.instance.advanceTime();
 	}
 	
 }

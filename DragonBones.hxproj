@@ -20,15 +20,15 @@
     <class path="Libs" />
     <class path="c:\Motion-Twin\haxe\lib\nme/3,5,5/" />
     <class path="c:\Motion-Twin\haxe\lib\starling/1,2,2/" />
-    <class path="export/windows/cpp/haxe" />
+    <class path="export/flash/haxe" />
   </classpaths>
   <!-- Build options -->
   <build>
-    <option directives="as3_native&#xA;nme_install_tool&#xA;windows&#xA;desktop" />
+    <option directives="as3_native&#xA;nme_install_tool&#xA;web" />
     <option flashStrict="False" />
     <option mainClass="ApplicationMain" />
     <option enabledebug="True" />
-    <option additional="--remap flash:nme&#xA;--remap browser:native" />
+    <option additional="-swf-lib starling.swf&#xA;--macro patchTypes('starling.patch')&#xA;-swf-version 11.4" />
   </build>
   <!-- haxelib libraries -->
   <haxelib>

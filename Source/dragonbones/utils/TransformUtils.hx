@@ -10,38 +10,9 @@ import nme.geom.Point;
  */
 class TransformUtils{
 	static inline var DOUBLE_PI:Float = Math.PI * 2;
-	static inline var PIx200:Float = Math.PI * 200;
 	
 	static var _helpMatrix:Matrix = new Matrix();
 	static var _helpPoint:Point = new Point();
-	static var _helpSin:Array<Float>;
-	static var _helpCos:Array<Float>;
-	
-	public static inline function rotate(resultMatrix:Matrix, skewX:Float) {
-		if (_helpSin == null) {
-			setupHelpSin();
-		}
-		
-		var i:Int = Std.int(skewX * 100);
-		if ((i >= 0) && (i <= PIx200)) {
-			var sin: Float = _helpSin[i];
-			var cos: Float = _helpCos[i];
-			resultMatrix.a = skewX * cos;
-			resultMatrix.b = skewX * sin;
-			resultMatrix.c =-skewX * sin;
-			resultMatrix.d = skewX * cos;
-		}
-	}
-	
-	static function setupHelpSin() {
-		_helpSin = [];
-		_helpCos = [];
-		var length:Int = Math.ceil(PIx200 + 1);
-		for (i in 0...length) {
-		  _helpSin[i] = Math.sin(i / 100);
-		  _helpCos[i] = Math.cos(i / 100);
-		}
-	}
 	
 	public static inline function transformPointWithParent(bone:Node, parent:Node) {
 		nodeToMatrix(parent, _helpMatrix);

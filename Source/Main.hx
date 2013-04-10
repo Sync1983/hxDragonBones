@@ -110,25 +110,27 @@ class TestView extends starling.display.Sprite {
 		var paddingWidth:Int = 50;
 		var paddingHeight:Int = 20;
 		var paddingLeft:Int = 25;
-		var paddingTop:Int = 250;
+		var paddingTop:Int = 100;
 		var Dx:Int = 25;
 		
 		//for (i in 0 ... 1000) {
-		for (i in 0 ... 1) {
+		for (i in 0 ... 250) {
+		//for (i in 0 ... 1) {
 			var armature:Armature = factory.buildArmature("CharacterAnimations");
 			var display:starling.display.Sprite = cast(armature.display, starling.display.Sprite);
 			display.x = (i % columnNum) * paddingWidth + paddingLeft + ((i / columnNum) % 2) * Dx;
 			display.y = ((i / columnNum)) * paddingHeight + paddingTop;
 			armature.animation.gotoAndPlay("Idle", -1, -1, true);
 			addChild(display);
-			WorldClock.instance.add(armature);
+			//WorldClock.instance.add(armature);
+			Starling.juggler.add(armature);
 		}
-		addEventListener(starling.events.Event.ENTER_FRAME, onEnterFrame);
+		//addEventListener(starling.events.Event.ENTER_FRAME, onEnterFrame);
 	}
 	
-	function onEnterFrame(_) {
-		WorldClock.instance.advanceTime();
-	}
+	//function onEnterFrame(_) {
+		//WorldClock.instance.advanceTime();
+	//}
 	
 }
 #end

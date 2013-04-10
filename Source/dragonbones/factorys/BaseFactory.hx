@@ -7,6 +7,7 @@ import dragonbones.objects.ArmatureData;
 import dragonbones.objects.BoneData;
 import dragonbones.objects.DecompressedData;
 import dragonbones.objects.DisplayData;
+import dragonbones.objects.Node;
 import dragonbones.objects.SkeletonData;
 import dragonbones.objects.XMLDataParser;
 import dragonbones.textures.ITextureAtlas;
@@ -265,7 +266,7 @@ class BaseFactory/*implements IDisposable*/{
 	
 	function buildBone(boneData:BoneData):Bone {
 		var bone:Bone = createBone();
-		bone.origin.copyFrom(boneData.node);
+		Node.copy(boneData.node, bone.origin);
 		
 		var i:Int = boneData.displayNames.length;
 		while (i --> 0) {

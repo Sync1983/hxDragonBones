@@ -14,26 +14,24 @@ class TransformUtils{
 	static var _helpMatrix:Matrix = new Matrix();
 	static var _helpPoint:Point = new Point();
 	
-	public static inline function transformPointWithParent(bone:Node, parent:Node) {
+	public static inline function transformPointWithParent(bone:HelpNode, parent:HelpNode) {
 		nodeToMatrix(parent, _helpMatrix);
 		
-		_helpPoint.x = bone.x;
-		_helpPoint.y = bone.y;
+		_helpPoint.x = bone[Node.x];
+		_helpPoint.y = bone[Node.y];
 		
 		_helpMatrix.invert();
 		_helpPoint = _helpMatrix.transformPoint(_helpPoint);
 		
-		bone.x = _helpPoint.x;
-		bone.y = _helpPoint.y;
-		bone.skewX -= parent.skewX;
-		bone.skewY -= parent.skewY;
+		Node.setxy(bone, _helpPoint.x, _helpPoint.y);
+		Node.setOffsetSkew(parent, bone);
 	}
 	
-	public static inline function nodeToMatrix(node:Node, resultMatrix:Matrix) {
+	public static inline function nodeToMatrix(node:HelpNode, resultMatrix:Matrix) {
 		resultMatrix.identity();
-		resultMatrix.rotate(node.skewX);
-		resultMatrix.scale(node.scaleX, node.scaleY);
-		resultMatrix.translate(node.x, node.y);
+		resultMatrix.rotate(node[Node.skewX]);
+		resultMatrix.scale(node[Node.scaleX], node[Node.scaleY]);
+		resultMatrix.translate(node[Node.x], node[Node.y]);
 	}
 	
 	public static inline function setOffSetColorTransform(from:ColorTransform, to:ColorTransform, offset:ColorTransform) {
@@ -58,52 +56,52 @@ class TransformUtils{
 		tween.blueMultiplier 	= current.blueMultiplier  + offSet.blueMultiplier  * progress;
 	}
 	
-	public static inline function setOffSetNode(from:Node, to:Node, offSet:Node, tweenRotate:Int = 0) {
-		offSet.x 		= to.x      - from.x;
-		offSet.y 		= to.y      - from.y;
-		offSet.skewX 	= to.skewX  - from.skewX;
-		offSet.skewY 	= to.skewY  - from.skewY;
-		offSet.scaleX 	= to.scaleX - from.scaleX;
-		offSet.scaleY 	= to.scaleY - from.scaleY;
-		offSet.pivotX 	= to.pivotX - from.pivotX;
-		offSet.pivotY 	= to.pivotY - from.pivotY;
+	public static inline function setOffSetNode(from:HelpNode, to:HelpNode, offSet:HelpNode, tweenRotate:Int = 0) {
+		offSet[Node.x] 		= to[Node.x]      - from[Node.x];
+		offSet[Node.y] 		= to[Node.y]      - from[Node.y];
+		offSet[Node.skewX] 	= to[Node.skewX]  - from[Node.skewX];
+		offSet[Node.skewY] 	= to[Node.skewY]  - from[Node.skewY];
+		offSet[Node.scaleX]	= to[Node.scaleX] - from[Node.scaleX];
+		offSet[Node.scaleY]	= to[Node.scaleY] - from[Node.scaleY];
+		offSet[Node.pivotX]	= to[Node.pivotX] - from[Node.pivotX];
+		offSet[Node.pivotY]	= to[Node.pivotY] - from[Node.pivotY];
 		
-		offSet.skewX %= DOUBLE_PI;
-		if (offSet.skewX > Math.PI) {
-			offSet.skewX -= DOUBLE_PI;
+		offSet[Node.skewX] %= DOUBLE_PI;
+		if (offSet[Node.skewX] > Math.PI) {
+			offSet[Node.skewX] -= DOUBLE_PI;
 		}
 		
-		if (offSet.skewX < -Math.PI) {
-			offSet.skewX += DOUBLE_PI;
+		if (offSet[Node.skewX] < -Math.PI) {
+			offSet[Node.skewX] += DOUBLE_PI;
 		}
 		
-		offSet.skewY %= DOUBLE_PI;
-		if (offSet.skewY > Math.PI) {
-			offSet.skewY -= DOUBLE_PI;
+		offSet[Node.skewY] %= DOUBLE_PI;
+		if (offSet[Node.skewY] > Math.PI) {
+			offSet[Node.skewY] -= DOUBLE_PI;
 		}
 		
-		if (offSet.skewY < -Math.PI) {
-			offSet.skewY += DOUBLE_PI;
+		if (offSet[Node.skewY] < -Math.PI) {
+			offSet[Node.skewY] += DOUBLE_PI;
 		}
 		
 		if (tweenRotate != 0) {
 			var value:Float = tweenRotate * DOUBLE_PI;
-			offSet.skewX += value;
-			offSet.skewY += value;
+			offSet[Node.skewX] += value;
+			offSet[Node.skewY] += value;
 		}
 	}
 	
-	public static inline function setTweenNode(current:Node, offSet:Node, tween:Node, progress:Float) {
-		tween.setValues(
-			current.x      + offSet.x      * progress,
-			current.y      + offSet.y      * progress,
-			current.skewX  + offSet.skewX  * progress,
-			current.skewY  + offSet.skewY  * progress,
-			current.scaleX + offSet.scaleX * progress,
-			current.scaleY + offSet.scaleY * progress,
-			current.pivotX + offSet.pivotX * progress,
-			current.pivotY + offSet.pivotY * progress,
-			tween.z
+	public static inline function setTweenNode(current:HelpNode, offSet:HelpNode, tween:HelpNode, progress:Float) {
+		Node.setValues(tween,
+			current[Node.x]      + offSet[Node.x]      * progress,
+			current[Node.y]      + offSet[Node.y]      * progress,
+			Std.int(tween[Node.z]),
+			current[Node.skewX]  + offSet[Node.skewX]  * progress,
+			current[Node.skewY]  + offSet[Node.skewY]  * progress,
+			current[Node.scaleX] + offSet[Node.scaleX] * progress,
+			current[Node.scaleY] + offSet[Node.scaleY] * progress,
+			current[Node.pivotX] + offSet[Node.pivotX] * progress,
+			current[Node.pivotY] + offSet[Node.pivotY] * progress
 		);
 	}
 

@@ -19,9 +19,9 @@ class Bone implements IDisposable {
 	static var counter:Int = 0;
 	
 	public function new(bridge:IDisplayBridge) {
-		origin = new Node();
-		global = new Node();
-		node = new Node();
+		origin = Node.create();
+		global = Node.create();
+		node = Node.create();
 		
 		displayBridge = bridge;
 		
@@ -30,11 +30,11 @@ class Bone implements IDisposable {
 		globalTransformMatrix = new Matrix();
 		_displayList = [];
 		_armatures = [];
-		_armaturesIsNotEmpty = false;
+		armaturesIsNotEmpty = false;
 		_displayIndex = -1;
 		visible = true;
 		
-		tweenNode = new Node();
+		tweenNode = Node.create();
 		tweenColorTransform = new ColorTransform();
 		
 		tween = new Tween(this);
@@ -43,29 +43,29 @@ class Bone implements IDisposable {
 	
 	public var name:String;
 	public var userData:Dynamic;
-	public var global:Node;
-	public var origin:Node;
-	public var node:Node;
+	public var global:HelpNode;
+	public var origin:HelpNode;
+	public var node:HelpNode;
 	public var armature:Armature;
 	public var childArmature(get_childArmature, null):Armature;
 	public var parent(default, null):Bone;
 	public var display(get_display, set_display):Dynamic;
 	public var visible:Bool;
-	public var tweenNode:Node;
+	public var tweenNode:HelpNode;
 	public var tweenColorTransform:ColorTransform;
 	public var displayBridge:IDisplayBridge;
 	public var children:Array<Bone>;
 	public var tween:Tween;
 	public var globalTransformMatrix:Matrix;
 	public var isOnStage:Bool;
+	public var armaturesIsNotEmpty:Bool;
 	
 	var _displayList:Array<Dynamic>;
 	var _armatures:Array<Armature>;
-	var _armaturesIsNotEmpty:Bool;
 	var _displayIndex:Int;
 	
 	function get_childArmature():Armature {
-		return (_armaturesIsNotEmpty) ? null : _armatures[_displayIndex];
+		return _armatures[_displayIndex];
 	}
 	
 	function get_display():Dynamic {
@@ -79,7 +79,7 @@ class Bone implements IDisposable {
 		_displayList[_displayIndex] = value;
 		if (Std.is(value, Armature)) {
 			_armatures[_displayIndex] = value;
-			_armaturesIsNotEmpty = true;
+			armaturesIsNotEmpty = true;
 			value = cast(value, Armature).display;
 		}
 		displayBridge.display = value;
@@ -96,7 +96,7 @@ class Bone implements IDisposable {
 			if(!isOnStage) {
 				isOnStage = true;
 				if(armature != null) {
-					displayBridge.addDisplayTo(armature.display, global.z);
+					displayBridge.addDisplayTo(armature.display, Std.int(global[Node.z]));
 					armature.bonesIndexChanged = true;
 				}
 			}
@@ -176,56 +176,51 @@ class Bone implements IDisposable {
 		displayBridge.update(globalTransformMatrix, global, getColorTransform(), visible);
 	}
 	
-	function updateGlobalNode() {
-		global.x 		= origin.x + node.x + tweenNode.x;
-		global.y 		= origin.y + node.y + tweenNode.y;
-		global.z 		= origin.z + node.z + tweenNode.z;
-		global.skewX 	= origin.skewX + node.skewX + tweenNode.skewX;
-		global.skewY 	= origin.skewY + node.skewY + tweenNode.skewY;
-		global.scaleX 	= origin.scaleX + node.scaleX + tweenNode.scaleX;
-		global.scaleY 	= origin.scaleY + node.scaleY + tweenNode.scaleY;
-		global.pivotX 	= origin.pivotX + node.pivotX + tweenNode.pivotX;
-		global.pivotY 	= origin.pivotY + node.pivotY + tweenNode.pivotY;
+	inline function updateGlobalNode() {
+		global[Node.x] 		= origin[Node.x] 		+ node[Node.x] 		+ tweenNode[Node.x];
+		global[Node.y] 		= origin[Node.y] 		+ node[Node.y] 		+ tweenNode[Node.y];
+		global[Node.z] 		= origin[Node.z] 		+ node[Node.z] 		+ tweenNode[Node.z];
+		global[Node.skewX] 	= origin[Node.skewX] 	+ node[Node.skewX] 	+ tweenNode[Node.skewX];
+		global[Node.skewY] 	= origin[Node.skewY] 	+ node[Node.skewY] 	+ tweenNode[Node.skewY];
+		global[Node.scaleX]	= origin[Node.scaleX] 	+ node[Node.scaleX] + tweenNode[Node.scaleX];
+		global[Node.scaleY]	= origin[Node.scaleY] 	+ node[Node.scaleY] + tweenNode[Node.scaleY];
+		global[Node.pivotX]	= origin[Node.pivotX] 	+ node[Node.pivotX] + tweenNode[Node.pivotX];
+		global[Node.pivotY]	= origin[Node.pivotY] 	+ node[Node.pivotY] + tweenNode[Node.pivotY];
 		
 		if (parent != null) {
-			_helpPoint.x 	= global.x;
-			_helpPoint.y 	= global.y;
+			_helpPoint.x 	= global[Node.x];
+			_helpPoint.y 	= global[Node.y];
 			_helpPoint 		= parent.globalTransformMatrix.transformPoint(_helpPoint);
-			global.x 		= _helpPoint.x;
-			global.y 		= _helpPoint.y;
-			global.skewX 	+= parent.global.skewX;
-			global.skewY 	+= parent.global.skewY;
+			global[Node.x] 		= _helpPoint.x;
+			global[Node.y] 		= _helpPoint.y;
+			global[Node.skewX] 	+= parent.global[Node.skewX];
+			global[Node.skewY] 	+= parent.global[Node.skewY];
 		}
 	}
 	
-	function updateChildArmature() {
-		if (childArmature == null) {
-			return;
+	inline function updateChildArmature() {
+		if (armaturesIsNotEmpty) {
+			_armatures[_displayIndex].update();
 		}
-		childArmature.update();
 	}
 	
-	function getColorTransform():ColorTransform {
+	inline function getColorTransform():ColorTransform {
 		if (tween.differentColorTransform) {
 			if (armature.colorTransform != null) {
 				tweenColorTransform.concat(armature.colorTransform);
 			}
 			return tweenColorTransform;
-		}
-		
-		if (armature.colorTransformChange) {
+		} else if (armature.colorTransformChange) {
 			armature.colorTransformChange = false;
 			return armature.colorTransform;
-		}
-		
-		return null;
+		} else return null;
 	}
 	
-	function setParent(parent:Bone) {
-		if ((parent != null) && parent.contains(this, true)) {
+	inline function setParent(value:Bone) {
+		if ((value != null) && value.contains(this, true)) {
 			throw "An Bone cannot be added as a child to itself or one of its children (or children's children, etc.)";
 		}
-		this.parent = parent;
+		this.parent = value;
 	}
 	
 }

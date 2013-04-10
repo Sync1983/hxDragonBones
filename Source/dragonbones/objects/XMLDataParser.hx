@@ -1,4 +1,5 @@
 package dragonbones.objects;
+import dragonbones.objects.Node;
 import dragonbones.animation.Tween;
 import dragonbones.utils.BytesType;
 import dragonbones.utils.ConstValues;
@@ -17,7 +18,7 @@ class XMLDataParser{
 	static inline var HALF_PI:Float = Math.PI * 0.5;
 	
 	static var _curSkeletonData:SkeletonData;
-	static var _helpNode:Node = new Node();
+	static var _helpNode:HelpNode = Node.create();
 	static var _helpFrameData:FrameData = new FrameData();
 	
 	static inline function checkSkeletonXMLVersion(skeletonXML:Xml) {
@@ -326,31 +327,22 @@ class XMLDataParser{
 				parseNode(tweenFrameXML, _helpNode);
 				TransformUtils.setOffSetNode(_helpFrameData.node, _helpNode, _helpNode, _helpFrameData.tweenRotate);
 				
-				_helpNode.setValues(
-					_helpFrameData.node.x 		+ progress * _helpNode.x,
-					_helpFrameData.node.y 		+ progress * _helpNode.y,
-					_helpFrameData.node.skewX 	+ progress * _helpNode.skewX,
-					_helpFrameData.node.skewY 	+ progress * _helpNode.skewY,
-					_helpFrameData.node.scaleX 	+ progress * _helpNode.scaleX,
-					_helpFrameData.node.scaleY 	+ progress * _helpNode.scaleY,
-					_helpFrameData.node.pivotX 	+ progress * _helpNode.pivotX,
-					_helpFrameData.node.pivotY 	+ progress * _helpNode.pivotY
+				Node.setValues(_helpNode,
+					_helpFrameData.node[Node.x] 		+ progress * _helpNode[Node.x],
+					_helpFrameData.node[Node.y] 		+ progress * _helpNode[Node.y],
+					0,
+					_helpFrameData.node[Node.skewX] 	+ progress * _helpNode[Node.skewX],
+					_helpFrameData.node[Node.skewY] 	+ progress * _helpNode[Node.skewY],
+					_helpFrameData.node[Node.scaleX] 	+ progress * _helpNode[Node.scaleX],
+					_helpFrameData.node[Node.scaleY] 	+ progress * _helpNode[Node.scaleY],
+					_helpFrameData.node[Node.pivotX] 	+ progress * _helpNode[Node.pivotX],
+					_helpFrameData.node[Node.pivotY] 	+ progress * _helpNode[Node.pivotY]
 				);
 				
 				TransformUtils.transformPointWithParent(frameData.node, _helpNode);
 			}
 			totalDuration += Std.parseInt(frameXML.get(ConstValues.A_DURATION));
-			
-			frameData.node.x 		-= boneData.node.x;
-			frameData.node.y 		-= boneData.node.y;
-			frameData.node.skewX 	-= boneData.node.skewX;
-			frameData.node.skewY 	-= boneData.node.skewY;
-			frameData.node.scaleX 	-= boneData.node.scaleX;
-			frameData.node.scaleY 	-= boneData.node.scaleY;
-			frameData.node.pivotX 	-= boneData.node.pivotX;
-			frameData.node.pivotY 	-= boneData.node.pivotY;
-			frameData.node.z 		-= boneData.node.z;
-			
+			Node.setOffset(boneData.node, frameData.node);
 			j++;
 		}
 	}
@@ -385,16 +377,18 @@ class XMLDataParser{
 		}
 	}
 	
-	static inline function parseNode(xml:Xml, node:Node) {
-		node.x 		= Std.parseFloat(xml.get(ConstValues.A_X));
-		node.y 		= Std.parseFloat(xml.get(ConstValues.A_Y));
-		node.skewX 	= Std.parseFloat(xml.get(ConstValues.A_SKEW_X)) * ANGLE_TO_RADIAN;
-		node.skewY 	= Std.parseFloat(xml.get(ConstValues.A_SKEW_Y)) * ANGLE_TO_RADIAN;
-		node.scaleX = Std.parseFloat(xml.get(ConstValues.A_SCALE_X));
-		node.scaleY = Std.parseFloat(xml.get(ConstValues.A_SCALE_Y));
-		node.pivotX = Std.parseFloat(xml.get(ConstValues.A_PIVOT_X));
-		node.pivotY = Std.parseFloat(xml.get(ConstValues.A_PIVOT_Y));
-		node.z 		= Std.parseInt(xml.get(ConstValues.A_Z));
+	static inline function parseNode(xml:Xml, node:HelpNode) {
+		Node.setValues(node,
+			Std.parseFloat(xml.get(ConstValues.A_X)),
+			Std.parseFloat(xml.get(ConstValues.A_Y)),
+			Std.parseInt(xml.get(ConstValues.A_Z)),
+			Std.parseFloat(xml.get(ConstValues.A_SKEW_X)) * ANGLE_TO_RADIAN,
+			Std.parseFloat(xml.get(ConstValues.A_SKEW_Y)) * ANGLE_TO_RADIAN,
+			Std.parseFloat(xml.get(ConstValues.A_SCALE_X)),
+			Std.parseFloat(xml.get(ConstValues.A_SCALE_Y)),
+			Std.parseFloat(xml.get(ConstValues.A_PIVOT_X)),
+			Std.parseFloat(xml.get(ConstValues.A_PIVOT_Y))
+		);
 	}
 	
 	static inline function parseColorTransform(xml:Xml, colorTransform:ColorTransform) {

@@ -56,13 +56,13 @@ class StarlingDisplayBridge implements IDisplayBridge{
 		return value;
 	}
 	
-	public function update(matrix:Matrix, node:Node, ?colorTransform:ColorTransform, visible:Bool):Void {
+	public function update(matrix:Matrix, node:HelpNode, ?colorTransform:ColorTransform, visible:Bool):Void {
 		if (display == null) {
 			return;
 		}
 		
-		var pivotX:Float = node.pivotX + pivotX;
-		var pivotY:Float = node.pivotY + pivotY;
+		var pivotX:Float = node[Node.pivotX] + pivotX;
+		var pivotY:Float = node[Node.pivotY] + pivotY;
 		matrix.tx -= matrix.a * pivotX + matrix.c * pivotY;
 		matrix.ty -= matrix.b * pivotX + matrix.d * pivotY;
 		

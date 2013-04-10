@@ -35,9 +35,8 @@ class Animation implements IDisposable{
 	public var animationData(default, set_animationData):AnimationData;
 	public var currentTime(default, null):Float;
 	public var totalTime(default, null):Float;
-	public var isPlaying(get_isPlaying, null):Bool;
+	public var isPlaying:Bool;
 	public var isComplete(get_isComplete, null):Bool;
-	public var isPause(get_isPause, null):Bool;
 	public var timeScale(default, set_timeScale):Float;
 	public var movementID(default, null):String;
 	public var movementList(get_movementList, null):Array<String>;
@@ -60,19 +59,8 @@ class Animation implements IDisposable{
 		return animationData;
 	}
 	
-	function get_isPlaying():Bool {
-		if(isPlaying) {
-			return (_loop >= 0) || (currentTime < totalTime);
-		}
-		return false;
-	}
-	
 	function get_isComplete():Bool {
 		return (_loop < 0) && (currentTime >= totalTime);
-	}
-	
-	function get_isPause():Bool {
-		return !isPlaying;
 	}
 	
 	function set_timeScale(value:Float):Float {
@@ -254,7 +242,7 @@ class Animation implements IDisposable{
 			for (i in 0...length) {
 				var bone:Bone = bones[i];
 				bone.tween.advanceTime(progress, _playType);
-				if (bone.childArmature != null) {
+				if (bone.armaturesIsNotEmpty) {
 					bone.childArmature.animation.advanceTime(passedTime);
 				}
 			}
@@ -275,7 +263,7 @@ class Animation implements IDisposable{
 			length = bones.length;
 			for (i in 0...length) {
 				var bone:Bone = bones[i];
-				if(bone.childArmature != null) {
+				if(bone.armaturesIsNotEmpty) {
 					bone.childArmature.animation.advanceTime(passedTime);
 				}
 			}

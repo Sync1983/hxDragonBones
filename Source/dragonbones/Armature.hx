@@ -1,8 +1,13 @@
 package dragonbones;
 
+import dragonbones.objects.Node;
 import haxe.Log;
 import dragonbones.animation.Animation;
+#if flash11
+import starling.animation.IAnimatable;
+#else
 import dragonbones.animation.IAnimatable;
+#end
 import dragonbones.events.ArmatureEvent;
 import dragonbones.utils.IDisposable;
 import nme.events.EventDispatcher;
@@ -102,7 +107,7 @@ class Armature extends EventDispatcher, implements IAnimatable, implements IDisp
 		removeBone(getBone(boneName));
 	}
 	
-	public function advanceTime(passedTime:Float = -1) {
+	public function advanceTime(passedTime:Float/* = -1*/) {
 		animation.advanceTime(passedTime);
 		update();
 	}
@@ -146,7 +151,7 @@ class Armature extends EventDispatcher, implements IAnimatable, implements IDisp
 		}
 		
 		bone.armature = this;
-		bone.displayBridge.addDisplayTo(display, bone.global.z);
+		bone.displayBridge.addDisplayTo(display, Std.int(bone.global[Node.z]));
 		for(i in bone.children) {
 			addToBones(i);
 		}
@@ -165,8 +170,8 @@ class Armature extends EventDispatcher, implements IAnimatable, implements IDisp
 		bonesIndexChanged = true;
 	}
 	
-	function compareZ(a, b):Int {
-		return Reflect.compare(a.global.z, b.global.z);
+	function compareZ(a:Bone, b:Bone):Int {
+		return Std.int(a.global[Node.z] - b.global[Node.z]);
 	}
 	
 }

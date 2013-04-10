@@ -7,6 +7,7 @@ import dragonbones.objects.FrameData;
 import dragonbones.objects.MovementBoneData;
 import dragonbones.objects.Node;
 import dragonbones.utils.TransformUtils;
+import haxe.Log;
 import nme.geom.ColorTransform;
 
 /**
@@ -42,10 +43,10 @@ class Tween{
 		_node = _bone.tweenNode;
 		_colorTransform = _bone.tweenColorTransform;
 		
-		_curNode = new Node();
+		_curNode = Node.create();
 		_curColorTransform = new ColorTransform();
 		
-		_offSetNode = new Node();
+		_offSetNode = Node.create();
 		_offSetColorTransform = new ColorTransform();
 	}
 	
@@ -53,11 +54,11 @@ class Tween{
 	
 	var _bone:Bone;
 	var _movementBoneData:MovementBoneData;
-	var _node:Node;
+	var _node:HelpNode;
 	var _colorTransform:ColorTransform;
-	var _curNode:Node;
+	var _curNode:HelpNode;
 	var _curColorTransform:ColorTransform;
-	var _offSetNode:Node;
+	var _offSetNode:HelpNode;
 	var _offSetColorTransform:ColorTransform;
 	var _curFrameData:FrameData;
 	var _tweenEasing:Float;
@@ -77,14 +78,14 @@ class Tween{
 		
 		_movementBoneData = movementBoneData;
 		var totalFrames:Int = _movementBoneData.frameList.length;
-		if(totalFrames == 0) {
+		if (totalFrames == 0) {
 			_bone.changeDisplay(-1);
 			stop();
 			return;
 		}
 		
-		_node.skewX %= 360;
-		_node.skewY %= 360;
+		_node[Node.skewX] %= 360;
+		_node[Node.skewY] %= 360;
 		_isPause = false;
 		_curFrameData = null;
 		_loop = loop ? 0 : -1;
@@ -197,8 +198,8 @@ class Tween{
 		TransformUtils.setTweenColorTransform(_curColorTransform, _offSetColorTransform, _offSetColorTransform, progress);
 	}
 	
-	function setOffset(currentNode:Node, curColorTransform:ColorTransform, nextNode:Node, nextColorTransform:ColorTransform, tweenRotate:Int = 0) {
-		_curNode.copyFrom(currentNode);
+	inline function setOffset(curNode:HelpNode, curColorTransform:ColorTransform, nextNode:HelpNode, nextColorTransform:ColorTransform, tweenRotate:Int = 0) {
+		Node.copy(curNode, _curNode);
 		TransformUtils.setOffSetNode(_curNode, nextNode, _offSetNode, tweenRotate);
 		TransformUtils.copyColorTransform(curColorTransform, _curColorTransform);
 		TransformUtils.setOffSetColorTransform(_curColorTransform, nextColorTransform, _offSetColorTransform);
@@ -219,16 +220,16 @@ class Tween{
 		}
 	}
 	
-	function updateBoneDisplayIndex(frameData:FrameData) {
+	inline function updateBoneDisplayIndex(frameData:FrameData) {
 		if(frameData.displayIndex >= 0) {
-			if(_node.z != frameData.node.z) {
-				_node.z = frameData.node.z;
+			if(_node[Node.z] != frameData.node[Node.z]) {
+				_node[Node.z] = frameData.node[Node.z];
 				if(_bone.armature != null){
 					_bone.armature.bonesIndexChanged = true;
 				}
 			}
 		}
-		_bone.changeDisplay(frameData.displayIndex);
+		//_bone.changeDisplay(frameData.displayIndex);
 	}
 	
 	function arriveFrameData(frameData:FrameData) {
@@ -251,7 +252,7 @@ class Tween{
 			_soundManager.dispatchEvent(soundEvent);
 		}
 		
-		if((frameData.movement != null) && (_bone.childArmature != null)) {
+		if((frameData.movement != null) && (_bone.armaturesIsNotEmpty)) {
 			_bone.childArmature.animation.gotoAndPlay(frameData.movement);
 		}
 	}
@@ -260,11 +261,12 @@ class Tween{
 		var playedTime:Float = _rawDuration * progress;
 		if (playedTime >= _nextFrameDataTimeEdge) {
 			var curFrameDataID:Int;
+			var length:Int = _movementBoneData.frameList.length;
 			do {
 				curFrameDataID = _nextFrameDataID;
 				_frameDuration = _movementBoneData.frameList[curFrameDataID].duration;
 				_nextFrameDataTimeEdge += _frameDuration;
-				if (++_nextFrameDataID >= _movementBoneData.frameList.length) {
+				if (++_nextFrameDataID >= length) {
 					_nextFrameDataID = 0;
 				}
 			} while (playedTime >= _nextFrameDataTimeEdge);

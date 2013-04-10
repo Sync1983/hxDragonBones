@@ -35,9 +35,9 @@ class NativeDisplayBridge implements IDisplayBridge{
 		return value;
 	}
 	
-	public function update(matrix:Matrix, node:Node, ?colorTransform:ColorTransform, visible:Bool) {
-		var pivotX:Float = node.pivotX;
-		var pivotY:Float = node.pivotY;
+	public function update(matrix:Matrix, node:HelpNode, ?colorTransform:ColorTransform, visible:Bool) {
+		var pivotX:Float = node[Node.pivotX];
+		var pivotY:Float = node[Node.pivotY];
 		matrix.tx -= matrix.a * pivotX + matrix.c * pivotY;
 		matrix.ty -= matrix.b * pivotX + matrix.d * pivotY;
 		

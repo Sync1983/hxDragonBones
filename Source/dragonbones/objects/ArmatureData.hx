@@ -34,7 +34,7 @@ class ArmatureData implements IDisposable{
 		for (name in boneDataList.names) {
 			var boneData:BoneData = cast boneDataList.getDataByName(name);
 			if (boneData != null) {
-				var levelValue:Int = Std.int(boneData.node.z);
+				var levelValue:Int = Std.int(boneData.node[Node.z]);
 				var level:Int = 0;
 				while(boneData != null) {
 					level++;

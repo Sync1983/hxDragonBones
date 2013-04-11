@@ -17,7 +17,6 @@ class FrameData{
 	
 	public var duration:Float;
 	public var tweenEasing:Float;
-	public var tweenRotate:Int;
 	public var displayIndex:Int;
 	public var movement:String;
 	public var visible:Bool;
@@ -26,4 +25,8 @@ class FrameData{
 	public var soundEffect:String;
 	public var node:HelpNode;
 	public var colorTransform:ColorTransform;
+	
+	public function toString():String {
+		return duration + ";" + tweenEasing + ";" + movement;
+	}
 }

@@ -277,10 +277,10 @@ class BaseFactory/*implements IDisposable*/{
 				var armature:Armature = buildArmature(name, null, _curSkeletonName, _curTexAtlasName);
 				if(armature != null) {
 					armature.animation.play();
-					bone.display = armature;
+					Reflect.callMethod(bone, Reflect.field(bone, Bone.SET_CHILD_ARMATURE), [armature]);
 				}
 			} else {
-				bone.display = createTextureDisplay(_curTexAtlas, name, Std.int(data.pivotX), Std.int(data.pivotY));
+				Reflect.callMethod(bone, Reflect.field(bone, Bone.SET_DISPLAY), [createTextureDisplay(_curTexAtlas, name, Std.int(data.pivotX), Std.int(data.pivotY))]);
 			}
 		}
 		return bone;
@@ -351,4 +351,5 @@ class BaseFactory/*implements IDisposable*/{
 		}
 		return null;
 	}
+	
 }

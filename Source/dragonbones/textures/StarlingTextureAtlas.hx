@@ -1,8 +1,7 @@
 package dragonbones.textures;
 
-import flash.xml.XML;
-import haxe.Log;
 import dragonbones.utils.ConstValues;
+import flash.xml.XML;
 import nme.display.BitmapData;
 import nme.geom.Rectangle;
 import starling.textures.Texture;

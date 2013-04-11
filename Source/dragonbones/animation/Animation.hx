@@ -1,5 +1,4 @@
 package dragonbones.animation;
-import haxe.Log;
 import dragonbones.Armature;
 import dragonbones.Bone;
 import dragonbones.events.AnimationEvent;
@@ -11,6 +10,7 @@ import dragonbones.objects.MovementBoneData;
 import dragonbones.objects.MovementData;
 import dragonbones.objects.MovementFrameData;
 import dragonbones.utils.IDisposable;
+import haxe.Log;
 
 /**
  * @author SlavaRa
@@ -31,17 +31,17 @@ class Animation implements IDisposable{
 		tweenEnabled = true;
 	}
 	
-	public var tweenEnabled:Bool;
+	public var tweenEnabled(default, null):Bool;
 	public var animationData(default, set_animationData):AnimationData;
-	public var currentTime(default, null):Float;
-	public var totalTime(default, null):Float;
-	public var isPlaying:Bool;
+	public var isPlaying(default, null):Bool;
 	public var isComplete(get_isComplete, null):Bool;
 	public var timeScale(default, set_timeScale):Float;
 	public var movementID(default, null):String;
-	public var movementList(get_movementList, null):Array<String>;
-	public var movementData:MovementData;
+	public var movementList(default, null):Array<String>;
 	
+	var _armature:Armature;
+	var _totalTime:Float;
+	var _curTime:Float;
 	var _playType:Int;
 	var _duration:Float;
 	var _rawDuration:Float;
@@ -49,18 +49,22 @@ class Animation implements IDisposable{
 	var _nextFrameDataID:Int;
 	var _loop:Int;
 	var _breakFrameWhile:Bool;
-	var _armature:Armature;
+	var _movementData:MovementData;
 	
 	function set_animationData(value:AnimationData):AnimationData {
 		if(value != null) {
 			stop();
 			animationData = value;
+			movementList = value.movementList;
+		} else {
+			animationData = null;
+			movementList = null;
 		}
-		return animationData;
+		return value;
 	}
 	
 	function get_isComplete():Bool {
-		return (_loop < 0) && (currentTime >= totalTime);
+		return (_loop < 0) && (_curTime >= _totalTime);
 	}
 	
 	function set_timeScale(value:Float):Float {
@@ -78,14 +82,10 @@ class Animation implements IDisposable{
 		return value;
 	}
 	
-	function get_movementList():Array<String> {
-		return (animationData != null) ? animationData.movementList : null;
-	}
-	
 	public function dispose() {
 		stop();
 		animationData = null;
-		movementData = null;
+		_movementData = null;
 		_armature = null;
 	}
 	
@@ -99,34 +99,34 @@ class Animation implements IDisposable{
 			return;
 		}
 		
-		this.movementData = movementData;
+		_movementData = movementData;
 		isPlaying = true;
-		currentTime = 0;
+		_curTime = 0;
 		_breakFrameWhile = true;
 		
 		var exMovementID:String = this.movementID;
 		this.movementID = movementID;
 		
 		if(tweenTime >= 0) {
-			totalTime = tweenTime;
+			_totalTime = tweenTime;
 		} else if(tweenEnabled && (exMovementID != null)) {
-			totalTime = movementData.durationTo;
+			_totalTime = movementData.durationTo;
 		} else {
-			totalTime = 0;
+			_totalTime = 0;
 		}
 		
-		if(totalTime < 0) {
-			totalTime = 0;
+		if(_totalTime < 0) {
+			_totalTime = 0;
 		}
 		
-		_duration = (duration >= 0) ? duration : this.movementData.durationTween;
+		_duration = (duration >= 0) ? duration : _movementData.durationTween;
 		if(_duration < 0) {
 			_duration = 0;
 		}
 		
-		loop = cast((loop == null ? this.movementData.loop : loop), Bool);
+		loop = cast((loop == null ? _movementData.loop : loop), Bool);
 		
-		_rawDuration = this.movementData.duration;
+		_rawDuration = _movementData.duration;
 		
 		_loop = loop ? 0 : -1;
 		if (_rawDuration == 0) {
@@ -138,9 +138,9 @@ class Animation implements IDisposable{
 		}
 		
 		for (bone in _armature.bones) {
-			var movementBoneData:MovementBoneData = this.movementData.getMovementBoneData(bone.name);
+			var movementBoneData:MovementBoneData = _movementData.getMovementBoneData(bone.name);
 			if (movementBoneData != null) {
-				bone.tween.gotoAndPlay(movementBoneData, _rawDuration, loop, this.movementData.tweenEasing);
+				bone.tween.gotoAndPlay(movementBoneData, _rawDuration, loop, _movementData.tweenEasing);
 				if (bone.childArmature != null) {
 					bone.childArmature.animation.gotoAndPlay(movementID);
 				}
@@ -188,17 +188,17 @@ class Animation implements IDisposable{
 		var bones:Array<Bone> = null;
 		var length:Int;
 		
-		if ((_loop > 0) || (currentTime < totalTime) || (totalTime == 0)) {
+		if ((_loop > 0) || (_curTime < _totalTime) || (_totalTime == 0)) {
 			
 			var event:AnimationEvent = null;
 			var progress:Float;
 			
-			if(totalTime > 0) {
-				currentTime += passedTime * timeScale;
-				progress = currentTime / totalTime;
+			if(_totalTime > 0) {
+				_curTime += passedTime * timeScale;
+				progress = _curTime / _totalTime;
 			} else {
-				currentTime = 1;
-				totalTime = 1;
+				_curTime = 1;
+				_totalTime = 1;
 				progress = 1;
 			}
 			
@@ -221,16 +221,16 @@ class Animation implements IDisposable{
 					case LIST_START:
 						progress = 0;
 						_playType = LIST;
-						currentTime = 0;
-						totalTime = _duration;
+						_curTime = 0;
+						_totalTime = _duration;
 						if(_armature.hasEventListener(AnimationEvent.START)) {
 							event = new AnimationEvent(AnimationEvent.START);
 						}
 					case LOOP_START:
 						progress = 0;
 						_playType = LOOP;
-						currentTime = 0;
-						totalTime = _duration;
+						_curTime = 0;
+						_totalTime = _duration;
 						if(_armature.hasEventListener(AnimationEvent.START)) {
 							event = new AnimationEvent(AnimationEvent.START);
 						}
@@ -242,12 +242,12 @@ class Animation implements IDisposable{
 			for (i in 0...length) {
 				var bone:Bone = bones[i];
 				bone.tween.advanceTime(progress, _playType);
-				if (bone.armaturesIsNotEmpty) {
+				if (bone.childArmature != null) {
 					bone.childArmature.animation.advanceTime(passedTime);
 				}
 			}
 			
-			if (((_playType == LIST) || (_playType == LOOP)) && (movementData.movementFrameList.length > 0)) {
+			if (((_playType == LIST) || (_playType == LOOP)) && (_movementData.movementFrameList.length > 0)) {
 				if(_loop > 0) {
 					progress -= _loop;
 				}
@@ -263,7 +263,7 @@ class Animation implements IDisposable{
 			length = bones.length;
 			for (i in 0...length) {
 				var bone:Bone = bones[i];
-				if(bone.armaturesIsNotEmpty) {
+				if(bone.childArmature != null) {
 					bone.childArmature.animation.advanceTime(passedTime);
 				}
 			}
@@ -277,9 +277,9 @@ class Animation implements IDisposable{
 		}
 		
 		_breakFrameWhile = false;
-		var length:Int = movementData.movementFrameList.length;
+		var length:Int = _movementData.movementFrameList.length;
 		do  {
-			var currentFrameData:MovementFrameData = movementData.movementFrameList[_nextFrameDataID];
+			var currentFrameData:MovementFrameData = _movementData.movementFrameList[_nextFrameDataID];
 			_nextFrameDataTimeEdge += currentFrameData.duration;
 			if (++_nextFrameDataID >= length) {
 				_nextFrameDataID = 0;

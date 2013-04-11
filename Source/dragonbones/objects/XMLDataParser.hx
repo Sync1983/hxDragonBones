@@ -325,7 +325,7 @@ class XMLDataParser{
 				}
 				
 				parseNode(tweenFrameXML, _helpNode);
-				TransformUtils.setOffSetNode(_helpFrameData.node, _helpNode, _helpNode, _helpFrameData.tweenRotate);
+				TransformUtils.setOffSetNode(_helpFrameData.node, _helpNode, _helpNode);
 				
 				Node.setValues(_helpNode,
 					_helpFrameData.node[Node.x] 		+ progress * _helpNode[Node.x],
@@ -365,7 +365,6 @@ class XMLDataParser{
 			}
 			frameData.duration 		= Std.parseInt(frameXml.get(ConstValues.A_DURATION)) / _curSkeletonData.frameRate;
 			frameData.tweenEasing 	= Std.parseFloat(frameXml.get(ConstValues.A_TWEEN_EASING));
-			frameData.tweenRotate 	= Std.parseInt(frameXml.get(ConstValues.A_TWEEN_ROTATE));
 			frameData.displayIndex 	= Std.parseInt(frameXml.get(ConstValues.A_DISPLAY_INDEX));
 			frameData.movement 		= frameXml.get(ConstValues.A_MOVEMENT);
 			frameData.event 		= frameXml.get(ConstValues.A_EVENT);

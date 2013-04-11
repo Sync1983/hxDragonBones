@@ -1,10 +1,7 @@
 package dragonbones.display;
-import haxe.Log;
-import nme.geom.ColorTransform;
 import dragonbones.objects.Node;
+import nme.geom.ColorTransform;
 import nme.geom.Matrix;
-
-import starling.display.DisplayObject;
 import starling.display.DisplayObjectContainer;
 import starling.display.Quad;
 
@@ -66,7 +63,16 @@ class StarlingDisplayBridge implements IDisplayBridge{
 		matrix.tx -= matrix.a * pivotX + matrix.c * pivotY;
 		matrix.ty -= matrix.b * pivotX + matrix.d * pivotY;
 		
-		transformationMatrix.copyFrom(matrix);
+		//6%
+		//transformationMatrix.copyFrom(matrix);
+		
+		//4%
+		transformationMatrix.a = matrix.a;
+		transformationMatrix.b = matrix.b;
+		transformationMatrix.c = matrix.c;
+		transformationMatrix.d = matrix.d;
+		transformationMatrix.tx = matrix.tx;
+		transformationMatrix.ty = matrix.ty;
 		
 		if ((colorTransform != null) && Std.is(display, Quad)) {
 			var quad:Quad = cast(display, Quad);

@@ -15,7 +15,7 @@ class AnimationData implements IDisposable {
 	public var movementDataList:DataList;
 	
 	function get_movementList():Array<String> {
-		return movementDataList.names.slice(0);
+		return movementDataList.names;
 	}
 	
 	

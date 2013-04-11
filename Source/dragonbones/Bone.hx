@@ -3,6 +3,7 @@ package dragonbones;
 import dragonbones.animation.Tween;
 import dragonbones.display.IDisplayBridge;
 import dragonbones.objects.Node;
+import dragonbones.utils.DisposeUtils;
 import dragonbones.utils.IDisposable;
 import dragonbones.utils.TransformUtils;
 import haxe.Log;
@@ -15,115 +16,107 @@ import nme.geom.Point;
  */
 class Bone implements IDisposable {
 
+	public static inline var SET_ARMATURE:String = "setArmature";
+	public static inline var SET_DISPLAY:String = "setDisplay";
+	public static inline var SET_CHILD_ARMATURE:String = "setChildArmature";
+	
 	static var _helpPoint:Point = new Point();
-	static var counter:Int = 0;
 	
 	public function new(bridge:IDisplayBridge) {
-		origin = Node.create();
 		global = Node.create();
+		origin = Node.create();
 		node = Node.create();
-		
-		displayBridge = bridge;
-		
-		children = [];
-		
-		globalTransformMatrix = new Matrix();
-		_displayList = [];
-		_armatures = [];
-		armaturesIsNotEmpty = false;
-		_displayIndex = -1;
 		visible = true;
-		
 		tweenNode = Node.create();
 		tweenColorTransform = new ColorTransform();
-		
+		children = [];
 		tween = new Tween(this);
+		globalTransformMatrix = new Matrix();
 		isOnStage = false;
+		
+		_displayBridge = bridge;
+		_displayList = [];
+		_armatures = [];
+		_displayIndex = -1;
 	}
 	
 	public var name:String;
-	public var userData:Dynamic;
-	public var global:HelpNode;
-	public var origin:HelpNode;
-	public var node:HelpNode;
-	public var armature:Armature;
-	public var childArmature(get_childArmature, null):Armature;
+	public var global(default, null):HelpNode;
+	public var origin(default, null):HelpNode;
+	public var node(default, null):HelpNode;
+	public var armature(default, null):Armature;
+	public var childArmature(default, null):Armature;
 	public var parent(default, null):Bone;
-	public var display(get_display, set_display):Dynamic;
+	public var display(default, null):Dynamic;
 	public var visible:Bool;
-	public var tweenNode:HelpNode;
-	public var tweenColorTransform:ColorTransform;
-	public var displayBridge:IDisplayBridge;
-	public var children:Array<Bone>;
-	public var tween:Tween;
-	public var globalTransformMatrix:Matrix;
-	public var isOnStage:Bool;
-	public var armaturesIsNotEmpty:Bool;
+	public var tweenNode(default, null):HelpNode;
+	public var tweenColorTransform(default, null):ColorTransform;
+	public var children(default, null):Array<Bone>;
+	public var tween(default, null):Tween;
+	public var globalTransformMatrix(default, null):Matrix;
+	public var isOnStage(default, null):Bool;
 	
+	var _displayBridge:IDisplayBridge;
 	var _displayList:Array<Dynamic>;
 	var _armatures:Array<Armature>;
 	var _displayIndex:Int;
 	
-	function get_childArmature():Armature {
-		return _armatures[_displayIndex];
+	/**
+	 * Method called from Armature
+	 */
+	function setArmature(value:Armature) {
+		armature = value;
 	}
 	
-	function get_display():Dynamic {
-		return displayBridge.display;
+	/**
+	 * Method called from BaseFactory
+	 */
+	function setDisplay(value:Dynamic) {
+		display =_displayBridge.display = value;
 	}
 	
-	function set_display(value:Dynamic):Dynamic {
-		if(value == displayBridge.display) {
-			return;
-		}
-		_displayList[_displayIndex] = value;
-		if (Std.is(value, Armature)) {
-			_armatures[_displayIndex] = value;
-			armaturesIsNotEmpty = true;
-			value = cast(value, Armature).display;
-		}
-		displayBridge.display = value;
-		return value;
+	/**
+	 * Method called from BaseFactory
+	 */
+	function setChildArmature(value:Armature) {
+		childArmature = value;
+		display = _displayBridge.display = value.displayContainer;
 	}
 	
-	public function changeDisplay(displayIndex:Int) {
-		if(displayIndex < 0) {
-			if(isOnStage) {
-				isOnStage = false;
-				displayBridge.removeDisplayFromParent();
-			}
-		} else {
-			if(!isOnStage) {
-				isOnStage = true;
-				if(armature != null) {
-					displayBridge.addDisplayTo(armature.display, Std.int(global[Node.z]));
-					armature.bonesIndexChanged = true;
-				}
-			}
-			if(displayIndex != _displayIndex) {
-				var length:Int = _displayList.length;
-				if((displayIndex >= length) && (length > 0)) {
-					displayIndex = length - 1;
-				}
-				_displayIndex = displayIndex;
-				display = _displayList[_displayIndex];
-			}
-		}
-	}
-	
+	//TODO: refactor this
 	public function dispose() {
 		for (i in children) {
-			i.dispose();
+			DisposeUtils.dispose(i);
 		}
 		_displayList = null;
 		_armatures = null;
 		children = null;
 		armature = null;
 		parent = null;
-		userData = null;
+	}
+	
+	public function changeDisplay(displayIndex:Int) {
+		if (displayIndex < 0) {
+			if(isOnStage) {
+				isOnStage = false;
+				_displayBridge.removeDisplayFromParent();
+			}
+		} else {
+			if(!isOnStage) {
+				isOnStage = true;
+				if(armature != null) {
+					_displayBridge.addDisplayTo(armature.displayContainer, Std.int(global[Node.z]));
+					armature.bonesIndexChanged = true;
+				}
+			}
+		}
 	}
 	
 	public function contains(bone:Bone, ?deepLevel:Bool):Bool {
+		if (bone == null) {
+			return false;
+		}
+		
 		if(deepLevel) {
 			var ancestor:Bone = this;
 			while ((ancestor != bone) && (ancestor != null)) {
@@ -138,11 +131,15 @@ class Bone implements IDisposable {
 	}
 	
 	public function addChild(child:Bone) {
-		if (!Lambda.has(children, child)) {
+		if (child == null) {
+			return;
+		}
+		
+		if (child.parent != this) {
 			child.removeFromParent();
 			
 			children.push(child);
-			child.setParent(this);
+			child.parent = this;
 			
 			if (armature != null) {
 				armature.addToBones(child);
@@ -151,12 +148,16 @@ class Bone implements IDisposable {
 	}
 	
 	public function removeChild(child:Bone) {
-		if (Lambda.has(children, child)) {
+		if (child == null) {
+			return;
+		}
+		
+		if(child.parent == this) {
 			if (armature != null) {
 				armature.removeFromBones(child);
 			}
-			child.setParent(null);
 			children.remove(child);
+			child.parent = null;
 		}
 	}
 	
@@ -166,6 +167,14 @@ class Bone implements IDisposable {
 		}
 	}
 	
+	public function addDisplayTo(container:Dynamic, index:Int = -1) {
+		_displayBridge.addDisplayTo(container, index);
+	}
+	
+	public function removeDisplayFromParent() {
+		_displayBridge.removeDisplayFromParent();
+	}
+	
 	public function update() {
 		if (!isOnStage) {
 			return;
@@ -173,7 +182,7 @@ class Bone implements IDisposable {
 		updateGlobalNode();
 		TransformUtils.nodeToMatrix(global, globalTransformMatrix);
 		updateChildArmature();
-		displayBridge.update(globalTransformMatrix, global, getColorTransform(), visible);
+		_displayBridge.update(globalTransformMatrix, global, getColorTransform(), visible);
 	}
 	
 	inline function updateGlobalNode() {
@@ -199,8 +208,8 @@ class Bone implements IDisposable {
 	}
 	
 	inline function updateChildArmature() {
-		if (armaturesIsNotEmpty) {
-			_armatures[_displayIndex].update();
+		if (childArmature != null) {
+			childArmature.update();
 		}
 	}
 	
@@ -214,13 +223,6 @@ class Bone implements IDisposable {
 			armature.colorTransformChange = false;
 			return armature.colorTransform;
 		} else return null;
-	}
-	
-	inline function setParent(value:Bone) {
-		if ((value != null) && value.contains(this, true)) {
-			throw "An Bone cannot be added as a child to itself or one of its children (or children's children, etc.)";
-		}
-		this.parent = value;
 	}
 	
 }

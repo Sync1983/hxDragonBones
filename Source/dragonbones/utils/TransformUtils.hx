@@ -28,10 +28,14 @@ class TransformUtils{
 	}
 	
 	public static inline function nodeToMatrix(node:HelpNode, resultMatrix:Matrix) {
-		resultMatrix.identity();
-		resultMatrix.rotate(node[Node.skewX]);
-		resultMatrix.scale(node[Node.scaleX], node[Node.scaleY]);
-		resultMatrix.translate(node[Node.x], node[Node.y]);
+		resultMatrix.a = resultMatrix.d = MathUtils.cos(node[Node.rotation]);
+		resultMatrix.c = -(resultMatrix.b = MathUtils.sin(node[Node.rotation]));
+		resultMatrix.a *= node[Node.scaleX];
+		resultMatrix.b *= node[Node.scaleX];
+		resultMatrix.c *= node[Node.scaleY];
+		resultMatrix.d *= node[Node.scaleY];  
+		resultMatrix.tx = node[Node.x];
+		resultMatrix.ty = node[Node.y];  
 	}
 	
 	public static inline function setOffSetColorTransform(from:ColorTransform, to:ColorTransform, offset:ColorTransform) {
@@ -65,30 +69,6 @@ class TransformUtils{
 		offSet[Node.scaleY]	= to[Node.scaleY] - from[Node.scaleY];
 		offSet[Node.pivotX]	= to[Node.pivotX] - from[Node.pivotX];
 		offSet[Node.pivotY]	= to[Node.pivotY] - from[Node.pivotY];
-		
-		offSet[Node.skewX] %= DOUBLE_PI;
-		if (offSet[Node.skewX] > Math.PI) {
-			offSet[Node.skewX] -= DOUBLE_PI;
-		}
-		
-		if (offSet[Node.skewX] < -Math.PI) {
-			offSet[Node.skewX] += DOUBLE_PI;
-		}
-		
-		offSet[Node.skewY] %= DOUBLE_PI;
-		if (offSet[Node.skewY] > Math.PI) {
-			offSet[Node.skewY] -= DOUBLE_PI;
-		}
-		
-		if (offSet[Node.skewY] < -Math.PI) {
-			offSet[Node.skewY] += DOUBLE_PI;
-		}
-		
-		if (tweenRotate != 0) {
-			var value:Float = tweenRotate * DOUBLE_PI;
-			offSet[Node.skewX] += value;
-			offSet[Node.skewY] += value;
-		}
 	}
 	
 	public static inline function setTweenNode(current:HelpNode, offSet:HelpNode, tween:HelpNode, progress:Float) {

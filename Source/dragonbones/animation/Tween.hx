@@ -6,6 +6,7 @@ import dragonbones.events.SoundEventManager;
 import dragonbones.objects.FrameData;
 import dragonbones.objects.MovementBoneData;
 import dragonbones.objects.Node;
+import dragonbones.utils.MathUtils;
 import dragonbones.utils.TransformUtils;
 import haxe.Log;
 import nme.geom.ColorTransform;
@@ -27,12 +28,12 @@ class Tween{
 			easing = 0;
 			value = 0;
 		} else if (easing > 1) {
-			valueEase = 0.5 * (1 - Math.cos(value * Math.PI)) - value;
+			valueEase = 0.5 * (1 - MathUtils.cos(value * Math.PI)) - value;
 			easing -= 1;
 		} else if (easing > 0) {
-			valueEase = Math.sin(value * HALF_PI) - value;
+			valueEase = MathUtils.sin(value * HALF_PI) - value;
 		} else if (easing < 0) {
-			valueEase = 1 - Math.cos(value * HALF_PI) - value;
+			valueEase = 1 - MathUtils.cos(value * HALF_PI) - value;
 			easing *= -1;
 		}
 		return valueEase * easing + value;
@@ -71,7 +72,6 @@ class Tween{
 	var _loop:Int;
 	
 	public function gotoAndPlay(movementBoneData:MovementBoneData, rawDuration:Float, loop:Bool, tweenEasing:Float) {
-		
 		if(movementBoneData == null) {
 			return;
 		}
@@ -198,9 +198,9 @@ class Tween{
 		TransformUtils.setTweenColorTransform(_curColorTransform, _offSetColorTransform, _offSetColorTransform, progress);
 	}
 	
-	inline function setOffset(curNode:HelpNode, curColorTransform:ColorTransform, nextNode:HelpNode, nextColorTransform:ColorTransform, tweenRotate:Int = 0) {
+	inline function setOffset(curNode:HelpNode, curColorTransform:ColorTransform, nextNode:HelpNode, nextColorTransform:ColorTransform) {
 		Node.copy(curNode, _curNode);
-		TransformUtils.setOffSetNode(_curNode, nextNode, _offSetNode, tweenRotate);
+		TransformUtils.setOffSetNode(_curNode, nextNode, _offSetNode);
 		TransformUtils.copyColorTransform(curColorTransform, _curColorTransform);
 		TransformUtils.setOffSetColorTransform(_curColorTransform, nextColorTransform, _offSetColorTransform);
 		
@@ -229,7 +229,6 @@ class Tween{
 				}
 			}
 		}
-		//_bone.changeDisplay(frameData.displayIndex);
 	}
 	
 	function arriveFrameData(frameData:FrameData) {
@@ -252,7 +251,7 @@ class Tween{
 			_soundManager.dispatchEvent(soundEvent);
 		}
 		
-		if((frameData.movement != null) && (_bone.armaturesIsNotEmpty)) {
+		if((frameData.movement != null) && (_bone.childArmature != null)) {
 			_bone.childArmature.animation.gotoAndPlay(frameData.movement);
 		}
 	}
@@ -260,7 +259,7 @@ class Tween{
 	function updateFrameData(progress:Float, ?activeFrame:Bool, ?isList:Bool):Float {
 		var playedTime:Float = _rawDuration * progress;
 		if (playedTime >= _nextFrameDataTimeEdge) {
-			var curFrameDataID:Int;
+			var curFrameDataID:Int = 0;
 			var length:Int = _movementBoneData.frameList.length;
 			do {
 				curFrameDataID = _nextFrameDataID;
@@ -280,7 +279,7 @@ class Tween{
 				_frameTweenEasing = Math.NaN;
 			}
 			
-			setOffset(curFrameData.node, curFrameData.colorTransform, nextFrameData.node, nextFrameData.colorTransform, nextFrameData.tweenRotate);
+			setOffset(curFrameData.node, curFrameData.colorTransform, nextFrameData.node, nextFrameData.colorTransform);
 			
 			if (activeFrame) {
 				_curFrameData = curFrameData;
